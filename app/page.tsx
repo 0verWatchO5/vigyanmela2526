@@ -1,65 +1,127 @@
-import Image from "next/image";
+"use client";
+
+import { HeroParallax } from "@/components/ui/hero-parallax";
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import { IconHome, IconInfoCircle, IconUsers, IconChartBar, IconSparkles } from "@tabler/icons-react";
+
+const navigationItems = [
+  {
+    label: "Home",
+    href: "/",
+    icon: <IconHome className="h-4 w-4 text-muted-foreground" />,
+  },
+  {
+    label: "About",
+    href: "/about",
+    icon: <IconInfoCircle className="h-4 w-4 text-muted-foreground" />,
+  },
+  {
+    label: "Registration",
+    href: "/registration",
+    icon: <IconUsers className="h-4 w-4 text-muted-foreground" />,
+  },
+  {
+    label: "Segments",
+    href: "/segments",
+    icon: <IconChartBar className="h-4 w-4 text-muted-foreground" />,
+  },
+  {
+    label: "Sponsors",
+    href: "/sponsors",
+    icon: <IconSparkles className="h-4 w-4 text-muted-foreground" />,
+  },
+];
+
+const products = [
+  {
+    title: "Web Development",
+    link: "/segments#web-development",
+    thumbnail: "/images/web-dev.jpg",
+  },
+  {
+    title: "AI & Machine Learning",
+    link: "/segments#ai-ml",
+    thumbnail: "/images/ai-ml.jpg",
+  },
+  {
+    title: "Mobile Development",
+    link: "/segments#mobile",
+    thumbnail: "/images/mobile-dev.jpg",
+  },
+  {
+    title: "Cloud & DevOps",
+    link: "/segments#cloud-devops",
+    thumbnail: "/images/cloud.jpg",
+  },
+  {
+    title: "Cybersecurity",
+    link: "/segments#security",
+    thumbnail: "/images/security.jpg",
+  },
+  {
+    title: "Data Science",
+    link: "/segments#data-science",
+    thumbnail: "/images/data-science.jpg",
+  },
+  {
+    title: "Interactive Workshops",
+    link: "/registration",
+    thumbnail: "/images/workshops.jpg",
+  },
+  {
+    title: "Expert Talks",
+    link: "/registration",
+    thumbnail: "/images/talks.jpg",
+  },
+  {
+    title: "Networking Events",
+    link: "/registration",
+    thumbnail: "/images/networking.jpg",
+  },
+  {
+    title: "Hackathons",
+    link: "/registration",
+    thumbnail: "/images/hackathon.jpg",
+  },
+  {
+    title: "Innovation Showcase",
+    link: "/registration",
+    thumbnail: "/images/innovation.jpg",
+  },
+  {
+    title: "Career Fair",
+    link: "/registration",
+    thumbnail: "/images/career.jpg",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-background">
+      <Sidebar>
+        <SidebarBody>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-bold text-2xl text-primary">
+              Vigyan Mela
+            </h1>
+            <p className="text-muted-foreground text-sm mb-4">
+              Where Science Meets Innovation
+            </p>
+            <div className="flex flex-col gap-2">
+              {navigationItems.map((item, index) => (
+                <SidebarLink key={index} link={item} />
+              ))}
+            </div>
+          </div>
+        </SidebarBody>
+      </Sidebar>
+      <div className="md:pl-[60px] lg:pl-[60px] transition-all duration-300">
+        <section className="relative">
+          <div className="min-h-screen">
+            <HeroParallax products={products} />
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
