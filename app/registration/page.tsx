@@ -7,7 +7,6 @@ function cn(...inputs) {
 }
 
 // --- Icon Components (Re-created as SVGs) ---
-// Using text-muted-foreground as per the theme
 
 const IconHome = (props) => (
   <svg
@@ -144,11 +143,29 @@ const IconX = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="text-muted-foreground"
+    className="h-6 w-6 text-muted-foreground" // Made slightly larger
     {...props}
   >
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const IconMenu = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-6 w-6 text-muted-foreground" // Made slightly larger
+    {...props}
+  >
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 );
 
@@ -301,202 +318,7 @@ const FileUpload = ({ id, name, accept, onChange }) => {
 };
 
 
-// --- Re-created UI Components (Sidebar) ---
-
-const Sidebar = ({ children, isCollapsed, onMouseEnter, onMouseLeave }) => {
-  return (
-    <aside
-      className={cn(
-        "sticky top-0 z-50 flex h-screen flex-col overflow-y-auto border-r border-neutral-800 bg-background p-4 transition-all duration-300 ease-in-out", // Use theme bg
-        isCollapsed ? "w-20" : "w-64"
-      )}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {children}
-    </aside>
-  );
-};
-
-const SidebarBody = ({ children, isCollapsed }) => {
-  return (
-    <div className="flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden">
-      <div
-        className={cn(
-          "flex items-center",
-          isCollapsed ? "justify-center" : "justify-between"
-        )}
-      >
-        <h1
-          className={cn(
-            "whitespace-nowrap font-bold text-2xl text-primary", // Use theme color
-            isCollapsed && "hidden"
-          )}
-        >
-          Vigyan Mela
-        </h1>
-      </div>
-      <p
-        className={cn(
-          "whitespace-nowrap text-muted-foreground text-sm mb-4", // Use theme color
-          isCollapsed && "hidden"
-        )}
-      >
-        Where Science Meets Innovation
-      </p>
-      {children}
-    </div>
-  );
-};
-
-const SidebarLink = ({
-  link,
-  isCollapsed,
-  isActive,
-}) => {
-  return (
-    // Use a standard <a> tag for real navigation
-    <a
-      href={link.href}
-      className={cn(
-        "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors duration-200", // Use theme text
-        isActive ? "bg-zinc-800" : "hover:bg-zinc-800",
-        isCollapsed && "justify-center"
-      )}
-    >
-      {/* Active/Hover pill effect */}
-      <span
-        className={cn(
-          "absolute inset-y-0 left-0 w-1 rounded-r-full bg-blue-500 transition-all duration-300 ease-in-out",
-          // Show if active, or on hover
-          isActive ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100"
-        )}
-      ></span>
-
-      {/* Use the icon from the link object */}
-      {React.cloneElement(link.icon, { className: "h-4 w-4 text-muted-foreground" })}
-      <span className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}>
-        {link.label}
-      </span>
-    </a>
-  );
-};
-
-// --- Components from the User's Example ---
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
-      <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
-    </>
-  );
-};
-
-const InputHoverGradient = () => {
-  return (
-    <>
-      {/* Top */}
-      <span className="absolute inset-x-0 -top-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-      {/* Bottom */}
-      <span className="absolute inset-x-0 -bottom-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-      {/* Left */}
-      <span className="absolute inset-y-0 -left-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-110" />
-      {/* Right */}
-      <span className="absolute inset-y-0 -right-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-    </>
-  );
-};
-
-const LabelInputContainer = ({
-  children,
-  className,
-}) => {
-  return (
-    <div className={cn("flex w-full flex-col space-y-2", className)}>
-      {children}
-    </div>
-  );
-};
-
-// --- Event Registration Form ---
-
-export function EventRegistrationForm() {
-  const [idCardFiles, setIdCardFiles] = useState([]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    console.log("Form submitted");
-    console.log("First Name:", formData.get("firstname"));
-    console.log("Email:", formData.get("email"));
-    console.log("ID Card File:", idCardFiles[0]);
-  };
-
-  return (
-    // Use theme colors for the form card
-    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-      <h2 className="text-xl font-bold text-primary">
-        Event Registration
-      </h2>
-      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        Register for our upcoming event. We're excited to see you there!
-      </p>
-
-      <form className="my-8" onSubmit={handleSubmit}>
-        <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input id="firstname" name="firstname" placeholder="Tyler" type="text" />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" name="lastname" placeholder="Durden" type="text" />
-          </LabelInputContainer>
-        </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            name="email"
-            placeholder="projectmayhem@fc.com"
-            type="email"
-          />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="contact">Contact Number</Label>
-          <Input
-            id="contact"
-            name="contact"
-            placeholder="(123) 456-7890"
-            type="tel"
-          />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
-          <Label htmlFor="idcard">ID Card (Image or PDF)</Label>
-          <FileUpload
-            id="idcard"
-            name="idcard"
-            accept="image/*,application/pdf"
-            onChange={setIdCardFiles}
-          />
-        </LabelInputContainer>
-
-        <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#2727a_inset,0px_-1px_0px_0px_#2727a_inset]"
-          type="submit"
-        >
-          Register &rarr;
-          <BottomGradient />
-        </button>
-      </form>
-    </div>
-  );
-}
-
-// --- Sidebar Component (with state) ---
-
-// Re-create icons for the navigationItems array
+// --- Navigation Links Data ---
 const navigationItems = [
   {
     label: "Home",
@@ -524,13 +346,325 @@ const navigationItems = [
     icon: <IconSparkles />,
   },
 ];
+const currentPath = "/registration"; // Hardcoded for this page
 
-export function SidebarComponent() {
-  const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
 
-  // This is a simple way to guess the active page.
-  // In a real app, this would come from a router.
-  const currentPath = "/registration"; // Hardcoded for this page
+// --- MODIFIED Mobile Header Component ---
+const Header = ({ onMenuClick, isOpen }) => {
+  return (
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-neutral-800 bg-background px-4 lg:hidden">
+      <h1 className="whitespace-nowrap font-bold text-xl text-primary">
+        Vigyan Mela
+      </h1>
+      <button
+        type="button"
+        onClick={onMenuClick}
+        className="p-2 rounded-md text-muted-foreground hover:bg-zinc-800"
+      >
+        {isOpen ? <IconX /> : <IconMenu />}
+      </button>
+    </header>
+  );
+};
+
+// --- NEW Mobile Navigation Menu ---
+const MobileNavMenu = ({ isOpen, onClose }) => {
+  return (
+    <div
+      className={cn(
+        "fixed top-16 left-0 z-20 w-full border-b border-neutral-800 bg-background p-4",
+        "lg:hidden", // Hide on desktop
+        "transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-y-0" : "-translate-y-[200%]" // Slide from top
+      )}
+    >
+      <div className="flex flex-col gap-2">
+        {navigationItems.map((item, index) => (
+          <SidebarLink
+            key={index}
+            link={item}
+            isCollapsed={false} // Always show text
+            isActive={currentPath === item.href}
+            onClick={onClose} // Close menu on link click
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- MODIFIED Re-created UI Components (Sidebar) ---
+
+const Sidebar = ({ children, isCollapsed, onMouseEnter, onMouseLeave }) => {
+  return (
+    <aside
+      className={cn(
+        "sticky top-0 z-50 flex h-screen flex-col overflow-y-auto border-r border-neutral-800 bg-background p-4",
+        "transition-all duration-300 ease-in-out", // Use 'all' for width
+        isCollapsed ? "w-20" : "w-64",
+        "hidden lg:flex" // HIDE ON MOBILE, show on desktop
+      )}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {children}
+    </aside>
+  );
+};
+
+const SidebarBody = ({ children, isCollapsed }) => {
+  return (
+    <div className="flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden">
+      <div
+        className={cn(
+          "flex items-center",
+          isCollapsed ? "justify-center" : "justify-between"
+        )}
+      >
+        <h1
+          className={cn(
+            "whitespace-nowrap font-bold text-2xl text-primary",
+            isCollapsed && "hidden"
+          )}
+        >
+          Vigyan Mela
+        </h1>
+        {/* Removed mobile close button */}
+      </div>
+      <p
+        className={cn(
+          "whitespace-nowrap text-muted-foreground text-sm mb-4",
+          isCollapsed && "hidden"
+        )}
+      >
+        Where Science Meets Innovation
+      </p>
+      
+      {/* Links (main content) */}
+      <div className="flex-grow">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const SidebarLink = ({
+  link,
+  isCollapsed,
+  isActive,
+  ...props // Pass rest of props (like onClick) to the <a> tag
+}) => {
+  return (
+    <a
+      href={link.href}
+      className={cn(
+        "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors duration-200", // Use theme text
+        isActive ? "bg-zinc-800" : "hover:bg-zinc-800",
+        isCollapsed && "justify-center"
+      )}
+      {...props} // Apply props
+    >
+      {/* Active/Hover pill effect */}
+      <span
+        className={cn(
+          "absolute inset-y-0 left-0 w-1 rounded-r-full bg-blue-500 transition-all duration-300 ease-in-out",
+          isActive ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100"
+        )}
+      ></span>
+
+      {React.cloneElement(link.icon, { className: "h-4 w-4 text-muted-foreground" })}
+      <span className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}>
+        {link.label}
+      </span>
+    </a>
+  );
+};
+
+// --- Components from the User's Example ---
+
+const BottomGradient = () => {
+  return (
+    <>
+      <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+      <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1G/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
+    </>
+  );
+};
+
+const InputHoverGradient = () => {
+  return (
+    <>
+      <span className="absolute inset-x-0 -top-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      <span className="absolute inset-x-0 -bottom-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      <span className="absolute inset-y-0 -left-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-110" />
+      <span className="absolute inset-y-0 -right-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+    </>
+  );
+};
+
+const LabelInputContainer = ({
+  children,
+  className,
+}) => {
+  return (
+    <div className={cn("flex w-full flex-col space-y-2", className)}>
+      {children}
+    </div>
+  );
+};
+
+// --- Event Registration Form (With Validation) ---
+
+export function EventRegistrationForm() {
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    contact: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [idCardFiles, setIdCardFiles] = useState([]);
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    if (errors[id]) {
+      setErrors((prev) => ({ ...prev, [id]: null }));
+    }
+  };
+  
+  const handleFileChange = (files) => {
+    setIdCardFiles(files);
+    if (files.length > 0) {
+      setErrors((prev) => ({ ...prev, idcard: null }));
+    }
+  };
+
+  const validate = () => {
+    let tempErrors = {};
+    if (!formData.firstname) tempErrors.firstname = "First name is required.";
+    if (!formData.lastname) tempErrors.lastname = "Last name is required.";
+    if (!formData.email) {
+      tempErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      tempErrors.email = "Email address is invalid.";
+    }
+    if (!formData.contact) tempErrors.contact = "Contact number is required.";
+    if (idCardFiles.length === 0) tempErrors.idcard = "ID card upload is required.";
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      console.log("Form submitted");
+      console.log("Data:", formData);
+      console.log("ID Card File:", idCardFiles[0]);
+      alert("Registration Successful!");
+      setFormData({ firstname: "", lastname: "", email: "", contact: "" });
+      setIdCardFiles([]);
+      setErrors({});
+      // This is a bit of a hack to reset the FileUpload component
+      // In a real app, FileUpload would need a 'value' prop or a 'reset' ref
+      window.location.reload(); 
+    } else {
+      console.log("Validation failed");
+    }
+  };
+
+  return (
+    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
+      <h2 className="text-xl font-bold text-primary">
+        Event Registration
+      </h2>
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+        Register for our upcoming event. We're excited to see you there!
+      </p>
+
+      <form className="my-8" onSubmit={handleSubmit} noValidate>
+        <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+          <LabelInputContainer>
+            <Label htmlFor="firstname">First name</Label>
+            <Input 
+              id="firstname" 
+              name="firstname" 
+              placeholder="Tyler" 
+              type="text"
+              value={formData.firstname}
+              onChange={handleChange} 
+            />
+            {errors.firstname && <span className="text-xs text-red-500">{errors.firstname}</span>}
+          </LabelInputContainer>
+          <LabelInputContainer>
+            <Label htmlFor="lastname">Last name</Label>
+            <Input 
+              id="lastname" 
+              name="lastname" 
+              placeholder="Durden" 
+              type="text"
+              value={formData.lastname}
+              onChange={handleChange} 
+            />
+            {errors.lastname && <span className="text-xs text-red-500">{errors.lastname}</span>}
+          </LabelInputContainer>
+        </div>
+        
+        <LabelInputContainer className="mb-4">
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            name="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          {errors.email && <span className="text-xs text-red-500">{errors.email}</span>}
+        </LabelInputContainer>
+        
+        <LabelInputContainer className="mb-4">
+          <Label htmlFor="contact">Contact Number</Label>
+          <Input
+            id="contact"
+            name="contact"
+            placeholder="(123) 456-7890"
+            type="tel"
+            value={formData.contact}
+            onChange={handleChange}
+          />
+          {errors.contact && <span className="text-xs text-red-500">{errors.contact}</span>}
+        </LabelInputContainer>
+        
+        <LabelInputContainer className="mb-8">
+          <Label htmlFor="idcard">ID Card (Image or PDF)</Label>
+          <FileUpload
+            key={idCardFiles.length} // Force re-render on reset
+            id="idcard"
+            name="idcard"
+            accept="image/*,application/pdf"
+            onChange={handleFileChange}
+          />
+          {errors.idcard && <span className="text-xs text-red-500">{errors.idcard}</span>}
+        </LabelInputContainer>
+
+        <button
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#2727a_inset,0px_-1px_0px_0px_#2727a_inset]"
+          type="submit"
+        >
+          Register &rarr;
+          <BottomGradient />
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// --- MODIFIED Sidebar Component (Desktop Only) ---
+
+export function SidebarComponent() { 
+  // State is now internal to the component
+  const [isCollapsed, setIsCollapsed] = useState(true); 
 
   return (
     <Sidebar
@@ -545,37 +679,34 @@ export function SidebarComponent() {
               key={index}
               link={item}
               isCollapsed={isCollapsed}
-              // Set active if the link's href matches our hardcoded path
               isActive={currentPath === item.href}
             />
           ))}
         </div>
       </SidebarBody>
+      {/* Removed the desktop toggle button */}
     </Sidebar>
   );
 }
 
-// --- Main App Component (FIXED for Next.js) ---
+// --- MODIFIED Main App Component ---
 
 export default function App() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Removed isCollapsed state
+
   return (
     <html lang="en">
       <head>
         <title>Vigyan Mela - Registration</title>
-        {/*
-          This style block defines the theme colors from your example.
-          This is a stand-in for a real Tailwind theme configuration.
-        */}
+        {/* ... (style block is unchanged) ... */}
         <style>{`
           :root {
-            /* Define the colors based on a dark theme example */
-            --background: hsl(0 0% 0%); /* Black */
-            --primary: hsl(0 0% 98%); /* Almost white */
-            --muted-foreground: hsl(0 0% 63.9%); /* Gray */
+            --background: hsl(0 0% 0%);
+            --primary: hsl(0 0% 98%);
+            --muted-foreground: hsl(0 0% 63.9%);
             --border: hsl(0 0% 14.9%);
           }
-          
-          /* Apply them to Tailwind classes */
           .bg-background { background-color: var(--background); }
           .text-primary { color: var(--primary); }
           .text-muted-foreground { color: var(--muted-foreground); }
@@ -583,10 +714,25 @@ export default function App() {
         `}</style>
       </head>
       <body className="bg-background">
+        
+        {/* 1. Mobile-only Header */}
+        <Header 
+          isOpen={isMobileMenuOpen}
+          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        />
+        {/* 2. Mobile-only Nav Menu */}
+        <MobileNavMenu 
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
+
         <div className="flex min-h-screen w-full text-primary">
+          
+          {/* 3. Desktop-only Sidebar */}
           <SidebarComponent />
-          <main className="flex flex-1 items-center justify-center p-4">
-            {/* This main area now only shows the registration form */}
+
+          {/* 4. Main content area */}
+          <main className="flex flex-1 items-center justify-center p-4 pt-16 lg:pt-4">
             <EventRegistrationForm />
           </main>
         </div>
