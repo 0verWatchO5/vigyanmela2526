@@ -7,7 +7,7 @@ function cn(...inputs) {
 }
 
 // --- Icon Components (Re-created as SVGs) ---
-// Using text-muted-foreground as per the new theme
+// Using text-muted-foreground as per the theme
 
 const IconHome = (props) => (
   <svg
@@ -97,21 +97,6 @@ const IconSparkles = (props) => (
     <path d="M18 13l-2.9-5.8" />
     <path d="M6 13l2.9-5.8" />
     <path d="M12 21V11.5" />
-  </svg>
-);
-
-const IconChevronLeft = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 
@@ -368,15 +353,11 @@ const SidebarLink = ({
   link,
   isCollapsed,
   isActive,
-  onClick,
 }) => {
   return (
+    // Use a standard <a> tag for real navigation
     <a
       href={link.href}
-      onClick={(e) => {
-        e.preventDefault();
-        onClick();
-      }}
       className={cn(
         "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors duration-200", // Use theme text
         isActive ? "bg-zinc-800" : "hover:bg-zinc-800",
@@ -387,6 +368,7 @@ const SidebarLink = ({
       <span
         className={cn(
           "absolute inset-y-0 left-0 w-1 rounded-r-full bg-blue-500 transition-all duration-300 ease-in-out",
+          // Show if active, or on hover
           isActive ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100"
         )}
       ></span>
@@ -512,41 +494,6 @@ export function EventRegistrationForm() {
   );
 }
 
-// --- NEW: Placeholder Page Components ---
-
-const PageComponent = ({ title, description }) => (
-  // Use theme colors
-  <div className="w-full max-w-md text-primary">
-    <h2 className="text-3xl font-bold">{title}</h2>
-    <p className="mt-2 text-muted-foreground">{description}</p>
-  </div>
-);
-
-const HomeComponent = () => (
-  <PageComponent
-    title="Home"
-    description="Welcome to the Vigyan Mela homepage."
-  />
-);
-const AboutComponent = () => (
-  <PageComponent
-    title="About"
-    description="Learn more about the Vigyan Mela event."
-  />
-);
-const SegmentsComponent = () => (
-  <PageComponent
-    title="Segments"
-    description="Explore the different segments of our science fair."
-  />
-);
-const SponsorsComponent = () => (
-  <PageComponent
-    title="Sponsors"
-    description="See the amazing sponsors who make this event possible."
-  />
-);
-
 // --- Sidebar Component (with state) ---
 
 // Re-create icons for the navigationItems array
@@ -578,8 +525,12 @@ const navigationItems = [
   },
 ];
 
-export function SidebarComponent({ currentPage, setCurrentPage }) {
+export function SidebarComponent() {
   const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
+
+  // This is a simple way to guess the active page.
+  // In a real app, this would come from a router.
+  const currentPath = "/registration"; // Hardcoded for this page
 
   return (
     <Sidebar
@@ -594,8 +545,8 @@ export function SidebarComponent({ currentPage, setCurrentPage }) {
               key={index}
               link={item}
               isCollapsed={isCollapsed}
-              isActive={currentPage === item.label}
-              onClick={() => setCurrentPage(item.label)}
+              // Set active if the link's href matches our hardcoded path
+              isActive={currentPath === item.href}
             />
           ))}
         </div>
@@ -607,29 +558,10 @@ export function SidebarComponent({ currentPage, setCurrentPage }) {
 // --- Main App Component (FIXED for Next.js) ---
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("Registration");
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case "Home":
-        return <HomeComponent />;
-      case "About":
-        return <AboutComponent />;
-      case "Registration":
-        return <EventRegistrationForm />;
-      case "Segments":
-        return <SegmentsComponent />;
-      case "Sponsors":
-        return <SponsorsComponent />;
-      default:
-        return <HomeComponent />;
-    }
-  };
-
   return (
     <html lang="en">
       <head>
-        <title>Vigyan Mela</title>
+        <title>Vigyan Mela - Registration</title>
         {/*
           This style block defines the theme colors from your example.
           This is a stand-in for a real Tailwind theme configuration.
@@ -652,12 +584,10 @@ export default function App() {
       </head>
       <body className="bg-background">
         <div className="flex min-h-screen w-full text-primary">
-          <SidebarComponent
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
+          <SidebarComponent />
           <main className="flex flex-1 items-center justify-center p-4">
-            {renderPage()}
+            {/* This main area now only shows the registration form */}
+            <EventRegistrationForm />
           </main>
         </div>
       </body>
