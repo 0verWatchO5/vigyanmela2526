@@ -33,13 +33,12 @@ export const ParallaxScrollSecond = ({
 
   return (
     <div
-      // 1. ADDED `overflow-x-hidden` HERE
-      className={cn(
-        "h-[40rem] items-start overflow-y-auto overflow-x-hidden w-full",
-        className
-      )}
-      ref={gridRef} // This ref should *only* be on the container you want to track
-    >
+  className={cn(
+    "h-[40rem] items-start overflow-y-auto overflow-x-hidden w-full scrollbar-width-none [&::-webkit-scrollbar]:hidden",
+    className
+  )}
+  ref={gridRef}
+>
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start max-w-5xl mx-auto gap-10 py-40 px-10"
         // 2. REMOVED `ref={gridRef}` FROM HERE
