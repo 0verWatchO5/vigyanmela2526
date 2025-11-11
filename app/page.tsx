@@ -71,11 +71,10 @@ export default function Home() {
   return (
     // Sidebar and header are rendered by the root layout (layout.tsx)
     // Just render the page content directly
-    <div className="w-full">
-      <section className="w-full">
+    <div className="w-full overflow-x-hidden">
+      <section className="w-full overflow-x-hidden">
         <HeroParallax products={products} />
       </section>
     </div>
-    
   );
 }

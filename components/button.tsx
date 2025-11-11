@@ -11,7 +11,7 @@ export function HoverBorderGradientDemo() {
         className="dark:bg-black bg-white text-black dark:text-white flex items-center space-x-2"
       >
         <AceternityLogo />
-        <span>Aceternity UI</span>
+        <span>Register Now!</span>
       </HoverBorderGradient>
     </div>
   );
