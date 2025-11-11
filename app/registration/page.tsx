@@ -1,10 +1,13 @@
 "use client";
 import React, { useState, useRef } from "react";
 
+// A simple 'cn' utility to merge class names
 function cn(...inputs) {
   return inputs.filter(Boolean).join(" ");
 }
 
+// --- Icon Components (Re-created as SVGs) ---
+// Using text-muted-foreground as per the new theme
 
 const IconHome = (props) => (
   <svg
@@ -15,6 +18,7 @@ const IconHome = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
     {...props}
   >
     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -31,6 +35,7 @@ const IconInfoCircle = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
     {...props}
   >
     <circle cx="12" cy="12" r="10" />
@@ -48,6 +53,7 @@ const IconUsers = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
     {...props}
   >
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -66,6 +72,7 @@ const IconChartBar = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
     {...props}
   >
     <line x1="12" y1="20" x2="12" y2="10" />
@@ -83,6 +90,7 @@ const IconSparkles = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
     {...props}
   >
     <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9Z" />
@@ -116,6 +124,7 @@ const IconUpload = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="text-muted-foreground"
     {...props}
   >
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -133,6 +142,7 @@ const IconFile = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="text-muted-foreground"
     {...props}
   >
     <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
@@ -149,6 +159,7 @@ const IconX = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="text-muted-foreground"
     {...props}
   >
     <line x1="18" y1="6" x2="6" y2="18" />
@@ -163,7 +174,7 @@ const Label = ({ htmlFor, children, className }) => {
     <label
       htmlFor={htmlFor}
       className={cn(
-        "text-sm font-medium text-neutral-200", 
+        "text-sm font-medium text-primary", // Use theme color
         className
       )}
     >
@@ -180,9 +191,9 @@ const Input = ({ id, placeholder, type, className, ...props }) => {
         id={id}
         placeholder={placeholder}
         className={cn(
-          "flex h-10 w-full rounded-md border-none bg-zinc-800 px-3 py-2 text-sm text-neutral-200", // Dark bg, light text
+          "flex h-10 w-full rounded-md border-none bg-zinc-800 px-3 py-2 text-sm text-primary", // Dark bg, theme text
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-zinc-900",
-          "placeholder:text-neutral-400",
+          "placeholder:text-muted-foreground",
           "shadow-input dark:shadow-[0px_0px_1px_1px_#262626]",
           className
         )}
@@ -247,14 +258,14 @@ const FileUpload = ({ id, name, accept, onChange }) => {
   };
 
   return (
-    <div className="group relative w-full"> {/* Added group for hover effect */}
+    <div className="group relative w-full">
       <div
         className={cn(
           "w-full p-6 border border-dashed rounded-lg cursor-pointer text-center",
-          "border-neutral-800 bg-black", 
+          "border-neutral-800 bg-background", // Use theme colors
           isDragging
             ? "border-blue-500 bg-zinc-800"
-            : "hover:border-neutral-500", 
+            : "hover:border-neutral-500",
           "transition-colors duration-200"
         )}
         onClick={handleClick}
@@ -272,7 +283,7 @@ const FileUpload = ({ id, name, accept, onChange }) => {
           className="hidden"
         />
         {uploadedFile ? (
-          <div className="flex items-center justify-between text-neutral-200">
+          <div className="flex items-center justify-between text-primary">
             <div className="flex items-center gap-2 overflow-hidden">
               <IconFile className="h-5 w-5 flex-shrink-0" />
               <span className="truncate text-sm">{uploadedFile.name}</span>
@@ -280,18 +291,18 @@ const FileUpload = ({ id, name, accept, onChange }) => {
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation(); 
+                e.stopPropagation();
                 handleRemoveFile();
               }}
-              className="ml-2 flex-shrink-0 p-1 rounded-full text-neutral-400 hover:bg-zinc-700 hover:text-neutral-200"
+              className="ml-2 flex-shrink-0 p-1 rounded-full text-muted-foreground hover:bg-zinc-700 hover:text-primary"
             >
               <IconX className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-neutral-400">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <IconUpload className="h-8 w-8" />
-            <span className="font-medium text-neutral-300">
+            <span className="font-medium text-primary">
               Drag & drop file or{" "}
               <span className="text-blue-500">click to upload</span>
             </span>
@@ -299,20 +310,23 @@ const FileUpload = ({ id, name, accept, onChange }) => {
           </div>
         )}
       </div>
-      <InputHoverGradient /> {/* Added the hover gradient effect */}
+      <InputHoverGradient />
     </div>
   );
 };
 
 
+// --- Re-created UI Components (Sidebar) ---
 
-const Sidebar = ({ children, isCollapsed }) => {
+const Sidebar = ({ children, isCollapsed, onMouseEnter, onMouseLeave }) => {
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen flex-col overflow-y-auto border-r border-neutral-800 bg-black p-4 transition-all duration-300 ease-in-out",
+        "sticky top-0 z-50 flex h-screen flex-col overflow-y-auto border-r border-neutral-800 bg-background p-4 transition-all duration-300 ease-in-out", // Use theme bg
         isCollapsed ? "w-20" : "w-64"
       )}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {children}
     </aside>
@@ -330,7 +344,7 @@ const SidebarBody = ({ children, isCollapsed }) => {
       >
         <h1
           className={cn(
-            "whitespace-nowrap font-bold text-2xl text-white", 
+            "whitespace-nowrap font-bold text-2xl text-primary", // Use theme color
             isCollapsed && "hidden"
           )}
         >
@@ -339,7 +353,7 @@ const SidebarBody = ({ children, isCollapsed }) => {
       </div>
       <p
         className={cn(
-          "whitespace-nowrap text-neutral-400 text-sm mb-4", 
+          "whitespace-nowrap text-muted-foreground text-sm mb-4", // Use theme color
           isCollapsed && "hidden"
         )}
       >
@@ -364,7 +378,7 @@ const SidebarLink = ({
         onClick();
       }}
       className={cn(
-        "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-200 transition-colors duration-200", // Always light text
+        "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors duration-200", // Use theme text
         isActive ? "bg-zinc-800" : "hover:bg-zinc-800",
         isCollapsed && "justify-center"
       )}
@@ -377,7 +391,8 @@ const SidebarLink = ({
         )}
       ></span>
 
-      {link.icon}
+      {/* Use the icon from the link object */}
+      {React.cloneElement(link.icon, { className: "h-4 w-4 text-muted-foreground" })}
       <span className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}>
         {link.label}
       </span>
@@ -385,7 +400,7 @@ const SidebarLink = ({
   );
 };
 
-
+// --- Components from the User's Example ---
 
 const BottomGradient = () => {
   return (
@@ -433,16 +448,16 @@ export function EventRegistrationForm() {
     console.log("Form submitted");
     console.log("First Name:", formData.get("firstname"));
     console.log("Email:", formData.get("email"));
-    // Log the file from the state
     console.log("ID Card File:", idCardFiles[0]);
   };
 
   return (
-    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-black p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-      <h2 className="text-xl font-bold text-neutral-200">
+    // Use theme colors for the form card
+    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
+      <h2 className="text-xl font-bold text-primary">
         Event Registration
       </h2>
-      <p className="mt-2 max-w-sm text-sm text-neutral-300">
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
         Register for our upcoming event. We're excited to see you there!
       </p>
 
@@ -486,7 +501,7 @@ export function EventRegistrationForm() {
         </LabelInputContainer>
 
         <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1V-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#2727a_inset,0px_-1px_0px_0px_#2727a_inset]"
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#2727a_inset,0px_-1px_0px_0px_#2727a_inset]"
           type="submit"
         >
           Register &rarr;
@@ -497,12 +512,13 @@ export function EventRegistrationForm() {
   );
 }
 
-
+// --- NEW: Placeholder Page Components ---
 
 const PageComponent = ({ title, description }) => (
-  <div className="w-full max-w-md text-neutral-200">
+  // Use theme colors
+  <div className="w-full max-w-md text-primary">
     <h2 className="text-3xl font-bold">{title}</h2>
-    <p className="mt-2 text-neutral-300">{description}</p>
+    <p className="mt-2 text-muted-foreground">{description}</p>
   </div>
 );
 
@@ -533,39 +549,44 @@ const SponsorsComponent = () => (
 
 // --- Sidebar Component (with state) ---
 
+// Re-create icons for the navigationItems array
 const navigationItems = [
   {
     label: "Home",
     href: "/",
-    icon: <IconHome className="h-4 w-4 text-muted-foreground" />,
+    icon: <IconHome />,
   },
   {
     label: "About",
     href: "/about",
-    icon: <IconInfoCircle className="h-4 w-4 text-muted-foreground" />,
+    icon: <IconInfoCircle />,
   },
   {
     label: "Registration",
     href: "/registration",
-    icon: <IconUsers className="h-4 w-4 text-muted-foreground" />,
+    icon: <IconUsers />,
   },
   {
     label: "Segments",
     href: "/segments",
-    icon: <IconChartBar className="h-4 w-4 text-muted-foreground" />,
+    icon: <IconChartBar />,
   },
   {
     label: "Sponsors",
     href: "/sponsors",
-    icon: <IconSparkles className="h-4 w-4 text-muted-foreground" />,
+    icon: <IconSparkles />,
   },
 ];
 
 export function SidebarComponent({ currentPage, setCurrentPage }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
 
   return (
-    <Sidebar isCollapsed={isCollapsed}>
+    <Sidebar
+      isCollapsed={isCollapsed}
+      onMouseEnter={() => setIsCollapsed(false)} // Expand on hover
+      onMouseLeave={() => setIsCollapsed(true)} // Collapse on leave
+    >
       <SidebarBody isCollapsed={isCollapsed}>
         <div className="flex flex-col gap-2">
           {navigationItems.map((item, index) => (
@@ -579,32 +600,11 @@ export function SidebarComponent({ currentPage, setCurrentPage }) {
           ))}
         </div>
       </SidebarBody>
-
-      {/* Collapse Toggle Button */}
-      <div className="mt-auto pt-4">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={cn(
-            "group relative flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-200 hover:bg-zinc-800",
-            isCollapsed && "justify-center"
-          )}
-        >
-          <IconChevronLeft
-            className={cn(
-              "h-5 w-5 text-neutral-400 transition-transform duration-300",
-              isCollapsed && "rotate-180"
-            )}
-          />
-          <span
-            className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}
-          >
-            Collapse
-          </span>
-        </button>
-      </div>
     </Sidebar>
   );
 }
+
+// --- Main App Component (FIXED for Next.js) ---
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("Registration");
@@ -627,14 +627,31 @@ export default function App() {
   };
 
   return (
-    // Added <html> and <body> tags to fix the Next.js runtime error
     <html lang="en">
       <head>
-        {/* We can add head elements here if needed, e.g., <title> */}
         <title>Vigyan Mela</title>
+        {/*
+          This style block defines the theme colors from your example.
+          This is a stand-in for a real Tailwind theme configuration.
+        */}
+        <style>{`
+          :root {
+            /* Define the colors based on a dark theme example */
+            --background: hsl(0 0% 0%); /* Black */
+            --primary: hsl(0 0% 98%); /* Almost white */
+            --muted-foreground: hsl(0 0% 63.9%); /* Gray */
+            --border: hsl(0 0% 14.9%);
+          }
+          
+          /* Apply them to Tailwind classes */
+          .bg-background { background-color: var(--background); }
+          .text-primary { color: var(--primary); }
+          .text-muted-foreground { color: var(--muted-foreground); }
+          .border-neutral-800 { border-color: var(--border); }
+        `}</style>
       </head>
-      <body className="bg-black">
-        <div className="flex min-h-screen w-full text-white">
+      <body className="bg-background">
+        <div className="flex min-h-screen w-full text-primary">
           <SidebarComponent
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
