@@ -589,7 +589,7 @@ export function EventRegistrationForm() {
             <Input 
               id="firstname" 
               name="firstname" 
-              placeholder="Tyler" 
+              placeholder="" 
               type="text"
               value={formData.firstname}
               onChange={handleChange} 
@@ -601,7 +601,7 @@ export function EventRegistrationForm() {
             <Input 
               id="lastname" 
               name="lastname" 
-              placeholder="Durden" 
+              placeholder="" 
               type="text"
               value={formData.lastname}
               onChange={handleChange} 
@@ -615,7 +615,7 @@ export function EventRegistrationForm() {
           <Input
             id="email"
             name="email"
-            placeholder="projectmayhem@fc.com"
+            placeholder=""
             type="email"
             value={formData.email}
             onChange={handleChange}
@@ -628,7 +628,7 @@ export function EventRegistrationForm() {
           <Input
             id="contact"
             name="contact"
-            placeholder="(123) 456-7890"
+            placeholder=""
             type="tel"
             value={formData.contact}
             onChange={handleChange}
