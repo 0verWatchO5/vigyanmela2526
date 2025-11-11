@@ -152,7 +152,7 @@ const IconMenu = (props: any) => (
 );
 
 // --- Navigation Links Data ---
-const navigationItems = [
+export const navigationItems = [
   {
     label: "Home",
     href: "/",
@@ -234,7 +234,7 @@ const Sidebar = ({ children, isCollapsed, onMouseEnter, onMouseLeave }: { childr
   return (
     <aside
       className={cn(
-        "sticky top-0 z-50 flex h-screen flex-col overflow-y-auto border-r bg-background p-4",
+        "fixed top-0 left-0 z-50 flex h-screen flex-col overflow-y-auto border-r bg-background p-4",
         "border-border", // Use global theme variable
         "transition-all duration-300 ease-in-out", // Use 'all' for width
         isCollapsed ? "w-20" : "w-64",
@@ -383,11 +383,11 @@ export default function RootLayout({
 
         <div className="flex min-h-screen w-full">
           
-          {/* 3. Desktop-only Sidebar (with hover effects) */}
+          {/* 3. Desktop-only Sidebar (with hover effects) - now fixed positioned */}
           <SidebarComponent currentPath={pathname} />
 
-          {/* 4. Main content area */}
-          <main className="flex flex-1 flex-col items-stretch">
+          {/* 4. Main content area - add left margin to account for fixed sidebar */}
+          <main className="flex flex-1 flex-col items-stretch lg:ml-20">
             {children}
           </main>
         </div>

@@ -56,6 +56,9 @@ export default function SegmentsPage() {
 
           <HoverEffect items={segments} className="gap-4" />
         </div>
+        <p className="text-muted-foreground mt-20 text-center text-lg max-w-3xl mx-auto">
+           Join us and explore each segment of innovation. Don't miss the chance to be part of something extraordinary!
+         </p>
       </section>
     </div>
   )
