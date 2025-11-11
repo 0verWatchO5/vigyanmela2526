@@ -1,7 +1,537 @@
 "use client";
+import React, { useState, useRef } from "react";
 
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { IconHome, IconInfoCircle, IconUsers, IconChartBar, IconSparkles } from "@tabler/icons-react";
+function cn(...inputs) {
+  return inputs.filter(Boolean).join(" ");
+}
+
+
+const IconHome = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
+
+const IconInfoCircle = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+const IconUsers = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const IconChartBar = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="12" y1="20" x2="12" y2="10" />
+    <line x1="18" y1="20" x2="18" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="16" />
+  </svg>
+);
+
+const IconSparkles = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9Z" />
+    <path d="M18 13l-2.9-5.8" />
+    <path d="M6 13l2.9-5.8" />
+    <path d="M12 21V11.5" />
+  </svg>
+);
+
+const IconChevronLeft = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const IconUpload = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+const IconFile = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+    <polyline points="13 2 13 9 20 9" />
+  </svg>
+);
+
+const IconX = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+// --- Re-created UI Components (Form) ---
+
+const Label = ({ htmlFor, children, className }) => {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className={cn(
+        "text-sm font-medium text-neutral-200", 
+        className
+      )}
+    >
+      {children}
+    </label>
+  );
+};
+
+const Input = ({ id, placeholder, type, className, ...props }) => {
+  return (
+    <div className="group relative w-full">
+      <input
+        type={type}
+        id={id}
+        placeholder={placeholder}
+        className={cn(
+          "flex h-10 w-full rounded-md border-none bg-zinc-800 px-3 py-2 text-sm text-neutral-200", // Dark bg, light text
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-zinc-900",
+          "placeholder:text-neutral-400",
+          "shadow-input dark:shadow-[0px_0px_1px_1px_#262626]",
+          className
+        )}
+        {...props}
+      />
+      <InputHoverGradient />
+    </div>
+  );
+};
+
+// --- File Upload Component ---
+const FileUpload = ({ id, name, accept, onChange }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFiles = (files) => {
+    if (files && files.length > 0) {
+      const file = files[0];
+      setUploadedFile(file);
+      onChange([file]); // Pass as array to parent
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (fileInputRef.current) {
+      fileInputRef.current.files = files; // Sync with the input
+    }
+    handleFiles(files);
+  };
+
+  const handleFileSelect = (e) => {
+    const files = e.target.files;
+    handleFiles(files);
+  };
+
+  const handleClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    onChange([]); // Pass empty array to parent
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the input
+    }
+  };
+
+  return (
+    <div className="group relative w-full"> {/* Added group for hover effect */}
+      <div
+        className={cn(
+          "w-full p-6 border border-dashed rounded-lg cursor-pointer text-center",
+          "border-neutral-800 bg-black", 
+          isDragging
+            ? "border-blue-500 bg-zinc-800"
+            : "hover:border-neutral-500", 
+          "transition-colors duration-200"
+        )}
+        onClick={handleClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          id={id}
+          name={name}
+          accept={accept}
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        {uploadedFile ? (
+          <div className="flex items-center justify-between text-neutral-200">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <IconFile className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate text-sm">{uploadedFile.name}</span>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation(); 
+                handleRemoveFile();
+              }}
+              className="ml-2 flex-shrink-0 p-1 rounded-full text-neutral-400 hover:bg-zinc-700 hover:text-neutral-200"
+            >
+              <IconX className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-neutral-400">
+            <IconUpload className="h-8 w-8" />
+            <span className="font-medium text-neutral-300">
+              Drag & drop file or{" "}
+              <span className="text-blue-500">click to upload</span>
+            </span>
+            <span className="text-xs">Accepts: {accept}</span>
+          </div>
+        )}
+      </div>
+      <InputHoverGradient /> {/* Added the hover gradient effect */}
+    </div>
+  );
+};
+
+
+
+const Sidebar = ({ children, isCollapsed }) => {
+  return (
+    <aside
+      className={cn(
+        "sticky top-0 flex h-screen flex-col overflow-y-auto border-r border-neutral-800 bg-black p-4 transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-20" : "w-64"
+      )}
+    >
+      {children}
+    </aside>
+  );
+};
+
+const SidebarBody = ({ children, isCollapsed }) => {
+  return (
+    <div className="flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden">
+      <div
+        className={cn(
+          "flex items-center",
+          isCollapsed ? "justify-center" : "justify-between"
+        )}
+      >
+        <h1
+          className={cn(
+            "whitespace-nowrap font-bold text-2xl text-white", 
+            isCollapsed && "hidden"
+          )}
+        >
+          Vigyan Mela
+        </h1>
+      </div>
+      <p
+        className={cn(
+          "whitespace-nowrap text-neutral-400 text-sm mb-4", 
+          isCollapsed && "hidden"
+        )}
+      >
+        Where Science Meets Innovation
+      </p>
+      {children}
+    </div>
+  );
+};
+
+const SidebarLink = ({
+  link,
+  isCollapsed,
+  isActive,
+  onClick,
+}) => {
+  return (
+    <a
+      href={link.href}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
+      className={cn(
+        "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-200 transition-colors duration-200", // Always light text
+        isActive ? "bg-zinc-800" : "hover:bg-zinc-800",
+        isCollapsed && "justify-center"
+      )}
+    >
+      {/* Active/Hover pill effect */}
+      <span
+        className={cn(
+          "absolute inset-y-0 left-0 w-1 rounded-r-full bg-blue-500 transition-all duration-300 ease-in-out",
+          isActive ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100"
+        )}
+      ></span>
+
+      {link.icon}
+      <span className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}>
+        {link.label}
+      </span>
+    </a>
+  );
+};
+
+
+
+const BottomGradient = () => {
+  return (
+    <>
+      <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+      <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
+    </>
+  );
+};
+
+const InputHoverGradient = () => {
+  return (
+    <>
+      {/* Top */}
+      <span className="absolute inset-x-0 -top-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      {/* Bottom */}
+      <span className="absolute inset-x-0 -bottom-px block h-[2px] w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      {/* Left */}
+      <span className="absolute inset-y-0 -left-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-110" />
+      {/* Right */}
+      <span className="absolute inset-y-0 -right-px block h-full w-[2px] bg-gradient-to-b from-transparent via-blue-500 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+    </>
+  );
+};
+
+const LabelInputContainer = ({
+  children,
+  className,
+}) => {
+  return (
+    <div className={cn("flex w-full flex-col space-y-2", className)}>
+      {children}
+    </div>
+  );
+};
+
+// --- Event Registration Form ---
+
+export function EventRegistrationForm() {
+  const [idCardFiles, setIdCardFiles] = useState([]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    console.log("Form submitted");
+    console.log("First Name:", formData.get("firstname"));
+    console.log("Email:", formData.get("email"));
+    // Log the file from the state
+    console.log("ID Card File:", idCardFiles[0]);
+  };
+
+  return (
+    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-black p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
+      <h2 className="text-xl font-bold text-neutral-200">
+        Event Registration
+      </h2>
+      <p className="mt-2 max-w-sm text-sm text-neutral-300">
+        Register for our upcoming event. We're excited to see you there!
+      </p>
+
+      <form className="my-8" onSubmit={handleSubmit}>
+        <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+          <LabelInputContainer>
+            <Label htmlFor="firstname">First name</Label>
+            <Input id="firstname" name="firstname" placeholder="Tyler" type="text" />
+          </LabelInputContainer>
+          <LabelInputContainer>
+            <Label htmlFor="lastname">Last name</Label>
+            <Input id="lastname" name="lastname" placeholder="Durden" type="text" />
+          </LabelInputContainer>
+        </div>
+        <LabelInputContainer className="mb-4">
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            name="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+          />
+        </LabelInputContainer>
+        <LabelInputContainer className="mb-4">
+          <Label htmlFor="contact">Contact Number</Label>
+          <Input
+            id="contact"
+            name="contact"
+            placeholder="(123) 456-7890"
+            type="tel"
+          />
+        </LabelInputContainer>
+        <LabelInputContainer className="mb-8">
+          <Label htmlFor="idcard">ID Card (Image or PDF)</Label>
+          <FileUpload
+            id="idcard"
+            name="idcard"
+            accept="image/*,application/pdf"
+            onChange={setIdCardFiles}
+          />
+        </LabelInputContainer>
+
+        <button
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1V-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#2727a_inset,0px_-1px_0px_0px_#2727a_inset]"
+          type="submit"
+        >
+          Register &rarr;
+          <BottomGradient />
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+
+const PageComponent = ({ title, description }) => (
+  <div className="w-full max-w-md text-neutral-200">
+    <h2 className="text-3xl font-bold">{title}</h2>
+    <p className="mt-2 text-neutral-300">{description}</p>
+  </div>
+);
+
+const HomeComponent = () => (
+  <PageComponent
+    title="Home"
+    description="Welcome to the Vigyan Mela homepage."
+  />
+);
+const AboutComponent = () => (
+  <PageComponent
+    title="About"
+    description="Learn more about the Vigyan Mela event."
+  />
+);
+const SegmentsComponent = () => (
+  <PageComponent
+    title="Segments"
+    description="Explore the different segments of our science fair."
+  />
+);
+const SponsorsComponent = () => (
+  <PageComponent
+    title="Sponsors"
+    description="See the amazing sponsors who make this event possible."
+  />
+);
+
+// --- Sidebar Component (with state) ---
 
 const navigationItems = [
   {
@@ -31,26 +561,89 @@ const navigationItems = [
   },
 ];
 
-export default function Registration() {
+export function SidebarComponent({ currentPage, setCurrentPage }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <main className="min-h-screen bg-background">
-      <Sidebar>
-        <SidebarBody>
-          <div className="flex flex-col gap-2">
-            <h1 className="font-bold text-2xl text-primary">
-              Vigyan Mela
-            </h1>
-            <p className="text-muted-foreground text-sm mb-4">
-              Where Science Meets Innovation
-            </p>
-            <div className="flex flex-col gap-2">
-              {navigationItems.map((item, index) => (
-                <SidebarLink key={index} link={item} />
-              ))}
-            </div>
-          </div>
-        </SidebarBody>
-      </Sidebar>
-    </main>
+    <Sidebar isCollapsed={isCollapsed}>
+      <SidebarBody isCollapsed={isCollapsed}>
+        <div className="flex flex-col gap-2">
+          {navigationItems.map((item, index) => (
+            <SidebarLink
+              key={index}
+              link={item}
+              isCollapsed={isCollapsed}
+              isActive={currentPage === item.label}
+              onClick={() => setCurrentPage(item.label)}
+            />
+          ))}
+        </div>
+      </SidebarBody>
+
+      {/* Collapse Toggle Button */}
+      <div className="mt-auto pt-4">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={cn(
+            "group relative flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-200 hover:bg-zinc-800",
+            isCollapsed && "justify-center"
+          )}
+        >
+          <IconChevronLeft
+            className={cn(
+              "h-5 w-5 text-neutral-400 transition-transform duration-300",
+              isCollapsed && "rotate-180"
+            )}
+          />
+          <span
+            className={cn("transition-opacity whitespace-nowrap", isCollapsed && "hidden")}
+          >
+            Collapse
+          </span>
+        </button>
+      </div>
+    </Sidebar>
   );
-}  
+}
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState("Registration");
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case "Home":
+        return <HomeComponent />;
+      case "About":
+        return <AboutComponent />;
+      case "Registration":
+        return <EventRegistrationForm />;
+      case "Segments":
+        return <SegmentsComponent />;
+      case "Sponsors":
+        return <SponsorsComponent />;
+      default:
+        return <HomeComponent />;
+    }
+  };
+
+  return (
+    // Added <html> and <body> tags to fix the Next.js runtime error
+    <html lang="en">
+      <head>
+        {/* We can add head elements here if needed, e.g., <title> */}
+        <title>Vigyan Mela</title>
+      </head>
+      <body className="bg-black">
+        <div className="flex min-h-screen w-full text-white">
+          <SidebarComponent
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+          <main className="flex flex-1 items-center justify-center p-4">
+            {renderPage()}
+          </main>
+        </div>
+      </body>
+    </html>
+  );
+}
