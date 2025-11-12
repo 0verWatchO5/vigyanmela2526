@@ -1,98 +1,48 @@
 "use client"
 
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { IconHome, IconInfoCircle, IconUsers, IconChartBar, IconSparkles } from "@tabler/icons-react";
+// Sidebar components removed
 import { HoverEffect } from "@/components/ui/card-hover-effect"
 
 const segments = [
   {
     id: 1,
-    title: "Web Development 🌐",
-    description: "Explore modern web technologies and frameworks including React, Next.js, TypeScript, and Tailwind CSS.",
-    link: "#web-development",
+    title: "Technology & Innovation",
+    description: "Projects using new technology such as Artificial Intelligence, Robots, or Smart Devices.",
+    link: "#technology-innovation",
   },
   {
     id: 2,
-    title: "AI & Machine Learning 🤖",
-    description: "Discover the future of artificial intelligence with Deep Learning, NLP, Computer Vision, and LLMs.",
-    link: "#ai-ml",
+    title: "Environment & Sustainability",
+    description: "Ideas that help save energy, reduce pollution, or protect nature.",
+    link: "#environment-sustainability",
   },
   {
     id: 3,
-    title: "Mobile Development 📱",
-    description: "Build apps for iOS and Android using React Native, Flutter, Swift, and Kotlin.",
-    link: "#mobile",
+    title: "Health & Education",
+    description: "Apps, tools, or models that support health, fitness, or learning.",
+    link: "#health-education",
   },
   {
     id: 4,
-    title: "Cloud & DevOps ☁️",
-    description: "Master cloud infrastructure and deployment with AWS, Docker, Kubernetes, and CI/CD.",
-    link: "#cloud-devops",
+    title: "Social Good",
+    description: "Projects that make daily life easier, improve communication, or help the community.",
+    link: "#social-good",
   },
   {
     id: 5,
-    title: "Cybersecurity 🔒",
-    description: "Learn to protect digital assets through Ethical Hacking, Cryptography, Network Security, and Penetration Testing.",
-    link: "#security",
-  },
-  {
-    id: 6,
-    title: "Data Science 📊",
-    description: "Unlock insights from data using Python, Pandas, Visualization, and Statistics.",
-    link: "#data-science",
+    title: "Creative Science",
+    description: "Fun and innovative experiments, models, or tech-based art.",
+    link: "#creative-science",
   },
 ];
 
-const navigationItems = [
-  {
-    label: "Home",
-    href: "/",
-    icon: <IconHome className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    label: "About",
-    href: "/about",
-    icon: <IconInfoCircle className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    label: "Registration",
-    href: "/registration",
-    icon: <IconUsers className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    label: "Segments",
-    href: "/segments",
-    icon: <IconChartBar className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    label: "Sponsors",
-    href: "/sponsors",
-    icon: <IconSparkles className="h-4 w-4 text-muted-foreground" />,
-  },
-];
+// navigationItems removed
 
 export default function SegmentsPage() {
   return (
-    <main className="min-h-screen bg-background">
-    <Sidebar>
-            <SidebarBody>
-              <div className="flex flex-col gap-2">
-                <h1 className="font-bold text-2xl text-primary">
-                  Vigyan Mela
-                </h1>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Where Science Meets Innovation
-                </p>
-                <div className="flex flex-col gap-2">
-                  {navigationItems.map((item, index) => (
-                    <SidebarLink key={index} link={item} />
-                  ))}
-                </div>
-              </div>
-            </SidebarBody>
-          </Sidebar>
-
-    <div className="md:ml-64 lg:mr-20">
+    // <main> tag and <Sidebar> removed
+    // The old md:ml-64 is no longer needed
+    <div className="w-full">
       <section className="min-h-screen py-20 px-4 md:px-8 bg-gradient-to-b from-background to-primary/5">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16 text-center">
@@ -106,8 +56,10 @@ export default function SegmentsPage() {
 
           <HoverEffect items={segments} className="gap-4" />
         </div>
+        <p className="text-muted-foreground mt-20 text-center text-lg max-w-3xl mx-auto">
+           Join us and explore each segment of innovation. Don't miss the chance to be part of something extraordinary!
+         </p>
       </section>
     </div>
-    </main>
   )
 }
