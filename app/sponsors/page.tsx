@@ -9,7 +9,7 @@ const sponsors = [
     name: "Austrange Solutions",
     href: "https://www.austrangesolutions.com/",
     logo: "/images/austrange.ico",
-    // company brand color used for the spotlight on hover (not linked to global CSS)
+
     color: "#0e3cac",
     description: "Empowering Lives Through Intelligent Solutions",
   },
@@ -21,28 +21,28 @@ const sponsors = [
     color: "#ec3136",
     description: "Your Go-To Hub for Electronic Parts: Everything you need in one place",
   },
-  // Adding extra cards just in case
-  //
-  //{
-  //   id: 3,
-  //   name: "Orbit Innovations",
-  //   href: "https://example.com",
-  //   logo: "/images/sponsors/orbit.png",
-  //   color: "#F97316",
-  // },
-  // {
-  //   id: 4,
-  //   name: "Pioneer Tech",
-  //   href: "https://example.com",
-  //   logo: "/images/sponsors/pioneer.png",
-  //   color: "#EF4444",
-  // },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ];
 
 export default function Sponsors() {
   return (
-  // The <main> tag and <Sidebar> are in the layout
-  // Add extra right padding for page content
+
+
   <div className="w-full px-8 pl-20 pb-40 lg:pt-8">
       <h1 className="text-4xl font-bold">Our Sponsors</h1>
       <p className="text-muted-foreground mt-4 max-w-2xl">

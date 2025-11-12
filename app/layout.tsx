@@ -1,7 +1,6 @@
 "use client";
 
-// We can remove Metadata import, as it's not used in this client component
-// import type { Metadata } from "next";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -18,12 +17,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// A simple 'cn' utility to merge class names
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
-// --- Icon Components (Copied from registration page) ---
 
 const IconHome = (props: any) => (
   <svg
@@ -151,7 +148,6 @@ const IconMenu = (props: any) => (
   </svg>
 );
 
-// --- Navigation Links Data ---
 export const navigationItems = [
   {
     label: "Home",
@@ -180,14 +176,13 @@ export const navigationItems = [
   },
 ];
 
-// --- MODIFIED Mobile Header Component ---
 const Header = ({ onMenuClick, isOpen }: { onMenuClick: () => void; isOpen: boolean }) => {
   return (
     <header className={cn(
         "sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 lg:hidden",
         "border-border" // Use global theme variable
       )}>
-      <h1 className="whitespace-nowrap font-bold text-xl text-foreground"> {/* MODIFIED: text-primary to text-foreground */}
+      <h1 className="whitespace-nowrap font-bold text-xl text-foreground"> {}
         Vigyan Mela
       </h1>
       <button
@@ -201,7 +196,6 @@ const Header = ({ onMenuClick, isOpen }: { onMenuClick: () => void; isOpen: bool
   );
 };
 
-// --- NEW Mobile Navigation Menu ---
 const MobileNavMenu = ({ isOpen, onClose, currentPath }: { isOpen: boolean; onClose: () => void; currentPath: string }) => {
   return (
     <div
@@ -228,7 +222,6 @@ const MobileNavMenu = ({ isOpen, onClose, currentPath }: { isOpen: boolean; onCl
   );
 };
 
-// --- MODIFIED Re-created UI Components (Sidebar) ---
 
 const Sidebar = ({ children, isCollapsed, onMouseEnter, onMouseLeave }: { children: React.ReactNode; isCollapsed: boolean; onMouseEnter: () => void; onMouseLeave: () => void; }) => {
   return (
@@ -275,7 +268,7 @@ const SidebarBody = ({ children, isCollapsed }: { children: React.ReactNode; isC
         Where Science Meets Innovation
       </p>
       
-      {/* Links (main content) */}
+      {}
       <div className="flex-grow">
         {children}
       </div>
@@ -289,7 +282,7 @@ const SidebarLink = ({
   isActive,
   ...props
 }: {
-  link: { href: string; icon: React.ReactElement; label: string };
+  link: { href: string; icon: React.ReactElement<{ className?: string }>; label: string };
   isCollapsed: boolean;
   isActive: boolean;
   [key: string]: any; // For onClick, etc.
@@ -304,7 +297,7 @@ const SidebarLink = ({
       )}
       {...props} // Apply props
     >
-      {/* Active/Hover pill effect - This is the hover effect you wanted */}
+      {}
       <span
         className={cn(
           "absolute inset-y-0 left-0 w-1 rounded-r-full bg-blue-500 transition-all duration-300 ease-in-out",
@@ -320,8 +313,6 @@ const SidebarLink = ({
   );
 };
 
-
-// --- MODIFIED Sidebar Component (Desktop Only) ---
 export function SidebarComponent({ currentPath }: { currentPath: string }) { 
   const [isCollapsed, setIsCollapsed] = useState(true); 
 
@@ -347,7 +338,6 @@ export function SidebarComponent({ currentPath }: { currentPath: string }) {
   );
 }
 
-// --- Main Root Layout ---
 
 export default function RootLayout({
   children,
@@ -357,24 +347,23 @@ export default function RootLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname(); // Get current path
 
-  // REMOVED the inlineStyles hack
 
   return (
-    // ADDED className="dark" to activate the global dark theme
+
     <html lang="en" className="dark">
       <head>
-        {/* REMOVED the <style> block */}
+        {}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`} // MODIFIED: text-primary to text-foreground
       >
         
-        {/* 1. Mobile-only Header */}
+        {}
         <Header 
           isOpen={isMobileMenuOpen}
           onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
         />
-        {/* 2. Mobile-only Nav Menu */}
+        {}
         <MobileNavMenu 
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
@@ -383,10 +372,10 @@ export default function RootLayout({
 
         <div className="flex min-h-screen w-full">
           
-          {/* 3. Desktop-only Sidebar (with hover effects) - now fixed positioned */}
+          {}
           <SidebarComponent currentPath={pathname} />
 
-          {/* 4. Main content area - add left margin to account for fixed sidebar */}
+          {}
           <main className="flex flex-1 flex-col items-stretch lg:ml-20">
             {children}
           </main>
