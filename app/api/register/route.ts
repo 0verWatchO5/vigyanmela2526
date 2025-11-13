@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { Resend } from "resend";
 import Dbconns from "@/dbconfig/dbconn";
 import users from "@/models/registration";
 
@@ -23,11 +24,26 @@ export async function POST(request: NextRequest) {
     const lastName = formData.get("lastname") as string;
     const email = formData.get("email") as string;
     const contact = formData.get("contact") as string;
-    const idCardFile = formData.get("idcard") as File;
+    const ageVal = formData.get("age") as string;
+    const organization = formData.get("organization") as string;
+    const industry = formData.get("industry") as string;
+    const linkedin = (formData.get("linkedin") as string) || "";
+    // const idCardFile = formData.get("idcard") as File;
 
-    if (!firstName || !lastName || !email || !contact || !idCardFile) {
+    console.log("[register] incoming form values:", {
+      firstName,
+      lastName,
+      email,
+      contact,
+      age: ageVal,
+      organization,
+      industry,
+      linkedin,
+    });
+
+    if (!firstName || !lastName || !email || !contact || !ageVal || !organization || !industry) {
       return NextResponse.json(
-        { error: "All fields are required including ID card" },
+        { error: "All fields are required" },
         { status: 400 }
       );
     }
@@ -45,6 +61,11 @@ export async function POST(request: NextRequest) {
         { error: "Contact number must be at least 10 digits" },
         { status: 400 }
       );
+    }
+
+    const age = parseInt(ageVal as string, 10);
+    if (isNaN(age) || age < 10 || age > 120) {
+      return NextResponse.json({ error: "Please provide a valid age between 10 and 120" }, { status: 400 });
     }
 
     const existingUser = await users.findOne({
@@ -65,63 +86,89 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!ALLOWED_FILE_TYPES.includes(idCardFile.type)) {
-      return NextResponse.json(
-        { error: "Only JPEG, PNG, and WebP images are allowed" },
-        { status: 400 }
-      );
-    }
-
-    if (idCardFile.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "File size must be less than 20MB" },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await idCardFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: "image",
-          folder: "vigyanmela_idcards",
-          transformation: [
-            { width: 1200, height: 1200, crop: "limit" }, // Limit max dimensions
-            { quality: "auto:good" }, // Auto optimize quality
-          ],
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      uploadStream.end(buffer);
-    });
+    // const uploadResult = await new Promise<any>((resolve, reject) => {
+    //   const uploadStream = cloudinary.uploader.upload_stream(
+    //     {
+    //       resource_type: "image",
+    //       folder: "vigyanmela_idcards",
+    //       transformation: [
+    //         { width: 1200, height: 1200, crop: "limit" }, // Limit max dimensions
+    //         { quality: "auto:good" }, // Auto optimize quality
+    //       ],
+    //     },
+    //     (error, result) => {
+    //       if (error) reject(error);
+    //       else resolve(result);
+    //     }
+    //   );
+    //   // uploadStream.end(buffer);
+    // });
 
     const newUser = new users({
       firstName,
       lastName,
       email,
       contact,
-      idCardUrl: uploadResult.secure_url,
-      idCardPublicId: uploadResult.public_id,
+      age,
+      organization,
+      industry,
+      linkedin,
+      // idCardUrl: uploadResult?.secure_url,
+      // idCardPublicId: uploadResult?.public_id,
       isAdmin: false,
     });
 
-    await newUser.save();
+    const saved = await newUser.save();
+
+    console.log("[register] user saved, id:", saved._id?.toString?.());
+
+    // Send confirmation email via Resend (if API key is available)
+    let emailStatus: { ok: boolean; info?: any; error?: string } = { ok: false };
+    try {
+      if (process.env.RESEND_API_KEY) {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const html = `
+          <p>Hi ${saved.firstName || "there"},</p>
+          <p>You're registered for <strong>VigyanMela 2526</strong>. Check your email for your ticket.</p>
+          <p>Thanks,<br/>VigyanMela Team</p>
+        `;
+        console.log("[register] sending confirmation email to:", saved.email);
+
+        const resp = await resend.emails.send({
+          from: process.env.RESEND_FROM || "onboarding@resend.dev",
+          to: saved.email,
+          subject: "VigyanMela 2526 — Registration confirmed",
+          html,
+        });
+
+        emailStatus = { ok: true, info: resp };
+        console.log("[register] resend send response:", resp);
+      } else {
+        emailStatus = { ok: false, error: "RESEND_API_KEY not configured" };
+        console.warn("[register] RESEND_API_KEY not configured");
+      }
+    } catch (err: any) {
+      emailStatus = { ok: false, error: err?.message || String(err) };
+      console.error("[register] resend error:", err);
+    }
 
     return NextResponse.json(
       {
         success: true,
         message: "Registration successful",
         data: {
-          id: newUser._id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          email: newUser.email,
+          id: saved._id,
+          firstName: saved.firstName,
+          lastName: saved.lastName,
+          email: saved.email,
+          contact: saved.contact,
+          age: saved.age,
+          organization: saved.organization,
+          industry: saved.industry,
+          linkedin: saved.linkedin,
+          idCardUrl: saved.idCardUrl || null,
         },
+        email: emailStatus,
       },
       { status: 201 }
     );
