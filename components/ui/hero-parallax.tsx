@@ -111,9 +111,11 @@ export const Header = () => {
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
         Where science meets innovation, Join us for an unforgettable experience.
       </p>
-      <a href="/registration/">
+      <div className="max-w-2xl text-base md:text-xl pb-[-20] ml-[-250]">
+      <a href="/registration">
         <HoverBorderGradientDemo></HoverBorderGradientDemo>
       </a>
+      </div>
     </div>
   );
 };

@@ -376,8 +376,8 @@ export default function RootLayout({
           {}
           <SidebarComponent currentPath={pathname} />
 
-          {}
-          <main className="flex flex-1 flex-col items-stretch lg:ml-20">
+          {/* 4. Main content area - add left margin to account for fixed sidebar */}
+          <main className="flex flex-1 flex-col items-stretch lg:ml-20 w-100">
             {children}
           </main>
         </div>

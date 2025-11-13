@@ -27,28 +27,28 @@ const teamMembers = [
     quote:
       "Leading the charge to make Vigyan Mela an unforgettable celebration of science and innovation for everyone.",
     name: "Mayuresh Chaubal",
-    designation: "Vigyaan Meka Head TYIT",
+    designation: "Vigyaan Mela Head TYIT",
     src: "https://placehold.co/400x400/6366f1/white?text=M",
   },
   {
     quote:
       "Crafting the digital experience and ensuring all our tech runs smoothly, from registration to live demos.",
     name: "Noorjahan Charania",
-    designation: "Vigyaan Meka Head TYIT",
+    designation: "Vigyaan Mela Head TYIT",
     src: "https://placehold.co/400x400/ec4899/white?text=N",
   },
   {
     quote:
       "Connecting with schools, partners, and the media to spread the word and bring our community together.",
     name: "Sakshi",
-    designation: "Vigyaan Meka Head SYIT",
+    designation: "Vigyaan Mela Head SYIT",
     src: "https://placehold.co/400x400/10b981/white?text=S",
   },
   {
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Parth",
-    designation: "Vigyaan Meka Head SYIT",
+    designation: "Vigyaan Mela Head SYIT",
     src: "https://placehold.co/400x400/f59e0b/white?text=P",
   },
 ];

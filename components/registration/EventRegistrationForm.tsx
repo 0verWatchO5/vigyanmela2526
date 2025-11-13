@@ -13,6 +13,10 @@ interface FormData {
   lastname: string;
   email: string;
   contact: string;
+  age: string;
+  organization: string;
+  industry: string;
+  linkedin: string;
 }
 
 interface FormErrors {
@@ -20,7 +24,11 @@ interface FormErrors {
   lastname?: string;
   email?: string;
   contact?: string;
-  idcard?: string;
+  // idcard?: string;
+  age?: string;
+  organization?: string;
+  industry?: string;
+  linkedin?: string;
 }
 
 export function EventRegistrationForm() {
@@ -29,39 +37,61 @@ export function EventRegistrationForm() {
     lastname: "",
     email: "",
     contact: "",
+    age: "",
+    organization: "",
+    industry: "",
+    linkedin: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
+  // const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { id, value } = e.target as HTMLInputElement;
 
     let sanitizedValue = value;
     
     if (id === "firstname" || id === "lastname") {
-
       sanitizedValue = value.replace(/[^a-zA-Z\s]/g, "");
     } else if (id === "contact") {
-
       sanitizedValue = value.replace(/[^0-9]/g, "").slice(0, 10);
+    } else if (id === "age") {
+      sanitizedValue = value.replace(/[^0-9]/g, "").slice(0, 3);
     } else if (id === "email") {
-
       sanitizedValue = value.trim().toLowerCase();
+    } else if (id === "organization") {
+      sanitizedValue = value.trimStart();
+    } else if (id === "linkedin") {
+      sanitizedValue = value.trim();
     }
-    
+
     setFormData((prev) => ({ ...prev, [id]: sanitizedValue }));
     if (errors[id as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [id]: undefined }));
     }
   };
 
+  const shareOnLinkedIn = () => {
+    try {
+      const shareText = `I've registered for VigyanMela 2526! Check your ticket and join.`;
+      const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+      const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
+        pageUrl
+      )}&title=${encodeURIComponent("Registered for VigyanMela 2526")}&summary=${encodeURIComponent(shareText)}`;
+      window.open(linkedInUrl, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const handleFileChange = (files: File[]) => {
-    setIdCardFiles(files);
+    // setIdCardFiles(files);
     if (files.length > 0) {
       setErrors((prev) => ({ ...prev, idcard: undefined }));
     }
@@ -94,9 +124,41 @@ export function EventRegistrationForm() {
       tempErrors.contact = "Contact must be exactly 10 digits.";
     }
 
-    if (idCardFiles.length === 0) {
-      tempErrors.idcard = "ID card upload is required.";
+    if (!formData.age.trim()) {
+      tempErrors.age = "Age is required.";
+    } else {
+      const ageVal = parseInt(formData.age, 10);
+      if (isNaN(ageVal) || ageVal < 10 || ageVal > 120) {
+        tempErrors.age = "Please enter a valid age between 10 and 120.";
+      }
     }
+
+    if (!formData.organization.trim()) {
+      tempErrors.organization = "Organization / College name is required.";
+    }
+
+    if (!formData.industry.trim()) {
+      tempErrors.industry = "Please select an industry.";
+    }
+
+    if (!formData.linkedin.trim()) {
+      tempErrors.linkedin = "LinkedIn profile is required.";
+    }
+
+    if (formData.linkedin.trim()) {
+      try {
+        const url = new URL(formData.linkedin);
+        if (!/^https?:/.test(url.protocol)) {
+          tempErrors.linkedin = "Please enter a valid LinkedIn URL (https).";
+        }
+      } catch (e) {
+        tempErrors.linkedin = "Please enter a valid LinkedIn URL.";
+      }
+    }
+
+    // if (idCardFiles.length === 0) {
+    //   tempErrors.idcard = "ID card upload is required.";
+    // }
     
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -124,7 +186,11 @@ export function EventRegistrationForm() {
       submitData.append("lastname", formData.lastname);
       submitData.append("email", formData.email);
       submitData.append("contact", formData.contact);
-      submitData.append("idcard", idCardFiles[0]);
+      submitData.append("age", formData.age);
+      submitData.append("organization", formData.organization);
+      submitData.append("industry", formData.industry);
+      submitData.append("linkedin", formData.linkedin);
+      // submitData.append("idcard", idCardFiles[0]);
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -142,9 +208,12 @@ export function EventRegistrationForm() {
         message: "Registration successful! Welcome to VigyanMela 2526.",
       });
 
-      setFormData({ firstname: "", lastname: "", email: "", contact: "" });
-      setIdCardFiles([]);
+      setFormData({ firstname: "", lastname: "", email: "", contact: "", age: "", organization: "", industry: "", linkedin: "" });
+      // setIdCardFiles([]);
       setErrors({});
+
+      // show success modal with share option
+      setShowSuccessModal(true);
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
@@ -184,7 +253,7 @@ export function EventRegistrationForm() {
             <Label htmlFor="firstname">First name</Label>
             <Input
               id="firstname"
-              placeholder="Tyler"
+              placeholder="Name"
               type="text"
               value={formData.firstname}
               onChange={handleChange}
@@ -196,7 +265,7 @@ export function EventRegistrationForm() {
             <Label htmlFor="lastname">Last name</Label>
             <Input
               id="lastname"
-              placeholder="Durden"
+              placeholder="Surname"
               type="text"
               value={formData.lastname}
               onChange={handleChange}
@@ -211,7 +280,7 @@ export function EventRegistrationForm() {
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
-            placeholder="projectmayhem@fc.com"
+            placeholder="example@gmail.com"
             type="email"
             value={formData.email}
             onChange={handleChange}
@@ -225,7 +294,7 @@ export function EventRegistrationForm() {
           <Label htmlFor="contact">Contact Number</Label>
           <Input
             id="contact"
-            placeholder="1234567890"
+            placeholder="......"
             type="tel"
             value={formData.contact}
             onChange={handleChange}
@@ -234,8 +303,89 @@ export function EventRegistrationForm() {
           />
         </LabelInputContainer>
 
-        {}
+        <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+          <LabelInputContainer>
+            <Label htmlFor="age">Age</Label>
+            <Input
+              id="age"
+              placeholder="10-120"
+              type="tel"
+              value={formData.age}
+              onChange={handleChange}
+              error={errors.age}
+              disabled={isSubmitting}
+            />
+          </LabelInputContainer>
+
+          {/* <LabelInputContainer>
+            <Label htmlFor="industry">Industry</Label>
+            <select
+              id="industry"
+              value={formData.industry}
+              onChange={handleChange}
+              className="h-10 w-full rounded-md border px-3"
+              disabled={isSubmitting}
+            >
+              <option className="" value="">Select industry</option>
+              <option value="IT">IT</option>
+              <option value="Accounts">Accounts</option>
+              <option value="Students">Students</option>
+              <option value="Research">Research</option>
+              <option value="Other">Other</option>
+            </select>
+            {errors.industry && <p className="text-sm text-red-500">{errors.industry}</p>}
+          </LabelInputContainer> */}
+          <LabelInputContainer>
+            <Label htmlFor="industry">Industry</Label>
+            <select
+              id="industry"
+              value={formData.industry}
+              onChange={handleChange}
+              className="h-10 w-full rounded-md border border-gray-600 bg-black text-white px-3 focus:outline-none focus:ring-2 focus:ring-white"
+              disabled={isSubmitting}
+            >
+              <option value="">Select industry</option>
+              <option value="IT">IT</option>
+              <option value="Accounts">Accounts</option>
+              <option value="Students">Students</option>
+              <option value="Research">Research</option>
+              <option value="Other">Other</option>
+            </select>
+
+            {errors.industry && (
+              <p className="text-sm text-red-500">{errors.industry}</p>
+            )}
+          </LabelInputContainer>
+        </div>
+
         <LabelInputContainer>
+          <Label htmlFor="organization">Organization / College</Label>
+          <Input
+            id="organization"
+            placeholder="Your organization or college"
+            type="text"
+            value={formData.organization}
+            onChange={handleChange}
+            error={errors.organization}
+            disabled={isSubmitting}
+          />
+        </LabelInputContainer>
+
+        <LabelInputContainer>
+          <Label htmlFor="linkedin">LinkedIn Profile </Label>
+          <Input
+            id="linkedin"
+            placeholder="https://www.linkedin.com/in/username"
+            type="url"
+            value={formData.linkedin}
+            onChange={handleChange}
+            error={errors.linkedin}
+            disabled={isSubmitting}
+          />
+        </LabelInputContainer>
+
+        {}
+        {/* <LabelInputContainer>
           <Label htmlFor="idcard">Upload ID Card</Label>
           <FileUpload
             id="idcard"
@@ -246,7 +396,7 @@ export function EventRegistrationForm() {
             maxSize={20}
             files={idCardFiles}
           />
-        </LabelInputContainer>
+        </LabelInputContainer> */}
 
         {}
         <button
@@ -258,6 +408,29 @@ export function EventRegistrationForm() {
           <BottomGradient />
         </button>
       </form>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-neutral-900">
+            <h3 className="text-lg font-semibold">You're registered!</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Check your email for your ticket.</p>
+            <div className="mt-4 flex gap-3">
+              <button
+                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white"
+                onClick={shareOnLinkedIn}
+              >
+                Share on LinkedIn
+              </button>
+              <button
+                className="inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium"
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

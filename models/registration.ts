@@ -9,6 +9,10 @@ export interface UserDocument extends Document
     idCardUrl:string,
     idCardPublicId:string,  
     contact?:string,
+    age?: number,
+    organization?: string,
+    industry?: string,
+    linkedin?: string,
     isAdmin:boolean,
     isSuperAdmin?:boolean, // Super admin can manage other admins
     password?:string, // Optional: Only for admin users
@@ -56,13 +60,40 @@ contact:
 idCardUrl:
 {
  type:String,
- require:[true,"ID Card URL cannot be empty"],
+ require:false,
 },
 
 idCardPublicId:
 {
  type:String,
- require:[true,"ID Card Public ID cannot be empty"],
+ require:false,
+},
+
+age:
+{
+    type:Number,
+    required:false,
+},
+
+organization:
+{
+    type:String,
+    required:false,
+    trim:true,
+},
+
+industry:
+{
+    type:String,
+    required:false,
+    trim:true,
+},
+
+linkedin:
+{
+    type:String,
+    required:false,
+    trim:true,
 },
 
 password:
