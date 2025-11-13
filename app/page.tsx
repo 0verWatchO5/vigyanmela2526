@@ -1,6 +1,7 @@
 "use client";
 
 import { HeroParallax } from "@/components/ui/hero-parallax";
+import AnimatedBox from "@/components/animatedbox";
 
 
 
@@ -74,6 +75,7 @@ export default function Home() {
     <div className="w-full overflow-x-hidden">
       <section className="w-full overflow-x-hidden">
         <HeroParallax products={products} />
+        <AnimatedBox  />
       </section>
     </div>
   );

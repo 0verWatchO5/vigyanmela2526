@@ -6,6 +6,7 @@ import "./globals.css";
 
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
+// import AnimatedBox from "@/components/animatedbox";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -380,6 +381,8 @@ export default function RootLayout({
             {children}
           </main>
         </div>
+        {/* <AnimatedBox /> */}
+    
       </body>
     </html>
   );
