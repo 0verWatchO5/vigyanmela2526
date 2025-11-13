@@ -12,10 +12,7 @@ export const CanvasRevealEffect = ({
   dotSize,
   showGradient = true,
 }: {
-  /**
-   * 0.1 - slower
-   * 1.0 - faster
-   */
+  
   animationSpeed?: number;
   opacities?: number[];
   colors?: number[][];
@@ -192,7 +189,7 @@ const ShaderMaterial = ({
   uniforms: Uniforms;
 }) => {
   const { size } = useThree();
-  const ref = useRef<THREE.Mesh>();
+  const ref = useRef<THREE.Mesh | null>(null);
   let lastFrameTime = 0;
 
   useFrame(({ clock }) => {
@@ -242,7 +239,7 @@ const ShaderMaterial = ({
           };
           break;
         default:
-          console.error(`Invalid uniform type for '${uniformName}'.`);
+          
           break;
       }
     }
@@ -254,7 +251,6 @@ const ShaderMaterial = ({
     return preparedUniforms;
   };
 
-  // Shader material
   const material = useMemo(() => {
     const materialObject = new THREE.ShaderMaterial({
       vertexShader: `

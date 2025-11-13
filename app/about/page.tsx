@@ -1,15 +1,11 @@
 "use client";
 
-// 1. Import the ParallaxScroll component.
-// Switched to aliased path "@/..." which is more robust.
+
 import { ParallaxScrollSecond } from "@/components/ui/parallax-scroll-2";
 
-// 2. Import the AnimatedTestimonials component
-// Switched to aliased path "@/..." which is more robust.
+
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 
-
-// 3. Define the images array for the gallery
 const images = [
   "https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3387&q=80",
   "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
@@ -25,8 +21,7 @@ const images = [
   "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
 ];
 
-// 4. Define the team members array for the "Meet the Team" section
-// (I've used the prop name 'testimonials' as that's what the component likely expects)
+
 const teamMembers = [
   {
     quote:
@@ -61,10 +56,10 @@ const teamMembers = [
 
 export default function About() {
   return (
-    // The main wrapper for the page.
+
     <div className="w-full">
       
-      {/* 5. Your "About" text content. */}
+      {}
       <div className="p-8 pt-24 lg:pt-8">
         <h1 className="text-4xl font-bold">About Vigyan Mela</h1>
         <p className="text-muted-foreground mt-4 text-lg max-w-3xl">
@@ -84,20 +79,20 @@ export default function About() {
         <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
       </div>
 
-      {/* 6. The ParallaxScroll component. */}
+      {}
       <ParallaxScrollSecond images={images} />
       
-      {/* 7. NEW "Meet the Team" section */}
+      {}
       <div className="p-8">
          <h2 className="text-3xl font-bold mt-16 mb-12 text-center">
            Meet the Team
          </h2>
          
-         {/* We pass the teamMembers array to the component. */}
-         {/* The component prop is likely named 'testimonials' based on your example */}
+         {}
+         {}
          <AnimatedTestimonials testimonials={teamMembers} />
 
-         {/* 8. Final Call to Action, styled to stand out */}
+         {}
          <p className="text-muted-foreground mt-24 text-center text-lg max-w-3xl mx-auto">
            Join us for the next event and be part of the innovation.
          </p>

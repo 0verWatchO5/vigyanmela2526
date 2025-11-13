@@ -48,7 +48,7 @@ export const CardSpotlight = ({
         className="pointer-events-none absolute inset-0 rounded-md opacity-0 transition duration-300 group-hover/spotlight:opacity-90 z-30"
         style={{
           backgroundColor: color,
-          // make the radial highlight stronger (larger white area)
+
           maskImage: useMotionTemplate`
             radial-gradient(
               ${radius}px circle at ${mouseX}px ${mouseY}px,
@@ -63,7 +63,7 @@ export const CardSpotlight = ({
               transparent 60%
             )
           `,
-          // use a light blend so the color shines through the image
+
           mixBlendMode: "screen",
         }}
       >

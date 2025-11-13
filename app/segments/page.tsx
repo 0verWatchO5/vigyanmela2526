@@ -1,6 +1,5 @@
 "use client"
 
-// Sidebar components removed
 import { HoverEffect } from "@/components/ui/card-hover-effect"
 
 const segments = [
@@ -36,12 +35,11 @@ const segments = [
   },
 ];
 
-// navigationItems removed
 
 export default function SegmentsPage() {
   return (
-    // <main> tag and <Sidebar> removed
-    // The old md:ml-64 is no longer needed
+
+
     <div className="w-full">
       <section className="min-h-screen py-20 px-4 md:px-8 bg-gradient-to-b from-background to-primary/5">
         <div className="max-w-6xl mx-auto">
