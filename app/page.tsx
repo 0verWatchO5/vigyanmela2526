@@ -1,5 +1,6 @@
 "use client";
 
+import { HoverBorderGradientDemo } from "@/components/button";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 //import { navigationItems } from "./layout";
 // Sidebar components are provided by the root layout; no need to duplicate here.
@@ -8,7 +9,7 @@ const products = [
   {
     title: "Web Development",
     link: "/segments#web-development",
-    thumbnail: "/images/web-dev.jpg",
+    thumbnail: "/images/austrange.ico",
   },
   {
     title: "AI & Machine Learning",
