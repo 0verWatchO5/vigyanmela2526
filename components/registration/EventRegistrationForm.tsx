@@ -334,7 +334,7 @@ export function EventRegistrationForm() {
             >
               <option value="">Select Role</option>
               <option value="Student">Student</option>
-              {/* <option value="Visitor">Visitor</option> */}
+              <option value="Visitor">Visitor</option>
               <option value="Media">Media</option>
               <option value="Guest">Guest</option>
               <option value="Other">Other</option>
