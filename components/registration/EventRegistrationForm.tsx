@@ -7,6 +7,7 @@ import {
   LabelInputContainer,
   BottomGradient,
 } from "@/components/ui/form-components";
+import { cn } from "@/lib/utils"; // IMPORT ADDED HERE
 
 interface FormData {
   firstname: string;
@@ -317,31 +318,18 @@ export function EventRegistrationForm() {
             />
           </LabelInputContainer>
 
-          {/* <LabelInputContainer>
-            <Label htmlFor="industry">Industry</Label>
-            <select
-              id="industry"
-              value={formData.industry}
-              onChange={handleChange}
-              className="h-10 w-full rounded-md border px-3"
-              disabled={isSubmitting}
-            >
-              <option className="" value="">Select industry</option>
-              <option value="IT">IT</option>
-              <option value="Accounts">Accounts</option>
-              <option value="Students">Students</option>
-              <option value="Research">Research</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.industry && <p className="text-sm text-red-500">{errors.industry}</p>}
-          </LabelInputContainer> */}
           <LabelInputContainer>
             <Label htmlFor="industry">Industry</Label>
             <select
               id="industry"
               value={formData.industry}
               onChange={handleChange}
-              className="h-10 w-full rounded-md border border-gray-600 bg-black text-white px-3 focus:outline-none focus:ring-2 focus:ring-white"
+              className={cn(
+                "h-10 w-full rounded-md border px-3 focus:outline-none focus:ring-2",
+                // FIXED: Adaptive colors
+                "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500", 
+                "dark:bg-zinc-800 dark:text-white dark:border-gray-600 dark:focus:ring-white"
+              )}
               disabled={isSubmitting}
             >
               <option value="">Select industry</option>

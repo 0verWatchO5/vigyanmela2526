@@ -2,7 +2,6 @@
 
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
-
 import { useEffect, useState } from "react";
 
 type Testimonial = {
@@ -11,6 +10,7 @@ type Testimonial = {
   designation: string;
   src: string;
 };
+
 export const AnimatedTestimonials = ({
   testimonials,
   autoplay = false,
@@ -19,6 +19,8 @@ export const AnimatedTestimonials = ({
   autoplay?: boolean;
 }) => {
   const [active, setActive] = useState(0);
+  // FIXED: Store random rotations in state to avoid hydration mismatch
+  const [randomRotations, setRandomRotations] = useState<number[]>([]);
 
   const handleNext = () => {
     setActive((prev) => (prev + 1) % testimonials.length);
@@ -32,6 +34,12 @@ export const AnimatedTestimonials = ({
     return index === active;
   };
 
+  // FIXED: Generate random values once on mount
+  useEffect(() => {
+    const rotations = testimonials.map(() => Math.floor(Math.random() * 21) - 10);
+    setRandomRotations(rotations);
+  }, [testimonials]);
+
   useEffect(() => {
     if (autoplay) {
       const interval = setInterval(handleNext, 5000);
@@ -39,9 +47,6 @@ export const AnimatedTestimonials = ({
     }
   }, [autoplay]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
-  };
   return (
     <div className="mx-auto max-w-sm px-4 py-20 font-sans antialiased md:max-w-4xl md:px-8 lg:px-12">
       <div className="relative grid grid-cols-1 gap-20 md:grid-cols-2">
@@ -55,13 +60,15 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: -100,
-                    rotate: randomRotateY(),
+                    // FIXED: Use deterministic value (0) on server, random on client
+                    rotate: randomRotations[index] ?? 0,
                   }}
                   animate={{
                     opacity: isActive(index) ? 1 : 0.7,
                     scale: isActive(index) ? 1 : 0.95,
                     z: isActive(index) ? 0 : -100,
-                    rotate: isActive(index) ? 0 : randomRotateY(),
+                    // FIXED: Use deterministic value (0) on server, random on client
+                    rotate: isActive(index) ? 0 : (randomRotations[index] ?? 0),
                     zIndex: isActive(index)
                       ? 40
                       : testimonials.length + 2 - index,
@@ -71,7 +78,7 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: 100,
-                    rotate: randomRotateY(),
+                    rotate: randomRotations[index] ?? 0,
                   }}
                   transition={{
                     duration: 0.4,
