@@ -229,7 +229,7 @@ export function EventRegistrationForm() {
 
   return (
     <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-      <h2 className="text-xl font-bold text-foreground">Event Registration</h2>
+      <h2 className="text-xl font-bold text-foreground">Visitor Registration</h2>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
         Register for VigyanMela 2526 by filling out the form below.
       </p>
@@ -319,7 +319,7 @@ export function EventRegistrationForm() {
           </LabelInputContainer>
 
           <LabelInputContainer>
-            <Label htmlFor="industry">Industry</Label>
+            <Label htmlFor="industry">Role</Label>
             <select
               id="industry"
               value={formData.industry}
@@ -332,11 +332,11 @@ export function EventRegistrationForm() {
               )}
               disabled={isSubmitting}
             >
-              <option value="">Select industry</option>
-              <option value="IT">IT</option>
-              <option value="Accounts">Accounts</option>
-              <option value="Students">Students</option>
-              <option value="Research">Research</option>
+              <option value="">Select Role</option>
+              <option value="Student">Student</option>
+              {/* <option value="Visitor">Visitor</option> */}
+              <option value="Media">Media</option>
+              <option value="Guest">Guest</option>
               <option value="Other">Other</option>
             </select>
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { Resend } from "resend";
 import Dbconns from "@/dbconfig/dbconn";
-import users from "@/models/registration";
+import Visitor from "@/models/visitor";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME as string,
@@ -68,19 +68,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Please provide a valid age between 10 and 120" }, { status: 400 });
     }
 
-    const existingUser = await users.findOne({
-      $or: [{ email }, { contact }],
-    });
-    
-    if (existingUser) {
-      if (existingUser.email === email) {
+    // Check duplicates in visitors collection (we only store visitors)
+    const existingVisitor = await Visitor.findOne({ $or: [{ email }, { contact }] });
+    if (existingVisitor) {
+      if (existingVisitor.email === email) {
         return NextResponse.json(
-          { error: "A user with this email already exists" },
+          { error: "A visitor with this email already exists" },
           { status: 409 }
         );
-      } else if (existingUser.contact === contact) {
+      } else if (existingVisitor.contact === contact) {
         return NextResponse.json(
-          { error: "A user with this contact number already exists" },
+          { error: "A visitor with this contact number already exists" },
           { status: 409 }
         );
       }
@@ -104,7 +102,8 @@ export async function POST(request: NextRequest) {
     //   // uploadStream.end(buffer);
     // });
 
-    const newUser = new users({
+    // Create and save only a Visitor document
+    const visitor = new Visitor({
       firstName,
       lastName,
       email,
@@ -115,12 +114,10 @@ export async function POST(request: NextRequest) {
       linkedin,
       // idCardUrl: uploadResult?.secure_url,
       // idCardPublicId: uploadResult?.public_id,
-      isAdmin: false,
     });
 
-    const saved = await newUser.save();
-
-    console.log("[register] user saved, id:", saved._id?.toString?.());
+    const savedVisitor = await visitor.save();
+    console.log("[register] visitor saved id:", savedVisitor._id?.toString?.());
 
     // Send confirmation email via Resend (if API key is available)
     let emailStatus: { ok: boolean; info?: any; error?: string } = { ok: false };
@@ -128,15 +125,15 @@ export async function POST(request: NextRequest) {
       if (process.env.RESEND_API_KEY) {
         const resend = new Resend(process.env.RESEND_API_KEY);
         const html = `
-          <p>Hi ${saved.firstName || "there"},</p>
+          <p>Hi ${savedVisitor.firstName || "there"},</p>
           <p>You're registered for <strong>VigyanMela 2526</strong>. Check your email for your ticket.</p>
           <p>Thanks,<br/>VigyanMela Team</p>
         `;
-        console.log("[register] sending confirmation email to:", saved.email);
+        console.log("[register] sending confirmation email to:", savedVisitor.email);
 
         const resp = await resend.emails.send({
           from: process.env.RESEND_FROM || "onboarding@resend.dev",
-          to: saved.email,
+          to: savedVisitor.email,
           subject: "VigyanMela 2526 — Registration confirmed",
           html,
         });
@@ -157,16 +154,16 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Registration successful",
         data: {
-          id: saved._id,
-          firstName: saved.firstName,
-          lastName: saved.lastName,
-          email: saved.email,
-          contact: saved.contact,
-          age: saved.age,
-          organization: saved.organization,
-          industry: saved.industry,
-          linkedin: saved.linkedin,
-          idCardUrl: saved.idCardUrl || null,
+          id: savedVisitor._id,
+          firstName: savedVisitor.firstName,
+          lastName: savedVisitor.lastName,
+          email: savedVisitor.email,
+          contact: savedVisitor.contact,
+          age: savedVisitor.age,
+          organization: savedVisitor.organization,
+          industry: savedVisitor.industry,
+          linkedin: savedVisitor.linkedin,
+          idCardUrl: savedVisitor.idCardUrl || null,
         },
         email: emailStatus,
       },
@@ -181,7 +178,7 @@ export async function POST(request: NextRequest) {
       
       return NextResponse.json(
         {
-          error: `A user with this ${fieldName} already exists`,
+          error: `A visitor with this ${fieldName} already exists`,
         },
         { status: 409 }
       );
