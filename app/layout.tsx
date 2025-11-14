@@ -361,7 +361,7 @@ const SidebarLink = ({
       href={link.href}
       className={cn(
         "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200", 
-        // FIXED: Adaptive background colors
+        // FIXED: Adaptive background colors (light gray in light mode, dark gray in dark mode)
         isActive ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800", 
         isCollapsed && "justify-center"
       )}
@@ -382,8 +382,16 @@ const SidebarLink = ({
   );
 };
 
-export function SidebarComponent({ currentPath }: { currentPath: string }) { 
-  const [isCollapsed, setIsCollapsed] = useState(true); 
+// Updated SidebarComponent to accept state props from RootLayout
+export function SidebarComponent({ 
+  currentPath, 
+  isCollapsed, 
+  setIsCollapsed 
+}: { 
+  currentPath: string;
+  isCollapsed: boolean;
+  setIsCollapsed: (val: boolean) => void;
+}) { 
 
   return (
     <Sidebar
@@ -416,6 +424,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // LIFTED STATE: Sidebar state is now managed here
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const pathname = usePathname(); 
 
   return (
@@ -443,9 +453,21 @@ export default function RootLayout({
           />
 
           <div className="flex min-h-screen w-full">
-            <SidebarComponent currentPath={pathname} />
+            {/* Pass state down to sidebar */}
+            <SidebarComponent 
+              currentPath={pathname} 
+              isCollapsed={isSidebarCollapsed} 
+              setIsCollapsed={setIsSidebarCollapsed} 
+            />
 
-            <main className="flex flex-1 flex-col items-stretch lg:ml-20 w-100">
+            {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
+            <main 
+              className={cn(
+                "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
+                // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
+                isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
+              )}
+            >
               {children}
             </main>
           </div>
