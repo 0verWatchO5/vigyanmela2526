@@ -6,6 +6,7 @@ import { UsersTable } from "./UsersTable";
 import { UsersGrid } from "./UsersGrid";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { AdminManagement } from "./AdminManagement";
+import TicketCard from "@/components/ui/TicketCard";
 
 interface User {
   _id: string;
@@ -21,7 +22,7 @@ interface User {
   updatedAt: string;
 }
 
-type TabType = "users" | "admins" | "settings";
+type TabType = "users" | "admins" | "settings" | "visitors";
 
 export function AdminDashboard() {
   const router = useRouter();
@@ -32,6 +33,16 @@ export function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [visitors, setVisitors] = useState<Array<{
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    contact?: string;
+    industry?: string;
+    organization?: string;
+    createdAt?: string;
+  }>>([]);
 
   const checkSuperAdmin = async () => {
     try {
@@ -39,7 +50,7 @@ export function AdminDashboard() {
       const data = await response.json();
       setIsSuperAdmin(data.adminData?.isSuperAdmin || false);
     } catch (error) {
-      
+      // ignore
     }
   };
 
@@ -49,7 +60,6 @@ export function AdminDashboard() {
       const response = await fetch("/api/eventheads/users");
 
       if (response.status === 401) {
-
         router.push("/eventheads/login");
         return;
       }
@@ -68,9 +78,23 @@ export function AdminDashboard() {
     }
   };
 
+  const fetchVisitors = async () => {
+    try {
+      const res = await fetch("/api/visitors");
+      if (!res.ok) {
+        throw new Error("Failed to fetch visitors");
+      }
+      const data = await res.json();
+      setVisitors(data.visitors || []);
+    } catch (err) {
+      console.error("Failed to load visitors", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     checkSuperAdmin();
+    fetchVisitors();
   }, []);
 
   const handleLogout = async () => {
@@ -179,6 +203,19 @@ export function AdminDashboard() {
           >
             👥 Users Management
             {activeTab === "users" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("visitors")}
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeTab === "visitors"
+                ? "text-blue-500"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🧾 Visitors
+            {activeTab === "visitors" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
             )}
           </button>
@@ -323,18 +360,56 @@ export function AdminDashboard() {
           <AdminManagement />
         </div>
       ) : (
-
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Account Settings
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Manage your admin account security and preferences
-            </p>
+        activeTab === "settings" ? (
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-foreground mb-2">
+                Account Settings
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Manage your admin account security and preferences
+              </p>
+            </div>
+            <ChangePasswordForm />
           </div>
-          <ChangePasswordForm />
-        </div>
+        ) : (
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-foreground mb-2">Visitors</h2>
+              <p className="text-sm text-muted-foreground">Recent visitors who registered for the event</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {visitors.length === 0 ? (
+                <div className="p-6 border border-border rounded-lg text-muted-foreground">No visitors yet.</div>
+              ) : (
+                visitors
+                  .filter((v) => {
+                    const q = searchQuery.toLowerCase();
+                    if (!q) return true;
+                    return (
+                      `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) ||
+                      (v.contact || "").includes(q) ||
+                      (v.industry || "").toLowerCase().includes(q)
+                    );
+                  })
+                  .map((v) => (
+                    <div key={v._id} className="flex justify-center">
+                      <TicketCard
+                        logoSrc="/images/VN.png"
+                        attendingText="Visitor ID"
+                        title={v.industry || "Visitor"}
+                        venue="706 7th-floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
+                        name={`${v.firstName} ${v.lastName}`}
+                        email={v.email || "-"}
+                        phone={v.contact || "-"}
+                      />
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        )
       )}
     </div>
   );
