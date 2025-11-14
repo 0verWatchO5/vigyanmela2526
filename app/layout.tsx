@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ThemeProvider, useTheme } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -452,26 +451,16 @@ export default function RootLayout({
             currentPath={pathname}
           />
 
-          <div className="flex min-h-screen w-full">
-            {/* Pass state down to sidebar */}
-            <SidebarComponent 
-              currentPath={pathname} 
-              isCollapsed={isSidebarCollapsed} 
-              setIsCollapsed={setIsSidebarCollapsed} 
-            />
+        <div className="flex min-h-screen w-full">
+          
+          {}
+          <SidebarComponent currentPath={pathname} />
 
-            {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
-            <main 
-              className={cn(
-                "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
-                // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
-                isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
-              )}
-            >
-              {children}
-            </main>
-          </div>
-        </ThemeProvider>
+          {/* 4. Main content area - add left margin to account for fixed sidebar */}
+          <main className="flex flex-1 flex-col items-stretch lg:ml-20 w-100">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
