@@ -112,7 +112,7 @@ export function AdminLoginForm() {
         Admin Login
       </h2>
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        Event Heads - VigyanMela 2526
+        Event Heads - Vigyan Mela 25
       </p>
 
       {}

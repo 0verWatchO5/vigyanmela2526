@@ -67,6 +67,13 @@ export function EventRegistrationForm({
   const [shareInFlight, setShareInFlight] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
+  const closeModalAndRefresh = () => {
+    setShowSuccessModal(false);
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -113,7 +120,7 @@ export function EventRegistrationForm({
       });
 
       const json = await response.json();
-
+      console.log("LinkedIn share response:", json);
       if (!response.ok) {
         if (response.status === 401) {
           setShareFeedback("Sign in with LinkedIn to post automatically, or use the Twitter button instead.");
@@ -247,7 +254,7 @@ export function EventRegistrationForm({
 
       setSubmitStatus({
         type: "success",
-        message: "Registration successful! Welcome to VigyanMela 2526.",
+        message: "Registration successful! Welcome to Vigyan Mela 25.",
       });
 
       setFormData({
@@ -285,7 +292,7 @@ export function EventRegistrationForm({
         Visitor Registration
       </h2>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        Register for VigyanMela 2526 by filling out the form below.
+        Register for Vigyan Mela 25 by filling out the form below.
       </p>
 
       {}
@@ -473,7 +480,7 @@ export function EventRegistrationForm({
               />
               <button
                 className="inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium"
-                onClick={() => setShowSuccessModal(false)}
+                onClick={closeModalAndRefresh}
               >
                 Close
               </button>

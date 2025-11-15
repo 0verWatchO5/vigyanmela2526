@@ -9,19 +9,23 @@ type UploadRegistration = {
 };
 
 async function fetchPersonUrn(accessToken: string) {
-  const meRes = await fetch("https://api.linkedin.com/v2/me", {
+  console.log("Fetching LinkedIn profile with access token", accessToken);
+  const meRes = await fetch("https://api.linkedin.com/v2/userinfo", {
     cache: "no-store",
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+
   if (!meRes.ok) {
     const txt = await meRes.text();
+    console.log("LinkedIn profile fetch failed with status:", meRes.status, txt);
     throw new Error(`Failed to fetch profile: ${txt}`);
   }
   const me = await meRes.json();
-  if (!me?.id) {
+  console.log("LinkedIn profile response:", me);
+  if (!me?.sub) {
     throw new Error("LinkedIn profile response did not include an id");
   }
-  return `urn:li:person:${me.id}`;
+  return `urn:li:person:${me.sub}`;
 }
 
 async function registerImageUpload(accessToken: string, ownerUrn: string): Promise<UploadRegistration> {
@@ -46,19 +50,22 @@ async function registerImageUpload(accessToken: string, ownerUrn: string): Promi
       },
     }),
   });
-
+  const registerResJson = await registerRes.json();
+  console.log("LinkedIn register upload response status:", registerRes.status, registerResJson);
   if (!registerRes.ok) {
     const details = await registerRes.text();
     throw new Error(`LinkedIn register upload failed: ${details}`);
   }
 
-  const payload = await registerRes.json();
+  const payload = registerResJson;
   const mediaUpload = payload?.value?.uploadMechanism?.["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"];
   const assetUrn = payload?.value?.asset as string | undefined;
 
   if (!mediaUpload?.uploadUrl || !assetUrn) {
     throw new Error("LinkedIn register upload response missing uploadUrl or asset URN");
   }
+  console.log("LinkedIn register upload response mediaUpload:", mediaUpload);
+  console.log("LinkedIn register upload response assetUrn:", assetUrn);
 
   const headers: Record<string, string> = {};
   if (mediaUpload.headers && typeof mediaUpload.headers === "object") {
@@ -67,7 +74,7 @@ async function registerImageUpload(accessToken: string, ownerUrn: string): Promi
       headers[key] = Array.isArray(value) ? value.filter(Boolean).join(",") : String(value);
     });
   }
-
+  console.log("LinkedIn register upload response headers:", headers);
   return {
     uploadUrl: mediaUpload.uploadUrl as string,
     assetUrn,
@@ -104,13 +111,13 @@ async function uploadImageToLinkedIn(registration: UploadRegistration, payload: 
           payload.buffer.byteOffset,
           payload.buffer.byteOffset + payload.buffer.byteLength
         ) as ArrayBuffer);
-
+  console.log("Uploading image to LinkedIn with payload size:", body.byteLength);
   const uploadRes = await fetch(registration.uploadUrl, {
     method: "PUT",
     headers,
     body,
   });
-
+  console.log("LinkedIn image upload response status:", uploadRes.status);
   if (!uploadRes.ok) {
     const txt = await uploadRes.text();
     throw new Error(`LinkedIn image upload failed: ${txt}`);
@@ -129,6 +136,7 @@ async function submitLinkedInPost(accessToken: string, body: Record<string, unkn
   });
 
   const json = await postRes.json();
+  console.log("LinkedIn post response status:", postRes.status, json);
   if (!postRes.ok) {
     throw new Error(`LinkedIn post failed: ${JSON.stringify(json)}`);
   }
@@ -139,6 +147,7 @@ async function submitLinkedInPost(accessToken: string, body: Record<string, unkn
 export async function POST(req: Request) {
   try {
     const session = (await getServerSession(authOptions as any)) as any;
+    console.log("Server session:", session);
     if (!session || !session.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -149,7 +158,8 @@ export async function POST(req: Request) {
     }
 
     const personUrn = await fetchPersonUrn(session.accessToken as string);
-
+    console.log("LinkedIn person URN:", personUrn);
+    console.log("Preparing to post with data:", { comment, shareUrl, title, description, imageUrl });
     if (imageUrl) {
       const registration = await registerImageUpload(session.accessToken as string, personUrn);
       const imagePayload = await downloadImage(imageUrl);
@@ -177,9 +187,9 @@ export async function POST(req: Request) {
       };
 
       const postJson = await submitLinkedInPost(session.accessToken as string, postBody);
+      console.log("LinkedIn post response:", postJson);
       return NextResponse.json({ success: true, data: postJson, assetUrn: registration.assetUrn });
     }
-
     const postBody = {
       author: personUrn,
       lifecycleState: "PUBLISHED",
@@ -201,6 +211,7 @@ export async function POST(req: Request) {
     };
 
     const postJson = await submitLinkedInPost(session.accessToken as string, postBody);
+    console.log("LinkedIn post response:", postJson);
     return NextResponse.json({ success: true, data: postJson });
   } catch (error: any) {
     return NextResponse.json({ error: error.message ?? "LinkedIn post failed" }, { status: 500 });

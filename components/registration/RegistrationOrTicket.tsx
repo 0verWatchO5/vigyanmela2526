@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { EventRegistrationForm } from "@/components/registration/EventRegistrationForm";
 import TicketCard from "@/components/ui/TicketCard";
+import { TwitterShareButton } from "react-share";
 
 type Visitor = {
   firstName: string;
@@ -17,6 +18,44 @@ export default function RegistrationOrTicket() {
   const [visitor, setVisitor] = useState<Visitor | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ firstName?: string; lastName?: string; email?: string; contact?: string } | null>(null);
+  const [shareInFlight, setShareInFlight] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+
+  const shareOnLinkedIn = async () => {
+    setShareFeedback(null);
+    setShareInFlight(true);
+    try {
+      const response = await fetch("/api/linkedin/post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comment: "I've registered for Vigyan Mela 25! Check your ticket and join.",
+          title: "Registered for Vigyan Mela 25",
+          description: "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
+          imageUrl: "https://vigyanmela.chetanacollege.in/images/VN.png",
+          shareUrl: "https://vigyanmela.chetanacollege.in/registration",
+        }),
+      });
+
+      if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          setShareFeedback("Sign in with LinkedIn to post automatically, or use the Twitter button instead.");
+        } else if (response.status === 403) {
+          setShareFeedback("Insufficient permissions. Please re-authenticate with LinkedIn.");
+        } else {
+          setShareFeedback((json as { error?: string }).error || "LinkedIn post failed. Please retry.");
+        }
+        return;
+      }
+
+      setShareFeedback("Shared to LinkedIn successfully!");
+    } catch (error) {
+      setShareFeedback("LinkedIn post failed. Check your connection and try again.");
+    } finally {
+      setShareInFlight(false);
+    }
+  };
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -86,10 +125,32 @@ export default function RegistrationOrTicket() {
           name={fullName}
           email={visitor.email}
           phone={visitor.contact || ""}
-          title="Vigyan Mela 2526"
+          title="Vigyan Mela 25 Ticket"
           dateRange="Thu, 11 Dec, 2025 – Fri, 12 Dec, 2025"
-          venue="Chetana College Bandra (E), Mumbai, Maharashtra, India"
+          venue="706, 7th floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
         />
+        <div className="mt-6 flex w-full max-w-sm flex-col items-center gap-3">
+          <p className="text-sm text-muted-foreground text-center">Share with friends</p>
+          <div className="flex gap-3">
+            <button
+              className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={shareOnLinkedIn}
+              disabled={shareInFlight}
+            >
+              {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
+            </button>
+            <TwitterShareButton
+              url="https://vigyanmela.chetanacollege.in"
+              title="Excited to share that I’m participating in Vigyan Mela 2025! 🎉
+Check your ticket and join the celebration of innovation."
+            >
+              <span className="inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium">Share on Twitter</span>
+            </TwitterShareButton>
+          </div>
+          {shareFeedback && (
+            <p className="text-xs text-muted-foreground text-center">{shareFeedback}</p>
+          )}
+        </div>
       </div>
     );
   }

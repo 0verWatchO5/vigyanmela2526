@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
           </div>
           <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#444;">
             <div style="color:#d93025;font-size:14px">📍</div>
-            <div>Chetana College Bandra (E), Mumbai, Maharashtra, India</div>
+            <div>706, 7th floor, Chetana College Bandra (E), Mumbai, Maharashtra, India</div>
           </div>
           <hr style="margin:16px 0;border:none;border-top:1px solid #f0f0f0" />
           <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#555">Your Booking Details</p>
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
         const html = `
           <div style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,'Helvetica Neue',sans-serif;line-height:1.4;color:#111;">
             <p style="margin:0 0 12px">Hi ${escape(savedVisitor.firstName) || "there"},</p>
-            <p style="margin:0 0 12px">You're registered for <strong>VigyanMela 2526</strong>. Below is your digital ticket.</p>
+            <p style="margin:0 0 12px">You're registered for <strong>Vigyan Mela 25</strong>. Below is your digital ticket.</p>
             ${ticketHtml}
             <p style="margin:16px 0 8px">Add the event to your calendar and follow us on LinkedIn!</p>
             <p style="margin:0;color:#555">Thanks,<br/>VigyanMela Team</p>
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         const resp = await resend.emails.send({
           from: process.env.RESEND_FROM || "onboarding@resend.dev",
           to: savedVisitor.email,
-          subject: "VigyanMela 2526 — Registration confirmed",
+          subject: "Vigyan Mela 25 — Registration confirmed",
           html,
         });
 

@@ -179,7 +179,7 @@ export function AdminDashboard() {
               Admin Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">
-              Manage registered users for VigyanMela 2526
+              Manage registered users for Vigyan Mela 25
             </p>
           </div>
           <button
@@ -444,7 +444,7 @@ export function AdminDashboard() {
                         logoSrc="/images/VN.png"
                         attendingText="Visitor ID"
                         title={v.industry || "Visitor"}
-                        venue="706 7th-floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
+                        venue="706, 7th-floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
                         name={`${v.firstName} ${v.lastName}`}
                         email={v.email || "-"}
                         phone={v.contact || "-"}
