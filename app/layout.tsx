@@ -430,10 +430,14 @@ export default function RootLayout({
   const pathname = usePathname(); 
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {}
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`} // MODIFIED: text-primary to text-foreground
+        suppressHydrationWarning
       >
         <SessionProvider>
           <ThemeProvider
