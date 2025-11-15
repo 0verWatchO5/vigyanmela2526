@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input, FileUpload } from "@/components/ui/form-inputs";
+import { Input } from "@/components/ui/form-inputs";
 import {
   Label,
   LabelInputContainer,
   BottomGradient,
 } from "@/components/ui/form-components";
 import { cn } from "@/lib/utils"; // IMPORT ADDED HERE
-
+import { TwitterShareButton } from "react-share";
 interface FormData {
   firstname: string;
   lastname: string;
@@ -32,7 +32,11 @@ interface FormErrors {
   linkedin?: string;
 }
 
-export function EventRegistrationForm({ initialValues }: { initialValues?: Partial<FormData> }) {
+export function EventRegistrationForm({
+  initialValues,
+}: {
+  initialValues?: Partial<FormData>;
+}) {
   const [formData, setFormData] = useState<FormData>({
     firstname: "",
     lastname: "",
@@ -43,14 +47,14 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
     industry: "",
     linkedin: "",
   });
-    React.useEffect(() => {
-      if (initialValues) {
-        setFormData((prev) => ({
-          ...prev,
-          ...initialValues,
-        }));
-      }
-    }, [initialValues]);
+  React.useEffect(() => {
+    if (initialValues) {
+      setFormData((prev) => ({
+        ...prev,
+        ...initialValues,
+      }));
+    }
+  }, [initialValues]);
   const [errors, setErrors] = useState<FormErrors>({});
   // const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,12 +64,16 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
   }>({ type: null, message: "" });
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [shareInFlight, setShareInFlight] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { id, value } = e.target as HTMLInputElement;
 
     let sanitizedValue = value;
-    
+
     if (id === "firstname" || id === "lastname") {
       sanitizedValue = value.replace(/[^a-zA-Z\s]/g, "");
     } else if (id === "contact") {
@@ -86,16 +94,40 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
     }
   };
 
-  const shareOnLinkedIn = () => {
+  const shareOnLinkedIn = async () => {
+    setShareFeedback(null);
+    setShareInFlight(true);
     try {
-      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and join.`;
-      const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-      const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
-        pageUrl
-      )}&title=${encodeURIComponent("Registered for Vigyan Mela 25")}&summary=${encodeURIComponent(shareText)}`;
-      window.open(linkedInUrl, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      // ignore
+      const response = await fetch("/api/linkedin/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          comment: "I've registered for Vigyan Mela 25! Check your ticket and join.",
+          title: "Registered for Vigyan Mela 25",
+          description: "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
+          imageUrl: "https://vigyanmela.chetanacollege.in/images/VN.png",
+          shareUrl: "https://vigyanmela.chetanacollege.in/registration",
+        }),
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setShareFeedback("Sign in with LinkedIn to post automatically, or use the Twitter button instead.");
+          return;
+        }
+        setShareFeedback(json.error || "LinkedIn post failed. Please retry.");
+        return;
+      }
+
+      setShareFeedback("Shared to LinkedIn successfully!");
+    } catch (error) {
+      setShareFeedback("LinkedIn post failed. Check your connection and try again.");
+    } finally {
+      setShareInFlight(false);
     }
   };
 
@@ -123,7 +155,9 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
 
     if (!formData.email.trim()) {
       tempErrors.email = "Email is required.";
-    } else if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+    } else if (
+      !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)
+    ) {
       tempErrors.email = "Please enter a valid email address.";
     }
 
@@ -168,7 +202,7 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
     // if (idCardFiles.length === 0) {
     //   tempErrors.idcard = "ID card upload is required.";
     // }
-    
+
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -189,7 +223,6 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
     setIsSubmitting(true);
 
     try {
-
       const submitData = new FormData();
       submitData.append("firstname", formData.firstname);
       submitData.append("lastname", formData.lastname);
@@ -217,18 +250,29 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
         message: "Registration successful! Welcome to VigyanMela 2526.",
       });
 
-      setFormData({ firstname: "", lastname: "", email: "", contact: "", age: "", organization: "", industry: "", linkedin: "" });
+      setFormData({
+        firstname: "",
+        lastname: "",
+        email: "",
+        contact: "",
+        age: "",
+        organization: "",
+        industry: "",
+        linkedin: "",
+      });
       // setIdCardFiles([]);
       setErrors({});
 
       // show success modal with share option
       setShowSuccessModal(true);
+      setShareFeedback(null);
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setSubmitStatus({
         type: "error",
-        message: (error as Error).message || "Something went wrong. Please try again.",
+        message:
+          (error as Error).message || "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -237,7 +281,9 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
 
   return (
     <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-      <h2 className="text-xl font-bold text-foreground">Visitor Registration</h2>
+      <h2 className="text-xl font-bold text-foreground">
+        Visitor Registration
+      </h2>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
         Register for VigyanMela 2526 by filling out the form below.
       </p>
@@ -335,7 +381,7 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
               className={cn(
                 "h-10 w-full rounded-md border px-3 focus:outline-none focus:ring-2",
                 // FIXED: Adaptive colors
-                "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500", 
+                "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500",
                 "dark:bg-zinc-800 dark:text-white dark:border-gray-600 dark:focus:ring-white"
               )}
               disabled={isSubmitting}
@@ -409,14 +455,22 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="mx-4 w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-neutral-900">
             <h3 className="text-lg font-semibold">You're registered!</h3>
-            <p className="mt-2 text-sm text-muted-foreground">Check your email for your ticket.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Check your email for your ticket.
+            </p>
             <div className="mt-4 flex gap-3">
               <button
-                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white"
+                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                 onClick={shareOnLinkedIn}
+                disabled={shareInFlight}
               >
-                Share on LinkedIn
+                {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
               </button>
+              <TwitterShareButton
+                children={"Share on Twitter"}
+                url="https://vigyanmela.chetanacollege.in"
+                title="I've registered for Vigyan Mela 25! Check your ticket and join."
+              />
               <button
                 className="inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium"
                 onClick={() => setShowSuccessModal(false)}
@@ -424,6 +478,9 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
                 Close
               </button>
             </div>
+            {shareFeedback && (
+              <p className="mt-3 text-xs text-muted-foreground">{shareFeedback}</p>
+            )}
           </div>
         </div>
       )}

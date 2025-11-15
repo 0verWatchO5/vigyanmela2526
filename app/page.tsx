@@ -1,10 +1,36 @@
-"use client";
-
+import { Metadata } from "next";
 import { HoverBorderGradientDemo } from "@/components/button";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import AnimatedBox from "@/components/animatedbox";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://vigyanmela.chetanacollege.in";
 
+export const metadata: Metadata = {
+  title: "Vigyan Mela 25 — Where Science Meets Innovation",
+  description: "Join Vigyan Mela 25 to explore cutting-edge science projects, workshops, and networking opportunities.",
+  openGraph: {
+    title: "Vigyan Mela 25 — Where Science Meets Innovation",
+    description: "Join Vigyan Mela 25 to explore cutting-edge science projects, workshops, and networking opportunities.",
+    url: siteUrl,
+    siteName: "Vigyan Mela 25",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: `${siteUrl}/images/VN.png`,
+        width: 1200,
+        height: 630,
+        alt: "Vigyan Mela 25 Hero",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vigyan Mela 25 — Where Science Meets Innovation",
+    description: "Join Vigyan Mela 25 to explore cutting-edge science projects, workshops, and networking opportunities.",
+    images: [`${siteUrl}/images/VN.png`],
+  },
+};
 
 const products = [
   {
