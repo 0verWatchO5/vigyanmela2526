@@ -29,7 +29,7 @@ export default function DemoPage() {
         <ShareLinkedInPost
           shareUrl={shareUrl}
           title="Vigyan Mela Launch"
-          description="Join us for innovation, workshops, and networking."
+          description="Visit us for innovation, workshops, and networking."
           defaultComment="Excited to attend Vigyan Mela! 🚀"
         />
       </div>

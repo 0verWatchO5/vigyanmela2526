@@ -39,7 +39,7 @@ const sponsors = [
   {
     id: 1,
     name: "Austrange Solutions",
-    href: "https://www.austrangesolutions.com/",
+    href: "https://maceazy.com/",
     logo: "/images/austrange.ico",
 
     color: "#0e3cac", 
