@@ -108,7 +108,7 @@ export default function About() {
          </div>
 
          <p className="text-muted-foreground mt-24 text-center text-lg max-w-3xl mx-auto">
-           Join us for the next event and be part of the innovation.
+           Visit us for the next event and be part of the innovation.
          </p>
       </div>
 
