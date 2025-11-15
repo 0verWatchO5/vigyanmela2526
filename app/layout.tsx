@@ -351,12 +351,13 @@ export default function RootLayout({
 
   return (
 
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`} // MODIFIED: text-primary to text-foreground
+        suppressHydrationWarning
       >
         
         {}

@@ -26,6 +26,11 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [makingAdmin, setMakingAdmin] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleViewDocument = (user: User) => {
     setSelectedUser(user);
@@ -67,6 +72,74 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
       alert(`❌ Error: ${(err as Error).message}`);
     } finally {
       setMakingAdmin(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setUserToDelete(userId);
+
+    try {
+      const response = await fetch(`/api/eventheads/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete user");
+      }
+
+      alert(`✅ ${data.message}`);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      alert(`❌ Error: ${(err as Error).message}`);
+    } finally {
+      setIsDeleting(false);
+      setUserToDelete(null);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser({ ...user });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`/api/eventheads/users/${editingUser._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: editingUser.firstName,
+          lastName: editingUser.lastName,
+          email: editingUser.email,
+          contact: editingUser.contact,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update user");
+      }
+
+      alert(`✅ ${data.message}`);
+      setIsEditModalOpen(false);
+      setEditingUser(null);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      alert(`❌ Error: ${(err as Error).message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -154,12 +227,27 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
                     })}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleViewDocument(user)}
-                      className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500/10 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
-                    >
-                      View
-                    </button>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => handleViewDocument(user)}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500/10 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500/10 text-green-500 border border-green-500 hover:bg-green-500 hover:text-white transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user._id, `${user.firstName} ${user.lastName}`)}
+                        disabled={isDeleting && userToDelete === user._id}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500/10 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeleting && userToDelete === user._id ? "..." : "Delete"}
+                      </button>
+                    </div>
                   </td>
                   {isSuperAdmin && (
                     <td className="px-6 py-4 text-center">
@@ -191,6 +279,85 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
           imageUrl={selectedUser.idCardUrl}
           userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
         />
+      )}
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && editingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 rounded-lg shadow-xl max-w-md w-full p-6 border border-neutral-800">
+            <h3 className="text-xl font-semibold mb-4 text-white">Edit User</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={editingUser.firstName}
+                  onChange={(e) => setEditingUser({ ...editingUser, firstName: e.target.value })}
+                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={editingUser.lastName}
+                  onChange={(e) => setEditingUser({ ...editingUser, lastName: e.target.value })}
+                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Contact
+                </label>
+                <input
+                  type="text"
+                  value={editingUser.contact}
+                  onChange={(e) => setEditingUser({ ...editingUser, contact: e.target.value })}
+                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSaving}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingUser(null);
+                }}
+                disabled={isSaving}
+                className="flex-1 px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
