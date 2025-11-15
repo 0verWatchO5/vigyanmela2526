@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       phoneNumber,
       collegeName,
       currentYear,
+      academicSession,
       rollNumber,
       projects,
     } = body;
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
       !phoneNumber ||
       !collegeName ||
       !currentYear ||
+      !academicSession ||
       !rollNumber ||
       !projects
     ) {
@@ -88,6 +90,7 @@ export async function POST(request: Request) {
       phoneNumber,
       collegeName,
       currentYear,
+      academicSession,
       rollNumber,
       projects,
     });

@@ -11,7 +11,7 @@ interface Project {
   projectDocumentation: string;
   projectLink: string;
   technologyStack: string[];
-  targetAudience: string;
+  targetAudience: string[];
 }
 
 interface CollegeStudent {
@@ -21,6 +21,7 @@ interface CollegeStudent {
   phoneNumber: string;
   collegeName: string;
   currentYear: string;
+  academicSession?: string;
   rollNumber: string;
   projects: Project[];
   createdAt: string;
@@ -166,6 +167,7 @@ export function CollegeStudentsManager() {
           phoneNumber: editingStudent.phoneNumber,
           collegeName: editingStudent.collegeName,
           currentYear: editingStudent.currentYear,
+          academicSession: editingStudent.academicSession,
           rollNumber: editingStudent.rollNumber,
         }),
       });
@@ -412,6 +414,10 @@ export function CollegeStudentsManager() {
                     <p className="text-white">{selectedStudent.currentYear}</p>
                   </div>
                   <div>
+                    <p className="text-gray-400">Academic Session</p>
+                    <p className="text-white">{selectedStudent.academicSession || "N/A"}</p>
+                  </div>
+                  <div>
                     <p className="text-gray-400">Roll Number</p>
                     <p className="text-white">{selectedStudent.rollNumber}</p>
                   </div>
@@ -441,7 +447,13 @@ export function CollegeStudentsManager() {
                       </div>
                       <div>
                         <p className="text-gray-400">Target Audience</p>
-                        <p className="text-white">{project.targetAudience}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {project.targetAudience.map((aud, i) => (
+                            <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-cyan-500/20 text-cyan-300">
+                              {aud}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
@@ -583,6 +595,19 @@ export function CollegeStudentsManager() {
                   value={editingStudent.rollNumber}
                   onChange={(e) => setEditingStudent({ ...editingStudent, rollNumber: e.target.value })}
                   className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Academic Session
+                </label>
+                <input
+                  type="text"
+                  value={editingStudent.academicSession || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, academicSession: e.target.value })}
+                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 2025-26"
                 />
               </div>
 

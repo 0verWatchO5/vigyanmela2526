@@ -26,10 +26,11 @@ const projectCategories = [
 
 const targetAudiences = [
   "Students",
-  "Industry",
+  "Teachers",
   "General Public",
-  "Academia",
-  "Startups",
+  "Researchers",
+  "Industry",
+  "Other",
 ];
 
 interface Project {
@@ -41,13 +42,14 @@ interface Project {
   projectDocumentation: string;
   projectLink: string;
   technologyStack: string[];
-  targetAudience: string;
+  targetAudience: string[];
 }
 
 export default function CollegeRegistrationForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Personal Details
   const [studentName, setStudentName] = useState("");
@@ -58,11 +60,13 @@ export default function CollegeRegistrationForm() {
   const [currentYear, setCurrentYear] = useState<"2nd Year" | "3rd Year" | "">(
     ""
   );
+  const [academicSession, setAcademicSession] = useState("");
   const [rollNumber, setRollNumber] = useState("");
 
   // Projects
   const [projects, setProjects] = useState<Project[]>([]);
   const [techInput, setTechInput] = useState<{ [key: number]: string }>({});
+  const [customAudienceInput, setCustomAudienceInput] = useState<{ [key: number]: string }>({});
 
   const initializeProjects = (year: "2nd Year" | "3rd Year") => {
     const years = year === "2nd Year" ? ["First Year"] : ["First Year", "Second Year"];
@@ -76,7 +80,7 @@ export default function CollegeRegistrationForm() {
         projectDocumentation: "",
         projectLink: "",
         technologyStack: [],
-        targetAudience: "",
+        targetAudience: [],
       }))
     );
   };
@@ -103,6 +107,22 @@ export default function CollegeRegistrationForm() {
     setProjects(updatedProjects);
   };
 
+  const addCustomAudience = (projectIndex: number) => {
+    const custom = customAudienceInput[projectIndex]?.trim();
+    if (custom && !projects[projectIndex].targetAudience.includes(custom)) {
+      const updatedProjects = [...projects];
+      updatedProjects[projectIndex].targetAudience.push(custom);
+      setProjects(updatedProjects);
+      setCustomAudienceInput({ ...customAudienceInput, [projectIndex]: "" });
+    }
+  };
+
+  const removeAudience = (projectIndex: number, audience: string) => {
+    const updatedProjects = [...projects];
+    updatedProjects[projectIndex].targetAudience = updatedProjects[projectIndex].targetAudience.filter((a) => a !== audience);
+    setProjects(updatedProjects);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -118,6 +138,7 @@ export default function CollegeRegistrationForm() {
           phoneNumber,
           collegeName,
           currentYear,
+          academicSession,
           rollNumber,
           projects,
         }),
@@ -147,6 +168,7 @@ export default function CollegeRegistrationForm() {
       phoneNumber.match(/^[0-9]{10}$/) &&
       collegeName &&
       currentYear &&
+      academicSession &&
       rollNumber
     );
   };
@@ -158,7 +180,7 @@ export default function CollegeRegistrationForm() {
         p.projectDescription &&
         p.projectCategory &&
         p.projectPhotos.length > 0 &&
-        p.targetAudience
+        p.targetAudience.length > 0
     );
   };
 
@@ -291,6 +313,18 @@ export default function CollegeRegistrationForm() {
                     </select>
                   </LabelInputContainer>
 
+                  <LabelInputContainer>
+                    <Label htmlFor="academicSession">Academic Session</Label>
+                    <Input
+                      id="academicSession"
+                      type="text"
+                      required
+                      value={academicSession}
+                      onChange={(e) => setAcademicSession(e.target.value)}
+                      placeholder="e.g., 2025-26"
+                    />
+                  </LabelInputContainer>
+
                   <LabelInputContainer className="md:col-span-2">
                     <Label htmlFor="rollnumber">Roll Number</Label>
                     <Input
@@ -306,16 +340,19 @@ export default function CollegeRegistrationForm() {
 
                 <button
                   type="button"
+                  disabled={isNavigating}
                   onClick={() => {
                     if (isStep1Valid()) {
+                      setIsNavigating(true);
                       setCurrentStep(2);
+                      setTimeout(() => setIsNavigating(false), 300);
                     } else {
                       alert("Please fill all required fields correctly");
                     }
                   }}
-                  className="bg-linear-to-br relative group/btn from-black to-neutral-600 block w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset]"
+                  className="bg-linear-to-br relative group/btn from-black to-neutral-600 block w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Next: Project Details →
+                  {isNavigating ? "Loading..." : "Next: Project Details →"}
                   <BottomGradient />
                 </button>
               </div>
@@ -401,26 +438,90 @@ export default function CollegeRegistrationForm() {
 
                         <LabelInputContainer>
                           <Label htmlFor={`audience-${index}`}>Target Audience</Label>
-                          <select
-                            id={`audience-${index}`}
-                            required
-                            value={project.targetAudience}
-                            onChange={(e) =>
-                              updateProject(
-                                index,
-                                "targetAudience",
-                                e.target.value
-                              )
-                            }
-                            className="flex h-10 w-full border-none bg-neutral-800 text-white rounded-md px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-600 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <option value="">Select Audience</option>
-                            {targetAudiences.map((aud) => (
-                              <option key={aud} value={aud}>
-                                {aud}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="space-y-3">
+                            {/* Predefined options */}
+                            <div className="space-y-2">
+                              {targetAudiences.map((aud) => (
+                                <label
+                                  key={aud}
+                                  className="flex items-center gap-2 text-white cursor-pointer hover:bg-neutral-800/50 p-2 rounded-md transition"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={project.targetAudience.includes(aud)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        updateProject(index, "targetAudience", [...project.targetAudience, aud]);
+                                      } else {
+                                        updateProject(index, "targetAudience", project.targetAudience.filter((a) => a !== aud));
+                                      }
+                                    }}
+                                    className="w-4 h-4 rounded border-neutral-600 bg-neutral-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500"
+                                  />
+                                  <span className="text-sm">{aud}</span>
+                                </label>
+                              ))}
+                            </div>
+
+                            {/* Custom audience input when "Other" is checked */}
+                            {project.targetAudience.includes("Other") && (
+                              <div className="bg-neutral-800/50 p-3 rounded-md border border-neutral-700">
+                                <Label htmlFor={`custom-audience-${index}`} className="text-sm mb-2">
+                                  Specify Other Audience
+                                </Label>
+                                <div className="flex gap-2 mt-2">
+                                  <Input
+                                    id={`custom-audience-${index}`}
+                                    type="text"
+                                    value={customAudienceInput[index] || ""}
+                                    onChange={(e) => setCustomAudienceInput({ ...customAudienceInput, [index]: e.target.value })}
+                                    placeholder="e.g., Government Officials, NGOs"
+                                    onKeyPress={(e) => {
+                                      if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        addCustomAudience(index);
+                                      }
+                                    }}
+                                    className="flex-1"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => addCustomAudience(index)}
+                                    className="px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 transition text-sm font-medium"
+                                  >
+                                    Add
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Display selected audiences as badges */}
+                            {project.targetAudience.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {project.targetAudience.map((aud, audIdx) => (
+                                  <span
+                                    key={audIdx}
+                                    className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs flex items-center gap-2"
+                                  >
+                                    {aud}
+                                    <button
+                                      type="button"
+                                      onClick={() => removeAudience(index, aud)}
+                                      className="hover:text-red-400 transition"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {project.targetAudience.length === 0 && (
+                              <p className="text-red-400 text-xs mt-1">
+                                Please select at least one target audience
+                              </p>
+                            )}
+                          </div>
                         </LabelInputContainer>
                       </div>
 
@@ -566,8 +667,13 @@ export default function CollegeRegistrationForm() {
                 <div className="flex gap-4">
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(1)}
-                    className="bg-neutral-800 relative group/btn block w-full text-white rounded-md h-10 font-medium"
+                    disabled={isNavigating || loading}
+                    onClick={() => {
+                      setIsNavigating(true);
+                      setCurrentStep(1);
+                      setTimeout(() => setIsNavigating(false), 300);
+                    }}
+                    className="bg-neutral-800 relative group/btn block w-full text-white rounded-md h-10 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ← Back
                     <BottomGradient />

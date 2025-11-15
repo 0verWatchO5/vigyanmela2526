@@ -46,11 +46,10 @@ const projectSchema = new mongoose.Schema({
   technologyStack: [{
     type: String,
   }],
-  targetAudience: {
+  targetAudience: [{
     type: String,
     required: true,
-    enum: ["Students", "Industry", "General Public", "Academia", "Startups"],
-  },
+  }],
 });
 
 const collegeStudentSchema = new mongoose.Schema(
@@ -88,6 +87,11 @@ const collegeStudentSchema = new mongoose.Schema(
       type: String,
       required: [true, "Current year of study is required"],
       enum: ["2nd Year", "3rd Year"],
+    },
+    academicSession: {
+      type: String,
+      required: [true, "Academic session is required"],
+      trim: true,
     },
     rollNumber: {
       type: String,
