@@ -1,6 +1,6 @@
 "use client";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ export const ParallaxScrollSecond = ({
   className?: string;
 }) => {
   const gridRef = useRef<any>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { scrollYProgress } = useScroll({
     container: gridRef, // This tells useScroll to track the div with gridRef
     offset: ["start start", "end start"],
@@ -55,10 +56,11 @@ export const ParallaxScrollSecond = ({
             >
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
                 height="400"
                 width="400"
                 alt="thumbnail"
+                onClick={() => setSelectedImage(el)}
               />
             </motion.div>
           ))}
@@ -68,10 +70,11 @@ export const ParallaxScrollSecond = ({
             <motion.div key={"grid-2" + idx}>
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
                 height="400"
                 width="400"
                 alt="thumbnail"
+                onClick={() => setSelectedImage(el)}
               />
             </motion.div>
           ))}
@@ -88,15 +91,44 @@ export const ParallaxScrollSecond = ({
             >
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
                 height="400"
                 width="400"
                 alt="thumbnail"
+                onClick={() => setSelectedImage(el)}
               />
             </motion.div>
           ))}
         </div>
       </div>
+
+      {/* Fullscreen Image Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div className="relative w-full h-full flex items-center justify-center p-4">
+              <img
+                src={selectedImage}
+                alt="Full view"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <button
+                className="absolute top-6 right-6 text-white text-4xl font-bold hover:text-gray-300 transition"
+                onClick={() => setSelectedImage(null)}
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
