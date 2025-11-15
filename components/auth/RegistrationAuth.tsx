@@ -50,14 +50,6 @@ export default function RegistrationAuth({ children, className }: Props) {
           </div>
 
           <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
-              className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition"
-            >
-              Continue with LinkedIn
-            </button>
-
             <div className="relative my-2">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border"></span></div>
               <div className="relative flex justify-center text-xs"><span className="bg-background px-2 text-muted-foreground">or</span></div>
@@ -72,6 +64,14 @@ export default function RegistrationAuth({ children, className }: Props) {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
+              <button
+                type="button"
+                onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
+                className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition mb-2"
+              >
+                Continue with LinkedIn
+              </button>
+
               <button
                 disabled={loading}
                 className="w-full rounded-md bg-blue-600 hover:bg-blue-700 text-white py-2.5 text-sm font-medium disabled:opacity-50"
@@ -94,7 +94,7 @@ export default function RegistrationAuth({ children, className }: Props) {
     <div className={className + " w-full"}>
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">Signed in as {data?.user?.name || data?.user?.email}</span>
-        <button
+        <button 
           onClick={() => signOut()}
           className="text-xs px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600"
         >
@@ -104,4 +104,5 @@ export default function RegistrationAuth({ children, className }: Props) {
       {children}
     </div>
   );
+  
 }
