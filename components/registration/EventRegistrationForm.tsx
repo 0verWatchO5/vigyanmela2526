@@ -32,7 +32,7 @@ interface FormErrors {
   linkedin?: string;
 }
 
-export function EventRegistrationForm() {
+export function EventRegistrationForm({ initialValues }: { initialValues?: Partial<FormData> }) {
   const [formData, setFormData] = useState<FormData>({
     firstname: "",
     lastname: "",
@@ -43,6 +43,14 @@ export function EventRegistrationForm() {
     industry: "",
     linkedin: "",
   });
+    React.useEffect(() => {
+      if (initialValues) {
+        setFormData((prev) => ({
+          ...prev,
+          ...initialValues,
+        }));
+      }
+    }, [initialValues]);
   const [errors, setErrors] = useState<FormErrors>({});
   // const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);

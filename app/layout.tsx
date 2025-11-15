@@ -5,6 +5,7 @@ import "./globals.css";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -434,7 +435,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <ThemeProvider
+        <SessionProvider>
+          <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
@@ -472,6 +474,7 @@ export default function RootLayout({
             </main>
           </div>
         </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
