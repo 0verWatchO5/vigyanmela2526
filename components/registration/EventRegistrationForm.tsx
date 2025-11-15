@@ -88,7 +88,7 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
 
   const shareOnLinkedIn = () => {
     try {
-      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and join.`;
+      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and Visit.`;
       const pageUrl = typeof window !== "undefined" ? window.location.href : "";
       const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
         pageUrl
