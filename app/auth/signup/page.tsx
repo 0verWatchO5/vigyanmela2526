@@ -41,14 +41,6 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
-            className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition"
-          >
-            Continue with LinkedIn
-          </button>
-
           <div className="relative my-2">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border"></span></div>
             <div className="relative flex justify-center text-xs"><span className="bg-background px-2 text-muted-foreground">or</span></div>
@@ -77,6 +69,14 @@ export default function SignupPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
             </div>
+            <button
+              type="button"
+              onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
+              className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition mb-2"
+            >
+              Continue with LinkedIn
+            </button>
+
             <button disabled={loading} className="w-full rounded-md bg-blue-600 hover:bg-blue-700 text-white py-2.5 text-sm font-medium disabled:opacity-50">
               {loading ? "Creating..." : "Create account"}
             </button>
