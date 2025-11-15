@@ -379,6 +379,25 @@ export function AdminDashboard() {
               <p className="text-sm text-muted-foreground">Recent visitors who registered for the event</p>
             </div>
 
+            {/* Visitors search */}
+            <div className="max-w-7xl mx-auto mb-6">
+              <div className="flex items-stretch gap-4 bg-zinc-900 border border-border rounded-lg p-4">
+                <input
+                  type="text"
+                  placeholder="Search visitors by name, contact, or role..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 px-4 py-2 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="px-4 py-2 bg-zinc-800 text-sm text-foreground border border-border rounded-md hover:bg-zinc-700"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {visitors.length === 0 ? (
                 <div className="p-6 border border-border rounded-lg text-muted-foreground">No visitors yet.</div>

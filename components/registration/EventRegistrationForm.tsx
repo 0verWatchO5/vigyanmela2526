@@ -32,7 +32,7 @@ interface FormErrors {
   linkedin?: string;
 }
 
-export function EventRegistrationForm() {
+export function EventRegistrationForm({ initialValues }: { initialValues?: Partial<FormData> }) {
   const [formData, setFormData] = useState<FormData>({
     firstname: "",
     lastname: "",
@@ -43,6 +43,14 @@ export function EventRegistrationForm() {
     industry: "",
     linkedin: "",
   });
+    React.useEffect(() => {
+      if (initialValues) {
+        setFormData((prev) => ({
+          ...prev,
+          ...initialValues,
+        }));
+      }
+    }, [initialValues]);
   const [errors, setErrors] = useState<FormErrors>({});
   // const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,11 +88,11 @@ export function EventRegistrationForm() {
 
   const shareOnLinkedIn = () => {
     try {
-      const shareText = `I've registered for VigyanMela 2526! Check your ticket and join.`;
+      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and Visit.`;
       const pageUrl = typeof window !== "undefined" ? window.location.href : "";
       const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
         pageUrl
-      )}&title=${encodeURIComponent("Registered for VigyanMela 2526")}&summary=${encodeURIComponent(shareText)}`;
+      )}&title=${encodeURIComponent("Registered for Vigyan Mela 25")}&summary=${encodeURIComponent(shareText)}`;
       window.open(linkedInUrl, "_blank", "noopener,noreferrer");
     } catch (e) {
       // ignore

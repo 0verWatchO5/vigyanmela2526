@@ -24,35 +24,40 @@ const teamMembers = [
       "Leading the charge to make Vigyan Mela an unforgettable celebration of science and innovation for everyone.",
     name: "Mayuresh Chaubal",
     designation: "Vigyaan Mela Head TYIT",
-    src: "https://placehold.co/400x400/6366f1/white?text=M",
+    src: "/images/Mayuresh.jpg",
+    link: "https://www.linkedin.com/in/mayuresh-chaubal/",
   },
   {
     quote:
       "Crafting the digital experience and ensuring all our tech runs smoothly, from registration to live demos.",
     name: "Noorjahan Charania",
     designation: "Vigyaan Mela Head TYIT",
-    src: "https://placehold.co/400x400/ec4899/white?text=N",
+    src: "/images/noor.jpg",
+    link: "https://www.linkedin.com/in/noorjahan-charania-95bb8631a",
   },
   {
     quote:
       "Connecting with schools, partners, and the media to spread the word and bring our community together.",
     name: "Liyakat Shaikh",
     designation: "Tech ",
-    src: "https://placehold.co/400x400/10b981/white?text=L",
+    src: "/images/Liyakat.jpg",
+    link: "https://www.linkedin.com/in/shaikh-liyakat/",
   },
   {
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Meet Korpe",
     designation: "Tech",
-    src: "https://placehold.co/400x400/f59e0b/white?text=M",
+    src: "images/Meet.jpg",
+    link: "https://www.linkedin.com/in/meet-korpe/",
   },
   {
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Vishnuraj Vishwakarma",
     designation: "Alumni Coordinator",
-    src: "https://placehold.co/400x400/f59e0b/white?text=V",
+    src: "images/Vishnu.png",
+    link: "https://www.linkedin.com/in/vishnuraj-vishwakarma/",
   },
 ];
 
@@ -63,6 +68,7 @@ export default function About() {
     name: member.name,
     designation: member.designation,
     image: member.src,
+    link: member.link,
   }));
 
   return (
@@ -102,7 +108,7 @@ export default function About() {
          </div>
 
          <p className="text-muted-foreground mt-24 text-center text-lg max-w-3xl mx-auto">
-           Join us for the next event and be part of the innovation.
+           Visit us for the next event and be part of the innovation.
          </p>
       </div>
 

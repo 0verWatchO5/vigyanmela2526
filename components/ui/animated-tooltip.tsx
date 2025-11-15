@@ -17,6 +17,7 @@ export const AnimatedTooltip = ({
     name: string;
     designation: string;
     image: string;
+    link?: string;
   }[];
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -55,25 +56,25 @@ export const AnimatedTooltip = ({
         >
           <AnimatePresence>
             {hoveredIndex === item.id && (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.6 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  scale: 1,
-                  transition: {
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 10,
-                  },
-                }}
-                exit={{ opacity: 0, y: 20, scale: 0.6 }}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.75 }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1.12,
+                    transition: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 12,
+                    },
+                  }}
+                  exit={{ opacity: 0, y: 20, scale: 0.75 }}
                 style={{
                   translateX: translateX,
                   rotate: rotate,
                   whiteSpace: "nowrap",
                 }}
-                className="absolute -top-16 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-black px-4 py-2 text-xs shadow-xl"
+                className="absolute -top-20 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-black px-4 py-2 text-sm shadow-2xl"
               >
                 <div className="absolute inset-x-10 -bottom-px z-30 h-px w-[20%] bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
                 <div className="absolute -bottom-px left-10 z-30 h-px w-[40%] bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
@@ -84,14 +85,32 @@ export const AnimatedTooltip = ({
               </motion.div>
             )}
           </AnimatePresence>
-          <img
-            onMouseMove={handleMouseMove}
-            height={100}
-            width={100}
-            src={item.image}
-            alt={item.name}
-            className="relative !m-0 h-14 w-14 rounded-full border-2 border-white object-cover object-top !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
-          />
+          {item.link ? (
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer"
+              onMouseMove={handleMouseMove}
+            >
+              <img
+                height={160}
+                width={160}
+                src={item.image}
+                alt={item.name}
+                className="relative m-0 h-24 w-24 rounded-full border-2 border-white object-cover object-top p-0 transition duration-300 group-hover:z-30 group-hover:scale-125"
+              />
+            </a>
+          ) : (
+            <img
+              onMouseMove={handleMouseMove}
+              height={160}
+              width={160}
+              src={item.image}
+              alt={item.name}
+              className="relative m-0 h-24 w-24 rounded-full border-2 border-white object-cover object-top p-0 transition duration-300 group-hover:z-30 group-hover:scale-125"
+            />
+          )}
         </div>
       ))}
     </>

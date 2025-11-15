@@ -1,17 +1,48 @@
 "use client";
 
-// import { CardSpotlight } from "@/components/ui/card-spotlight"; // Removed this
+
 import Image from "next/image";
-import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card"; // Added this
+import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
+
+const SponsorHoverGradient = ({ color }: { color: string }) => {
+  return (
+    <>
+      <span
+        className="absolute inset-x-0 -top-px block h-[2px] w-full bg-gradient-to-r from-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{
+          backgroundImage: `linear-gradient(to right, transparent, ${color}, transparent)`,
+        }}
+      />
+      <span
+        className="absolute inset-x-0 -bottom-px block h-[2px] w-full bg-gradient-to-r from-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{
+          backgroundImage: `linear-gradient(to right, transparent, ${color}, transparent)`,
+        }}
+      />
+      <span
+        className="absolute inset-y-0 -left-px block h-full w-[2px] bg-gradient-to-b from-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, transparent, ${color}, transparent)`,
+        }}
+      />
+      <span
+        className="absolute inset-y-0 -right-px block h-full w-[2px] bg-gradient-to-b from-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, transparent, ${color}, transparent)`,
+        }}
+      />
+    </>
+  );
+}; 
 
 const sponsors = [
   {
     id: 1,
     name: "Austrange Solutions",
-    href: "https://www.austrangesolutions.com/",
+    href: "https://maceazy.com/",
     logo: "/images/austrange.ico",
 
-    color: "#0e3cac", // This color is no longer used by CardSpotlight
+    color: "#0e3cac", 
     description: "Empowering Lives Through Intelligent Solutions",
   },
   {
@@ -19,7 +50,7 @@ const sponsors = [
     name: "HiTech Technology",
     href: "https://hitechnology.co.in/",
     logo: "/images/hitech.png",
-    color: "#ec3136", // This color is no longer used by CardSpotlight
+    color: "#ec3136", 
     description:
       "Your Go-To Hub for Electronic Parts: Everything you need in one place",
   },
@@ -49,7 +80,7 @@ export default function Sponsors() {
                   translateZ="50"
                   className="w-full aspect-square rounded-lg overflow-hidden"
                 >
-                  <div className="relative h-full w-full flex items-center justify-center bg-card group-hover/card:shadow-xl">
+                  <div className="group relative h-full w-full flex items-center justify-center bg-card group-hover/card:shadow-xl rounded-lg">
                     {s.logo ? (
                       <Image
                         src={s.logo}
@@ -69,6 +100,7 @@ export default function Sponsors() {
                         </span>
                       </div>
                     )}
+                    <SponsorHoverGradient color={s.color} />
                   </div>
                 </CardItem>
 
