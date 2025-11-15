@@ -1,10 +1,7 @@
 "use client";
 
-
 import { ParallaxScrollSecond } from "@/components/ui/parallax-scroll-2";
-
-
-import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 
 const images = [
   "https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3387&q=80",
@@ -21,45 +18,63 @@ const images = [
   "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
 ];
 
-
 const teamMembers = [
   {
     quote:
       "Leading the charge to make Vigyan Mela an unforgettable celebration of science and innovation for everyone.",
     name: "Mayuresh Chaubal",
     designation: "Vigyaan Mela Head TYIT",
-    src: "https://placehold.co/400x400/6366f1/white?text=M",
+    src: "/images/Mayuresh.jpg",
+    link: "https://www.linkedin.com/in/mayuresh-chaubal/",
   },
   {
     quote:
       "Crafting the digital experience and ensuring all our tech runs smoothly, from registration to live demos.",
     name: "Noorjahan Charania",
     designation: "Vigyaan Mela Head TYIT",
-    src: "https://placehold.co/400x400/ec4899/white?text=N",
+    src: "/images/noor.jpg",
+    link: "https://www.linkedin.com/in/noorjahan-charania-95bb8631a",
   },
   {
     quote:
       "Connecting with schools, partners, and the media to spread the word and bring our community together.",
-    name: "Sakshi",
-    designation: "Vigyaan Mela Head SYIT",
-    src: "https://placehold.co/400x400/10b981/white?text=S",
+    name: "Liyakat Shaikh",
+    designation: "Tech ",
+    src: "/images/Liyakat.jpg",
+    link: "https://www.linkedin.com/in/shaikh-liyakat/",
   },
   {
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
-    name: "Parth",
-    designation: "Vigyaan Mela Head SYIT",
-    src: "https://placehold.co/400x400/f59e0b/white?text=P",
+    name: "Meet Korpe",
+    designation: "Tech",
+    src: "images/Meet.jpg",
+    link: "https://www.linkedin.com/in/meet-korpe/",
+  },
+  {
+    quote:
+      "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
+    name: "Vishnuraj Vishwakarma",
+    designation: "Alumni Coordinator",
+    src: "images/Vishnu.png",
+    link: "https://www.linkedin.com/in/vishnuraj-vishwakarma/",
   },
 ];
 
-
 export default function About() {
-  return (
+  // Map existing teamMembers to the format required by AnimatedTooltip
+  const tooltipItems = teamMembers.map((member, index) => ({
+    id: index + 1,
+    name: member.name,
+    designation: member.designation,
+    image: member.src,
+    link: member.link,
+  }));
 
+  return (
     <div className="w-full">
       
-      {}
+      {/* About Section */}
       <div className="p-8 pt-24 lg:pt-8">
         <h1 className="text-4xl font-bold">About Vigyan Mela</h1>
         <p className="text-muted-foreground mt-4 text-lg max-w-3xl">
@@ -79,22 +94,21 @@ export default function About() {
         <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
       </div>
 
-      {}
+      {/* Gallery Component */}
       <ParallaxScrollSecond images={images} />
       
-      {}
+      {/* Team Section */}
       <div className="p-8">
          <h2 className="text-3xl font-bold mt-16 mb-12 text-center">
            Meet the Team
          </h2>
          
-         {}
-         {}
-         <AnimatedTestimonials testimonials={teamMembers} />
+         <div className="flex flex-row items-center justify-center mb-10 w-full">
+            <AnimatedTooltip items={tooltipItems} />
+         </div>
 
-         {}
          <p className="text-muted-foreground mt-24 text-center text-lg max-w-3xl mx-auto">
-           Join us for the next event and be part of the innovation.
+           Visit us for the next event and be part of the innovation.
          </p>
       </div>
 

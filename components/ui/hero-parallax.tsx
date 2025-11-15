@@ -109,7 +109,7 @@ export const Header = () => {
          A premier tech festival organized by <br />BSc IT Department <br /> <br />Vigyan Mela 4.0
       </h1>
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-        Where science meets innovation, Join us for an unforgettable experience.
+        Where science meets innovation, Visit us for an unforgettable experience.
       </p>
       <div className="max-w-2xl text-base md:text-xl pb-[-20] ml-[-250]">
       <a href="/registration">

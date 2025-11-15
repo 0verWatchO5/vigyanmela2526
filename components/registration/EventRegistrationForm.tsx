@@ -7,6 +7,7 @@ import {
   LabelInputContainer,
   BottomGradient,
 } from "@/components/ui/form-components";
+import { cn } from "@/lib/utils"; // IMPORT ADDED HERE
 
 interface FormData {
   firstname: string;
@@ -31,7 +32,7 @@ interface FormErrors {
   linkedin?: string;
 }
 
-export function EventRegistrationForm() {
+export function EventRegistrationForm({ initialValues }: { initialValues?: Partial<FormData> }) {
   const [formData, setFormData] = useState<FormData>({
     firstname: "",
     lastname: "",
@@ -42,6 +43,14 @@ export function EventRegistrationForm() {
     industry: "",
     linkedin: "",
   });
+    React.useEffect(() => {
+      if (initialValues) {
+        setFormData((prev) => ({
+          ...prev,
+          ...initialValues,
+        }));
+      }
+    }, [initialValues]);
   const [errors, setErrors] = useState<FormErrors>({});
   // const [idCardFiles, setIdCardFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,11 +88,11 @@ export function EventRegistrationForm() {
 
   const shareOnLinkedIn = () => {
     try {
-      const shareText = `I've registered for VigyanMela 2526! Check your ticket and join.`;
+      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and Visit.`;
       const pageUrl = typeof window !== "undefined" ? window.location.href : "";
       const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
         pageUrl
-      )}&title=${encodeURIComponent("Registered for VigyanMela 2526")}&summary=${encodeURIComponent(shareText)}`;
+      )}&title=${encodeURIComponent("Registered for Vigyan Mela 25")}&summary=${encodeURIComponent(shareText)}`;
       window.open(linkedInUrl, "_blank", "noopener,noreferrer");
     } catch (e) {
       // ignore
@@ -228,7 +237,7 @@ export function EventRegistrationForm() {
 
   return (
     <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-background p-4 md:rounded-2xl md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-      <h2 className="text-xl font-bold text-foreground">Event Registration</h2>
+      <h2 className="text-xl font-bold text-foreground">Visitor Registration</h2>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
         Register for VigyanMela 2526 by filling out the form below.
       </p>
@@ -317,38 +326,25 @@ export function EventRegistrationForm() {
             />
           </LabelInputContainer>
 
-          {/* <LabelInputContainer>
-            <Label htmlFor="industry">Industry</Label>
-            <select
-              id="industry"
-              value={formData.industry}
-              onChange={handleChange}
-              className="h-10 w-full rounded-md border px-3"
-              disabled={isSubmitting}
-            >
-              <option className="" value="">Select industry</option>
-              <option value="IT">IT</option>
-              <option value="Accounts">Accounts</option>
-              <option value="Students">Students</option>
-              <option value="Research">Research</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.industry && <p className="text-sm text-red-500">{errors.industry}</p>}
-          </LabelInputContainer> */}
           <LabelInputContainer>
-            <Label htmlFor="industry">Industry</Label>
+            <Label htmlFor="industry">Role</Label>
             <select
               id="industry"
               value={formData.industry}
               onChange={handleChange}
-              className="h-10 w-full rounded-md border border-gray-600 bg-black text-white px-3 focus:outline-none focus:ring-2 focus:ring-white"
+              className={cn(
+                "h-10 w-full rounded-md border px-3 focus:outline-none focus:ring-2",
+                // FIXED: Adaptive colors
+                "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500", 
+                "dark:bg-zinc-800 dark:text-white dark:border-gray-600 dark:focus:ring-white"
+              )}
               disabled={isSubmitting}
             >
-              <option value="">Select industry</option>
-              <option value="IT">IT</option>
-              <option value="Accounts">Accounts</option>
-              <option value="Students">Students</option>
-              <option value="Research">Research</option>
+              <option value="">Select Role</option>
+              <option value="Student">Student</option>
+              <option value="Visitor">Visitor</option>
+              <option value="Media">Media</option>
+              <option value="Guest">Guest</option>
               <option value="Other">Other</option>
             </select>
 
