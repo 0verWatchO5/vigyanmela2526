@@ -1,38 +1,37 @@
-"use client";
 import RegistrationAuth from "@/components/auth/RegistrationAuth";
 import RegistrationOrTicket from "@/components/registration/RegistrationOrTicket";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Event Registration - VigyanMela 2526",
+  title: "Event Registration - Vigyan Mela 25",
   description:
-    "Complete your registration for VigyanMela 2526 and get your ticket.",
+    "Complete your registration for Vigyan Mela 25 and get your ticket.",
   openGraph: {
-    title: "Event Registration - VigyanMela 2526",
+    title: "Event Registration - Vigyan Mela 25",
     description:
-      "Complete your registration for VigyanMela 2526 and get your ticket.",
+      "Complete your registration for Vigyan Mela 25 and get your ticket.",
     url: "https://vigyanmela.chetanacollege.in/registration",
-    siteName: "VigyanMela 2526",
+    siteName: "Vigyan Mela 25",
     type: "article",
     images: [
       {
         url: "/images/VN.png",
         width: 1200,
         height: 630,
-        alt: "VigyanMela 2526 Registration",
+        alt: "Vigyan Mela 25 Registration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Event Registration - VigyanMela 2526",
-    description: "Complete your registration for VigyanMela 2526 and get your ticket.",
+    title: "Event Registration - Vigyan Mela 25",
+    description: "Complete your registration for Vigyan Mela 25 and get your ticket.",
     images: [
       {
         url: "/images/VN.png",
         width: 1200,
         height: 630,
-        alt: "VigyanMela 2526 Registration",
+        alt: "Vigyan Mela 25 Registration",
       },
     ],
   }
