@@ -88,11 +88,11 @@ export function EventRegistrationForm({ initialValues }: { initialValues?: Parti
 
   const shareOnLinkedIn = () => {
     try {
-      const shareText = `I've registered for VigyanMela 2526! Check your ticket and join.`;
+      const shareText = `I've registered for Vigyan Mela 25! Check your ticket and join.`;
       const pageUrl = typeof window !== "undefined" ? window.location.href : "";
       const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
         pageUrl
-      )}&title=${encodeURIComponent("Registered for VigyanMela 2526")}&summary=${encodeURIComponent(shareText)}`;
+      )}&title=${encodeURIComponent("Registered for Vigyan Mela 25")}&summary=${encodeURIComponent(shareText)}`;
       window.open(linkedInUrl, "_blank", "noopener,noreferrer");
     } catch (e) {
       // ignore

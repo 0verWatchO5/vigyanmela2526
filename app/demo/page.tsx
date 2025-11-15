@@ -8,30 +8,11 @@ const shareUrl = `${baseUrl}/registration`;
 export default function DemoPage() {
   return (
     <div className="flex flex-col gap-8 p-6">
-
-
-
-
-
-
-
-
       <meta property="og:title" content="Thanks for Registering!" />
-<meta property="og:description" content="I just registered using LinkedIn OAuth." />
-<meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
-<meta property="og:url" content="https://yourdomain.com/registration" />
-<meta property="og:type" content="website" />
-
-
-
-
-
-
-
-
-
-
-
+      <meta property="og:description" content="I just registered using LinkedIn OAuth." />
+      <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
+      <meta property="og:url" content="https://yourdomain.com/registration" />
+      <meta property="og:type" content="website" />
       <AnimatedBox />
       <div className="flex flex-col gap-3">
         <h2 className="text-xl font-semibold">LinkedIn Share Options</h2>
