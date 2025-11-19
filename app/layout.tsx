@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import { SmoothScrollProvider } from "@/contexts/SmoothScrollContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -458,25 +459,27 @@ export default function RootLayout({
             currentPath={pathname}
           />
 
-          <div className="flex min-h-screen w-full">
-            {/* Pass state down to sidebar */}
-            <SidebarComponent 
-              currentPath={pathname} 
-              isCollapsed={isSidebarCollapsed} 
-              setIsCollapsed={setIsSidebarCollapsed} 
-            />
+          <SmoothScrollProvider>
+            <div className="flex min-h-screen w-full">
+              {/* Pass state down to sidebar */}
+              <SidebarComponent 
+                currentPath={pathname} 
+                isCollapsed={isSidebarCollapsed} 
+                setIsCollapsed={setIsSidebarCollapsed} 
+              />
 
-            {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
-            <main 
-              className={cn(
-                "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
-                // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
-                isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
-              )}
-            >
-              {children}
-            </main>
-          </div>
+              {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
+              <main 
+                className={cn(
+                  "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
+                  // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
+                  isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
+                )}
+              >
+                {children}
+              </main>
+            </div>
+          </SmoothScrollProvider>
         </ThemeProvider>
         </SessionProvider>
       </body>
