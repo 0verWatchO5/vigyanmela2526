@@ -103,6 +103,14 @@ export default function SplineHero({
           />
           {/* Push game controls away from navbar */}
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-20 bg-linear-to-b from-black/40 to-transparent lg:h-24" />
+          {/* Hide Spline UI controls */}
+          <style jsx global>{`
+            canvas + div[style*="position: fixed"],
+            canvas + div[style*="position: absolute"] {
+              opacity: 0 !important;
+              pointer-events: none !important;
+            }
+          `}</style>
         </div>
       ) : posterUrl ? (
         <img

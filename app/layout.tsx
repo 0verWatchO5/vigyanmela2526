@@ -459,7 +459,29 @@ export default function RootLayout({
             currentPath={pathname}
           />
 
-          <SmoothScrollProvider>
+          {pathname === "/" ? (
+            <SmoothScrollProvider>
+              <div className="flex min-h-screen w-full">
+                {/* Pass state down to sidebar */}
+                <SidebarComponent 
+                  currentPath={pathname} 
+                  isCollapsed={isSidebarCollapsed} 
+                  setIsCollapsed={setIsSidebarCollapsed} 
+                />
+
+                {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
+                <main 
+                  className={cn(
+                    "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
+                    // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
+                    isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
+                  )}
+                >
+                  {children}
+                </main>
+              </div>
+            </SmoothScrollProvider>
+          ) : (
             <div className="flex min-h-screen w-full">
               {/* Pass state down to sidebar */}
               <SidebarComponent 
@@ -471,7 +493,7 @@ export default function RootLayout({
               {/* DYNAMIC MARGIN: Adjusts based on sidebar state */}
               <main 
                 className={cn(
-                  "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
+                  "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out overflow-y-auto",
                   // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
                   isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
                 )}
@@ -479,7 +501,7 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
-          </SmoothScrollProvider>
+          )}
         </ThemeProvider>
         </SessionProvider>
       </body>
