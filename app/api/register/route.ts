@@ -13,6 +13,31 @@ cloudinary.config({
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGITS = "0123456789";
+
+function createTicketCode() {
+  let letterPart = "";
+  let digitPart = "";
+  for (let i = 0; i < 3; i += 1) {
+    letterPart += LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    digitPart += DIGITS[Math.floor(Math.random() * DIGITS.length)];
+  }
+  return `${letterPart}${digitPart}`;
+}
+
+async function generateUniqueTicketCode(attempt = 0): Promise<string> {
+  const code = createTicketCode();
+  const exists = await Visitor.exists({ ticketCode: code });
+  if (exists) {
+    if (attempt >= 7) {
+      throw new Error("Could not generate unique ticket code");
+    }
+    return generateUniqueTicketCode(attempt + 1);
+  }
+  return code;
+}
+
 export async function POST(request: NextRequest) {
   try {
 
@@ -79,6 +104,8 @@ export async function POST(request: NextRequest) {
         .replace(/'/g, "&#39;");
 
     // Create and save only a Visitor document
+    const ticketCode = await generateUniqueTicketCode();
+
     const visitor = new Visitor({
       firstName,
       lastName,
@@ -88,6 +115,7 @@ export async function POST(request: NextRequest) {
       organization,
       industry,
       linkedin,
+      ticketCode,
       // idCardUrl: uploadResult?.secure_url,
       // idCardPublicId: uploadResult?.public_id,
     });
@@ -121,6 +149,9 @@ export async function POST(request: NextRequest) {
           <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#555">Your Booking Details</p>
           <div style="background:#f8f9fa;border-radius:12px;padding:10px 12px;font-size:12px;">
             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ebedef;">
+              <span style="color:#666">Ticket ID: </span><span style="font-weight:600;color:#222;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;letter-spacing:1px;">${escape(ticketCode)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ebedef;">
               <span style="color:#666">Name: </span><span style="font-weight:500;color:#222">${escape(firstName)} ${escape(lastName)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:6px 0;">
@@ -152,7 +183,7 @@ export async function POST(request: NextRequest) {
         console.log("[register] sending confirmation email to:", savedVisitor.email);
 
         const resp = await resend.emails.send({
-          from: process.env.RESEND_FROM || "onboarding@resend.dev",
+          from: process.env.RESEND_FROM || "placements@chetanacollege.in",
           to: savedVisitor.email,
           subject: "Vigyan Mela 25 — Registration confirmed",
           html,
@@ -184,6 +215,7 @@ export async function POST(request: NextRequest) {
           industry: savedVisitor.industry,
           linkedin: savedVisitor.linkedin,
           idCardUrl: savedVisitor.idCardUrl || null,
+          ticketCode: savedVisitor.ticketCode,
           ticketHtml,
         },
         email: emailStatus,

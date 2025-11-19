@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { generateLinkedInShareImage } from "@/lib/linkedinShareImage";
 
 type UploadRegistration = {
   uploadUrl: string;
@@ -8,7 +9,13 @@ type UploadRegistration = {
   headers: Record<string, string>;
 };
 
-async function fetchPersonUrn(accessToken: string) {
+type LinkedInIdentity = {
+  personUrn: string;
+  name?: string;
+  picture?: string;
+};
+
+async function fetchLinkedInIdentity(accessToken: string): Promise<LinkedInIdentity> {
   console.log("Fetching LinkedIn profile with access token", accessToken);
   const meRes = await fetch("https://api.linkedin.com/v2/userinfo", {
     cache: "no-store",
@@ -25,7 +32,11 @@ async function fetchPersonUrn(accessToken: string) {
   if (!me?.sub) {
     throw new Error("LinkedIn profile response did not include an id");
   }
-  return `urn:li:person:${me.sub}`;
+  return {
+    personUrn: `urn:li:person:${me.sub}`,
+    name: me.name ?? me.given_name ?? undefined,
+    picture: me.picture ?? me.picture_url ?? me.pictureUrl ?? undefined,
+  };
 }
 
 async function registerImageUpload(accessToken: string, ownerUrn: string): Promise<UploadRegistration> {
@@ -152,17 +163,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { comment, shareUrl, title, description, imageUrl } = await req.json();
-    if (!shareUrl && !imageUrl) {
-      return NextResponse.json({ error: "Either shareUrl or imageUrl is required" }, { status: 400 });
+    const { comment, shareUrl, title, description, imageUrl, template } = await req.json();
+    if (!shareUrl && !imageUrl && !template) {
+      return NextResponse.json({ error: "Provide a shareUrl, imageUrl, or template" }, { status: 400 });
     }
 
-    const personUrn = await fetchPersonUrn(session.accessToken as string);
+    const identity = await fetchLinkedInIdentity(session.accessToken as string);
+    const personUrn = identity.personUrn;
     console.log("LinkedIn person URN:", personUrn);
-    console.log("Preparing to post with data:", { comment, shareUrl, title, description, imageUrl });
-    if (imageUrl) {
+    console.log("Preparing to post with data:", { comment, shareUrl, title, description, imageUrl, template });
+
+    const shouldUploadImage = Boolean(imageUrl || template);
+
+    if (shouldUploadImage) {
       const registration = await registerImageUpload(session.accessToken as string, personUrn);
-      const imagePayload = await downloadImage(imageUrl);
+      let imagePayload: { buffer: Uint8Array; contentType: string; contentLength?: number };
+
+      if (template) {
+        const participantName = identity.name || session.user?.name || "Vigyan Mela Participant";
+        const imageBuffer = await generateLinkedInShareImage({
+          name: participantName,
+          profileImageUrl: identity.picture || session.user?.image,
+        });
+        imagePayload = {
+          buffer: imageBuffer,
+          contentType: "image/png",
+          contentLength: imageBuffer.byteLength,
+        };
+      } else if (imageUrl) {
+        imagePayload = await downloadImage(imageUrl);
+      } else {
+        return NextResponse.json({ error: "Image payload missing" }, { status: 400 });
+      }
+
       await uploadImageToLinkedIn(registration, imagePayload);
 
       const postBody = {

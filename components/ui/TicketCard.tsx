@@ -9,6 +9,7 @@ interface TicketProps {
   name?: string;
   email?: string;
   phone?: string;
+  ticketId?: string;
 }
 
 export const TicketCard: React.FC<TicketProps> = ({
@@ -20,6 +21,7 @@ export const TicketCard: React.FC<TicketProps> = ({
   name = "Full Name",
   email = "email@example.com",
   phone = "1234567890",
+  ticketId = "AAA000",
 }) => {
   return (
     <div className="mx-auto max-w-xs bg-white shadow-md rounded-2xl p-5 text-slate-900 font-sans">
@@ -69,6 +71,12 @@ export const TicketCard: React.FC<TicketProps> = ({
       <p className="text-sm font-medium text-gray-600 mb-3">Your Booking Details</p>
 
       <div className="bg-gray-50 rounded-xl p-3">
+        <div className="flex justify-between py-2 border-b border-gray-100">
+          <div className="text-xs text-gray-500">Ticket ID</div>
+          <div className="text-sm font-semibold text-gray-900 tracking-widest uppercase">
+            {ticketId}
+          </div>
+        </div>
         <div className="flex justify-between py-2 border-b border-gray-100">
           <div className="text-xs text-gray-500">Name</div>
           <div className="text-sm font-medium text-gray-800">{name}</div>

@@ -43,6 +43,7 @@ export function AdminDashboard() {
     industry?: string;
     organization?: string;
     createdAt?: string;
+    ticketCode?: string;
   }>>([]);
 
   const checkSuperAdmin = async () => {
@@ -435,7 +436,8 @@ export function AdminDashboard() {
                     return (
                       `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) ||
                       (v.contact || "").includes(q) ||
-                      (v.industry || "").toLowerCase().includes(q)
+                      (v.industry || "").toLowerCase().includes(q) ||
+                      (v.ticketCode || "").toLowerCase().includes(q)
                     );
                   })
                   .map((v) => (
@@ -448,6 +450,7 @@ export function AdminDashboard() {
                         name={`${v.firstName} ${v.lastName}`}
                         email={v.email || "-"}
                         phone={v.contact || "-"}
+                        ticketId={v.ticketCode || "AAA000"}
                       />
                     </div>
                   ))

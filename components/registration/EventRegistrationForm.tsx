@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { signIn } from "next-auth/react";
 import { Input } from "@/components/ui/form-inputs";
 import {
   Label,
@@ -123,7 +124,11 @@ export function EventRegistrationForm({
       console.log("LinkedIn share response:", json);
       if (!response.ok) {
         if (response.status === 401) {
-          setShareFeedback("Sign in with LinkedIn to post automatically, or use the Twitter button instead.");
+          if (typeof window !== "undefined") {
+            await signIn("linkedin", { callbackUrl: window.location.href });
+          } else {
+            await signIn("linkedin");
+          }
           return;
         }
         setShareFeedback(json.error || "LinkedIn post failed. Please retry.");

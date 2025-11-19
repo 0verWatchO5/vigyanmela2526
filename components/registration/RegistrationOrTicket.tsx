@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { EventRegistrationForm } from "@/components/registration/EventRegistrationForm";
 import TicketCard from "@/components/ui/TicketCard";
 import { TwitterShareButton } from "react-share";
@@ -10,6 +10,7 @@ type Visitor = {
   lastName: string;
   email: string;
   contact?: string;
+  ticketCode?: string;
 };
 
 export default function RegistrationOrTicket() {
@@ -29,10 +30,10 @@ export default function RegistrationOrTicket() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          comment: "I've registered for Vigyan Mela 25! Check your ticket and join.",
+          comment: "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \nIf you’d like to join as a visitor, you can register here-https://vigyanmela.chetanacollege.in/registration \nSee you at the event!",
           title: "Registered for Vigyan Mela 25",
           description: "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
-          imageUrl: "https://vigyanmela.chetanacollege.in/images/VN.png",
+          template: "registration-ticket",
           shareUrl: "https://vigyanmela.chetanacollege.in/registration",
         }),
       });
@@ -40,7 +41,11 @@ export default function RegistrationOrTicket() {
       if (!response.ok) {
         const json = await response.json().catch(() => ({}));
         if (response.status === 401) {
-          setShareFeedback("Sign in with LinkedIn to post automatically, or use the Twitter button instead.");
+            if (typeof window !== "undefined") {
+              await signIn("linkedin", { callbackUrl: window.location.href });
+            } else {
+              await signIn("linkedin");
+            }
         } else if (response.status === 403) {
           setShareFeedback("Insufficient permissions. Please re-authenticate with LinkedIn.");
         } else {
@@ -122,6 +127,7 @@ export default function RegistrationOrTicket() {
     return (
       <div className="flex flex-col items-center w-full">
         <TicketCard
+          ticketId={visitor.ticketCode || "AAA000"}
           name={fullName}
           email={visitor.email}
           phone={visitor.contact || ""}

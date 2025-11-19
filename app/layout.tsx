@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import { IconSchool } from "@tabler/icons-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -214,6 +215,11 @@ export const navigationItems = [
     label: "Sponsors",
     href: "/sponsors",
     icon: <IconSparkles />,
+  },
+  {
+    label: "College Students",
+    href: "/college-registration",
+    icon: <IconSchool />,
   },
 ];
 

@@ -42,10 +42,10 @@ export async function PATCH(
     const body = await request.json();
 
     // Check if it's a status update
-    if (body.status) {
-      const { status } = body;
+    if (body.registrationStatus) {
+      const { registrationStatus } = body;
 
-      if (!["pending", "approved", "rejected"].includes(status)) {
+      if (!["pending", "approved", "rejected"].includes(registrationStatus)) {
         return NextResponse.json(
           { error: "Invalid status value" },
           { status: 400 }
@@ -54,9 +54,9 @@ export async function PATCH(
 
       const updatedStudent = await CollegeStudent.findByIdAndUpdate(
         id,
-        { status },
-        { new: true }
-      ).select("-password");
+        { registrationStatus },
+        { new: true, runValidators: true }
+      );
 
       if (!updatedStudent) {
         return NextResponse.json(
@@ -68,19 +68,18 @@ export async function PATCH(
       return NextResponse.json({
         success: true,
         student: updatedStudent,
-        message: `Student ${status} successfully`,
+        message: `Student ${registrationStatus} successfully`,
       });
     }
 
     // Otherwise, it's a general info update
     const updateFields: any = {};
-    if (body.studentName) updateFields.studentName = body.studentName;
-    if (body.email) updateFields.email = body.email;
-    if (body.phoneNumber) updateFields.phoneNumber = body.phoneNumber;
-    if (body.collegeName) updateFields.collegeName = body.collegeName;
-    if (body.currentYear) updateFields.currentYear = body.currentYear;
-    if (body.academicSession) updateFields.academicSession = body.academicSession;
-    if (body.rollNumber) updateFields.rollNumber = body.rollNumber;
+    if (body.teamName) updateFields.teamName = body.teamName;
+    if (body.projectSummary) updateFields.projectSummary = body.projectSummary;
+    if (body.teamSize) updateFields.teamSize = body.teamSize;
+    if (Array.isArray(body.segments)) updateFields.segments = body.segments;
+    if (Array.isArray(body.teamMembers)) updateFields.teamMembers = body.teamMembers;
+    if (body.linkedinId) updateFields.linkedinId = body.linkedinId;
 
     if (Object.keys(updateFields).length === 0) {
       return NextResponse.json(
@@ -93,7 +92,7 @@ export async function PATCH(
       id,
       updateFields,
       { new: true, runValidators: true }
-    ).select("-password");
+    );
 
     if (!updatedStudent) {
       return NextResponse.json(
