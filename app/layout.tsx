@@ -21,6 +21,13 @@ function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
+// Simple fallback SmoothScrollProvider — no-op wrapper when a dedicated provider isn't available
+// Replace this with an import of your real provider if/when you add one:
+// import { SmoothScrollProvider } from "your-smooth-scroll-package";
+const SmoothScrollProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};
+
 // --- ICONS ---
 
 const IconSun = ({ className }: { className?: string }) => (
@@ -149,6 +156,27 @@ const IconSparkles = (props: any) => (
     <path d="M18 13l-2.9-5.8" />
     <path d="M6 13l2.9-5.8" />
     <path d="M12 21V11.5" />
+  </svg>
+);
+
+const IconSchool = (props: any) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
+    {...props}
+  >
+    {/* mortarboard */}
+    <path d="M22 12L12 7 2 12 12 17 22 12z" />
+    {/* tassel */}
+    <path d="M12 17v4" />
+    {/* base line / support */}
+    <path d="M4 13v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
   </svg>
 );
 
