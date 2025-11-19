@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       academicSession,
       rollNumber,
       projects,
+      linkedinId,
     } = body;
 
     // Validation
@@ -38,6 +39,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!Array.isArray(projects) || projects.length === 0) {
+      return NextResponse.json(
+        { error: "At least one project must be submitted" },
+        { status: 400 }
+      );
+    }
+
     // Check if email already exists
     const existingStudent = await CollegeStudent.findOne({ email });
     if (existingStudent) {
@@ -45,6 +53,22 @@ export async function POST(request: Request) {
         { error: "Email already registered" },
         { status: 400 }
       );
+    }
+
+    if (linkedinId) {
+      if (typeof linkedinId !== "string") {
+        return NextResponse.json(
+          { error: "Invalid LinkedIn identifier" },
+          { status: 400 }
+        );
+      }
+      const existingByLinkedIn = await CollegeStudent.findOne({ linkedinId });
+      if (existingByLinkedIn) {
+        return NextResponse.json(
+          { error: "LinkedIn account already submitted a registration" },
+          { status: 400 }
+        );
+      }
     }
 
     // Validate project count based on year
@@ -92,6 +116,7 @@ export async function POST(request: Request) {
       currentYear,
       academicSession,
       rollNumber,
+      linkedinId,
       projects,
     });
 
@@ -105,6 +130,7 @@ export async function POST(request: Request) {
           id: newStudent._id,
           email: newStudent.email,
           studentName: newStudent.studentName,
+          linkedinId: newStudent.linkedinId,
         },
       },
       { status: 201 }
