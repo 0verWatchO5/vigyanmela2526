@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/form-inputs";
@@ -9,6 +9,7 @@ import {
   LabelInputContainer,
   BottomGradient,
 } from "@/components/ui/form-components";
+import { useSession } from "next-auth/react";
 
 const projectCategories = [
   "Web Development",
@@ -47,6 +48,7 @@ interface Project {
 
 export default function CollegeRegistrationForm() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -67,6 +69,19 @@ export default function CollegeRegistrationForm() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [techInput, setTechInput] = useState<{ [key: number]: string }>({});
   const [customAudienceInput, setCustomAudienceInput] = useState<{ [key: number]: string }>({});
+
+  useEffect(() => {
+    const linkedInName = session?.user?.name?.trim();
+    const linkedInEmail = session?.user?.email?.trim();
+
+    if (linkedInName) {
+      setStudentName((prev) => (prev ? prev : linkedInName));
+    }
+
+    if (linkedInEmail) {
+      setEmail((prev) => (prev ? prev : linkedInEmail));
+    }
+  }, [session]);
 
   const initializeProjects = (year: "2nd Year" | "3rd Year") => {
     const years = year === "2nd Year" ? ["First Year"] : ["First Year", "Second Year"];
@@ -140,6 +155,7 @@ export default function CollegeRegistrationForm() {
           currentYear,
           academicSession,
           rollNumber,
+          linkedinId: session?.user?.id,
           projects,
         }),
       });
@@ -231,6 +247,12 @@ export default function CollegeRegistrationForm() {
                   Personal Information
                 </h2>
 
+                {session?.user && (
+                  <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-100">
+                    We pre-filled your LinkedIn name and email. Update any field if it needs changes.
+                  </div>
+                )}
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <LabelInputContainer>
                     <Label htmlFor="studentname">Student Name</Label>
@@ -308,6 +330,7 @@ export default function CollegeRegistrationForm() {
                       className="flex h-10 w-full border-none bg-neutral-800 text-white rounded-md px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="">Select Year</option>
+                      <option value="1st Year">1st Year</option>
                       <option value="2nd Year">2nd Year</option>
                       <option value="3rd Year">3rd Year</option>
                     </select>

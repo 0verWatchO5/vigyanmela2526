@@ -98,6 +98,11 @@ const collegeStudentSchema = new mongoose.Schema(
       required: [true, "Roll number is required"],
       trim: true,
     },
+    linkedinId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
 
     // Projects
     projects: {

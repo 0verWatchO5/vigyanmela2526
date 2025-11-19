@@ -5,19 +5,37 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type Props = {
   children: React.ReactNode;
   className?: string;
+  callbackUrl?: string;
+  title?: string;
+  subtitle?: string;
+  unauthenticatedClassName?: string;
+  hideCredentials?: boolean;
 };
 
-export default function RegistrationAuth({ children, className }: Props) {
+export default function RegistrationAuth({
+  children,
+  className,
+  callbackUrl = "/registration",
+  title = "Continue registration",
+  subtitle = "Sign in with LinkedIn or your account",
+  unauthenticatedClassName,
+  hideCredentials = false,
+}: Props) {
   const { status, data } = useSession();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const wrapperClass = cn("w-full", className);
+  const unauthWrapperClass = unauthenticatedClassName
+    ? cn("w-full max-w-md", unauthenticatedClassName)
+    : cn("w-full max-w-md", className);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -37,16 +55,42 @@ export default function RegistrationAuth({ children, className }: Props) {
   }
 
   if (status === "loading") {
-    return <div className={className}>Loading authentication...</div>;
+    return <div className={wrapperClass}>Loading authentication...</div>;
   }
 
   if (status === "unauthenticated") {
+    if (hideCredentials) {
+      return (
+        <div className={unauthWrapperClass}>
+          <div className="w-full rounded-2xl border border-border bg-background/50 backdrop-blur p-6 shadow-sm">
+            <div className="mb-4 text-center">
+              <h1 className="text-xl font-semibold">{title}</h1>
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => signIn("linkedin", { callbackUrl })}
+                className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition"
+              >
+                Continue with LinkedIn
+              </button>
+              <p className="text-xs text-center text-muted-foreground">
+                LinkedIn sign in is required to start your registration.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className={className + " w-full max-w-md"}>
+      <div className={unauthWrapperClass}>
         <div className="w-full rounded-2xl border border-border bg-background/50 backdrop-blur p-6 shadow-sm">
           <div className="mb-4 text-center">
-            <h1 className="text-xl font-semibold">Continue registration</h1>
-            <p className="text-sm text-muted-foreground">Sign in with LinkedIn or your account</p>
+            <h1 className="text-xl font-semibold">{title}</h1>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -66,7 +110,7 @@ export default function RegistrationAuth({ children, className }: Props) {
               </div>
               <button
                 type="button"
-                onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
+                onClick={() => signIn("linkedin", { callbackUrl })}
                 className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition mb-2"
               >
                 Continue with LinkedIn
@@ -91,11 +135,11 @@ export default function RegistrationAuth({ children, className }: Props) {
   }
 
   return (
-    <div className={className + " w-full"}>
+    <div className={wrapperClass}>
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">Signed in as {data?.user?.name || data?.user?.email}</span>
         <button 
-          onClick={() => signOut()}
+          onClick={() => signOut({ callbackUrl })}
           className="text-xs px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600"
         >
           Sign out
