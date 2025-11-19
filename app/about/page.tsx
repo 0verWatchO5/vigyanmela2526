@@ -25,7 +25,7 @@ const teamMembers = [
     quote:
       "Leading the charge to make Vigyan Mela an unforgettable celebration of science and innovation for everyone.",
     name: "Mayuresh Chaubal",
-    designation: "Vigyaan Mela Head TYIT",
+    designation: "Vigyan Mela Head",
     src: "/images/Mayuresh.jpg",
     link: "https://www.linkedin.com/in/mayuresh-chaubal/",
   },
@@ -33,7 +33,7 @@ const teamMembers = [
     quote:
       "Crafting the digital experience and ensuring all our tech runs smoothly, from registration to live demos.",
     name: "Noorjahan Charania",
-    designation: "Vigyaan Mela Head TYIT",
+    designation: "Vigyan Mela Head",
     src: "/images/noor.jpg",
     link: "https://www.linkedin.com/in/noorjahan-charania-95bb8631a",
   },
@@ -41,7 +41,7 @@ const teamMembers = [
     quote:
       "Connecting with schools, partners, and the media to spread the word and bring our community together.",
     name: "Liyakat Shaikh",
-    designation: "Tech ",
+    designation: "Developer",
     src: "/images/Liyakat.jpg",
     link: "https://www.linkedin.com/in/shaikh-liyakat/",
   },
@@ -49,7 +49,7 @@ const teamMembers = [
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Meet Korpe",
-    designation: "Tech",
+    designation: "Developer",
     src: "images/Meet.jpg",
     link: "https://www.linkedin.com/in/meet-korpe/",
   },
