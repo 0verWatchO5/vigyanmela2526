@@ -72,7 +72,7 @@ export async function PATCH(
       });
     }
 
-    // Otherwise, it's a general info update
+    // Otherwise, it's a general info update (including slot/room)
     const updateFields: any = {};
     if (body.teamName) updateFields.teamName = body.teamName;
     if (body.projectSummary) updateFields.projectSummary = body.projectSummary;
@@ -80,6 +80,8 @@ export async function PATCH(
     if (Array.isArray(body.segments)) updateFields.segments = body.segments;
     if (Array.isArray(body.teamMembers)) updateFields.teamMembers = body.teamMembers;
     if (body.linkedinId) updateFields.linkedinId = body.linkedinId;
+    if (body.hasOwnProperty('slotId')) updateFields.slotId = body.slotId;
+    if (body.hasOwnProperty('roomNo')) updateFields.roomNo = body.roomNo;
 
     if (Object.keys(updateFields).length === 0) {
       return NextResponse.json(

@@ -35,6 +35,7 @@ type NormalizedMember = {
 type NormalizedSubmission = {
   teamName: string;
   projectSummary: string;
+  projectImage?: string;
   teamSize: TeamSizeValue;
   segments: string[];
   teamMembers: NormalizedMember[];
@@ -86,10 +87,11 @@ function sanitizeRegistration(doc: any): SanitizedRegistration {
       }))
     : [];
 
-  return {
+  const sanitized = {
     id: obj?._id?.toString?.() ?? obj?.id ?? "",
     teamName: obj.teamName,
     projectSummary: obj.projectSummary,
+    projectImage: obj.projectImage || undefined,
     teamSize: obj.teamSize as TeamSizeValue,
     segments: Array.isArray(obj.segments) ? obj.segments : [],
     teamMembers: members,
@@ -97,6 +99,9 @@ function sanitizeRegistration(doc: any): SanitizedRegistration {
     submittedAt: obj.submittedAt ? new Date(obj.submittedAt).toISOString() : undefined,
     updatedAt: obj.updatedAt ? new Date(obj.updatedAt).toISOString() : undefined,
   };
+  
+  console.log('Sanitized registration - projectImage:', sanitized.projectImage);
+  return sanitized;
 }
 
 function normalizeTeamMember(raw: RawTeamMember, index: number): NormalizedMember {
@@ -162,6 +167,10 @@ function validateAndNormalizeSubmission(body: unknown): NormalizedSubmission {
     throw new Error("Project summary is required");
   }
 
+  const projectImage = typeof payload.projectImage === "string" && payload.projectImage.trim() 
+    ? payload.projectImage.trim() 
+    : "";
+
   const numericTeamSize = Number(payload.teamSize);
   if (
     !Number.isInteger(numericTeamSize) ||
@@ -205,6 +214,7 @@ function validateAndNormalizeSubmission(body: unknown): NormalizedSubmission {
   return {
     teamName,
     projectSummary,
+    projectImage: projectImage || undefined,
     teamSize,
     segments: normalizedSegments,
     teamMembers,
@@ -282,7 +292,9 @@ export async function POST(request: Request) {
       linkedinId,
     });
 
+    console.log('Saving new registration - projectImage URL:', submission.projectImage || 'None');
     await newRegistration.save();
+    console.log('Saved successfully - Document projectImage:', newRegistration.projectImage);
 
     return NextResponse.json(
       {
@@ -344,15 +356,19 @@ export async function PATCH(request: Request) {
       );
     }
 
+    console.log('Updating registration - New projectImage URL:', submission.projectImage || 'None');
+    
     existingRegistration.set({
       teamName: submission.teamName,
       projectSummary: submission.projectSummary,
+      projectImage: submission.projectImage,
       teamSize: submission.teamSize,
       segments: submission.segments,
       teamMembers: submission.teamMembers,
     });
 
     await existingRegistration.save();
+    console.log('Updated successfully - Document projectImage:', existingRegistration.projectImage);
 
     return NextResponse.json(
       {

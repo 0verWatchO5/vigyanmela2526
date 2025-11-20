@@ -229,6 +229,11 @@ export const navigationItems = [
     icon: <IconInfoCircle />,
   },
   {
+    label: "Projects",
+    href: "/projects",
+    icon: <IconSchool />,
+  },
+  {
     label: "Registration",
     href: "/registration",
     icon: <IconUsers />,
@@ -248,6 +253,7 @@ export const navigationItems = [
     href: "/college-registration",
     icon: <IconSchool />,
   },
+
 ];
 
 // --- COMPONENTS ---

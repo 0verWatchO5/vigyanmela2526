@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import SplineHero from "@/components/SplineHero";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 
 export default function Home() {
   const router = useRouter();
@@ -62,25 +63,22 @@ export default function Home() {
       {/* Glassmorphism Overlay with Text */}
       {showOverlay && (
         <div 
-          className={`pointer-events-none absolute z-20 transition-all duration-700 ease-in-out ${
+          className={`pointer-events-none absolute z-20 ${
             minimizeOverlay 
               ? "bottom-2 right-[0.22px] md:left-1/2 md:-translate-x-1/2 md:right-auto md:bottom-4 top-auto" 
               : "inset-0 flex items-center justify-center"
           }`}
         >
           <div 
-            className={`pointer-events-auto transform transition-all duration-700 ease-in-out ${
-              !minimizeOverlay && "animate-in fade-in-0 zoom-in-95"
-            } ${
+            className={`pointer-events-auto ${
               minimizeOverlay && "scale-[0.85]"
             }`}
           >
             {/* Glassmorphism Card */}
-            <div className={`relative rounded-3xl bg-black/90 shadow-2xl backdrop-blur-xl backdrop-saturate-150 border border-white/10 ${
+            <div className={`relative rounded-3xl bg-black/90 border border-white/20 ${
               minimizeOverlay ? "p-3" : "p-8 md:p-12 lg:p-16"
             }`}>
-              {/* Gradient border effect */}
-              <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-white/10 via-white/5 to-transparent"></div>
+              {/* Gradient border effect - removed during video playback */}
               
               {/* Content */}
               <div className="relative z-10 text-center">
@@ -93,7 +91,11 @@ export default function Home() {
                         loop 
                         muted 
                         playsInline
-                        className="h-auto w-full max-w-md drop-shadow-2xl md:max-w-lg lg:max-w-2xl rounded-2xl"
+                        preload="metadata"
+                        disablePictureInPicture
+                        disableRemotePlayback
+                        className="h-auto w-full max-w-md md:max-w-lg lg:max-w-2xl rounded-2xl"
+                        style={{ display: 'block', isolation: 'isolate' }}
                       />
                     </div>
                     <p className="mb-8 text-xl text-white/90 drop-shadow-lg md:text-2xl lg:text-3xl">
@@ -103,45 +105,43 @@ export default function Home() {
                 )}
                 
                 {/* Action Buttons */}
-                <div className={`flex ${minimizeOverlay ? "flex-row gap-2" : "flex-col md:flex-row md:justify-center gap-4"}`}>
-                  <button
+                <div className={`flex ${minimizeOverlay ? "flex-row gap-3" : "flex-col md:flex-row md:justify-center gap-6"}`}>
+                  <HoverBorderGradient
                     onClick={() => handleNavigation("/registration")}
-                    className={`group relative overflow-hidden rounded-full bg-blue-400  shadow-lg transition-all hover:scale-105 hover:shadow-2xl ${
-                      minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
+                    containerClassName="rounded-full"
+                    className={`bg-black text-white font-semibold ${
+                      minimizeOverlay ? "px-6 py-2 text-sm" : "px-10 py-3"
                     }`}
+                    duration={1}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "Register" : "Register Now"}</span>
-                    <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                  </button>
+                    {minimizeOverlay ? "Register" : "Register Now"}
+                  </HoverBorderGradient>
                   
-                  <button
+                  <HoverBorderGradient
                     onClick={() => handleNavigation("/college-registration")}
-                    className={`group relative overflow-hidden rounded-full  bg-red-400 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-2xl ${
-                      minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
+                    containerClassName="rounded-full"
+                    className={`bg-black text-white font-semibold ${
+                      minimizeOverlay ? "px-6 py-2 text-sm" : "px-10 py-3"
                     }`}
+                    duration={1}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "College" : "College Registration"}</span>
-                    <div className="absolute inset-0 bg-linear-to-r from-teal-600 to-green-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                  </button>
+                    {minimizeOverlay ? "College" : "College Registration"}
+                  </HoverBorderGradient>
                   
-                  <button
+                  <HoverBorderGradient
                     onClick={() => handleNavigation("/segments")}
-                    className={`group relative overflow-hidden rounded-full border-2 border-white/30 bg-white/10 font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:border-white/50 hover:bg-white/20 ${
-                      minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
+                    containerClassName="rounded-full"
+                    className={`bg-black text-white font-semibold ${
+                      minimizeOverlay ? "px-6 py-2 text-sm" : "px-10 py-3"
                     }`}
+                    duration={1}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "Events" : "Explore Events"}</span>
-                  </button>
+                    {minimizeOverlay ? "Events" : "Explore Events"}
+                  </HoverBorderGradient>
                 </div>
               </div>
 
-              {!minimizeOverlay && (
-                <>
-                  {/* Decorative elements */}
-                  <div className="absolute -left-4 -top-4 h-24 w-24 rounded-full bg-linear-to-br from-blue-400/30 to-transparent blur-2xl"></div>
-                  <div className="absolute -bottom-4 -right-4 h-32 w-32 rounded-full bg-linear-to-tl from-purple-400/30 to-transparent blur-2xl"></div>
-                </>
-              )}
+              {/* Decorative elements removed for performance */}
             </div>
           </div>
         </div>

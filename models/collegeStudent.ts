@@ -102,6 +102,18 @@ const collegeStudentSchema = new mongoose.Schema(
         message: "Team member count must match the provided team size",
       },
     },
+    projectImage: {
+      type: String,
+      default: null,
+    },
+    slotId: {
+      type: String,
+      default: null,
+    },
+    roomNo: {
+      type: String,
+      default: null,
+    },
     linkedinId: {
       type: String,
       sparse: true,
@@ -126,8 +138,8 @@ collegeStudentSchema.index({ "teamMembers.email": 1 });
 collegeStudentSchema.index({ "teamMembers.rollNumber": 1 });
 collegeStudentSchema.index({ registrationStatus: 1 });
 
-delete mongoose.models.CollegeStudent;
-
-const CollegeStudent = mongoose.model("CollegeStudent", collegeStudentSchema);
+const CollegeStudent = 
+  mongoose.models?.CollegeStudent || 
+  mongoose.model("CollegeStudent", collegeStudentSchema);
 
 export default CollegeStudent;

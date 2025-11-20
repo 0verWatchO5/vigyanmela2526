@@ -17,9 +17,12 @@ interface CollegeTeam {
 	_id: string;
 	teamName: string;
 	projectSummary: string;
+	projectImage?: string;
 	teamSize: number;
 	segments: string[];
 	teamMembers: TeamMember[];
+	slotId?: string;
+	roomNo?: string;
 	registrationStatus?: RegistrationStatus;
 	linkedinId?: string;
 	submittedAt?: string;
@@ -42,6 +45,8 @@ export function CollegeStudentsManager() {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [isStatusUpdating, setIsStatusUpdating] = useState<boolean>(false);
 	const [isExporting, setIsExporting] = useState<boolean>(false);
+	const [editingSlotRoom, setEditingSlotRoom] = useState<{ [key: string]: { slotId: string; roomNo: string } }>({});
+	const [savingSlotRoom, setSavingSlotRoom] = useState<string | null>(null);
 
 	const fetchTeams = async () => {
 		try {
@@ -191,6 +196,56 @@ export function CollegeStudentsManager() {
 		}
 	};
 
+	const handleSlotRoomUpdate = async (teamId: string) => {
+		const values = editingSlotRoom[teamId];
+		if (!values) return;
+
+		setSavingSlotRoom(teamId);
+		try {
+			const response = await fetch(`/api/admin/college-students/${teamId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ 
+					slotId: values.slotId.trim() || null,
+					roomNo: values.roomNo.trim() || null 
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to update slot/room");
+			}
+
+			console.log('Update response:', data);
+			console.log('Updated slotId:', values.slotId.trim(), 'roomNo:', values.roomNo.trim());
+
+			setTeams((prev) =>
+				prev.map((team) =>
+					team._id === teamId 
+						? { ...team, slotId: values.slotId.trim() || undefined, roomNo: values.roomNo.trim() || undefined } 
+						: team
+				)
+			);
+
+			// Clear editing state for this team
+			setEditingSlotRoom((prev) => {
+				const next = { ...prev };
+				delete next[teamId];
+				return next;
+			});
+
+			// Refresh the teams list to ensure we have latest data
+			await fetchTeams();
+			
+			alert("Slot ID and Room No updated successfully!");
+		} catch (err) {
+			alert((err as Error).message);
+		} finally {
+			setSavingSlotRoom(null);
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center h-64">
@@ -266,8 +321,9 @@ export function CollegeStudentsManager() {
 							<tr>
 								<th className="px-6 py-3">Team / Summary</th>
 								<th className="px-6 py-3">Segments</th>
+								<th className="px-6 py-3">Slot ID</th>
+								<th className="px-6 py-3">Room No</th>
 								<th className="px-6 py-3">Members (Details)</th>
-								<th className="px-6 py-3">Submitted</th>
 								<th className="px-6 py-3">Status</th>
 								<th className="px-6 py-3">Actions</th>
 							</tr>
@@ -275,7 +331,7 @@ export function CollegeStudentsManager() {
 						<tbody className="divide-y divide-zinc-800">
 							{filteredTeams.length === 0 ? (
 								<tr>
-									<td colSpan={6} className="px-6 py-10 text-center text-gray-400">
+									<td colSpan={7} className="px-6 py-10 text-center text-gray-400">
 										{searchQuery
 											? "No teams match your search criteria."
 											: "No college teams have registered yet."}
@@ -304,6 +360,49 @@ export function CollegeStudentsManager() {
 												))}
 											</div>
 										</td>
+										<td className="px-6 py-4">
+											<div className="flex items-center gap-1">
+												<input
+													type="text"
+													value={editingSlotRoom[team._id]?.slotId !== undefined ? editingSlotRoom[team._id].slotId : (team.slotId ?? "")}
+													onChange={(e) => setEditingSlotRoom(prev => ({
+														...prev,
+														[team._id]: {
+															slotId: e.target.value,
+															roomNo: prev[team._id]?.roomNo !== undefined ? prev[team._id].roomNo : (team.roomNo ?? "")
+														}
+													}))}
+													placeholder="e.g. S001"
+													className="w-24 px-2 py-1 text-sm bg-zinc-800 border border-zinc-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+													maxLength={10}
+												/>
+												{editingSlotRoom[team._id] && (
+													<button
+														onClick={() => handleSlotRoomUpdate(team._id)}
+														disabled={savingSlotRoom === team._id}
+														className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+													>
+														{savingSlotRoom === team._id ? "..." : "✓"}
+													</button>
+												)}
+											</div>
+										</td>
+										<td className="px-6 py-4">
+											<input
+												type="text"
+												value={editingSlotRoom[team._id]?.roomNo !== undefined ? editingSlotRoom[team._id].roomNo : (team.roomNo ?? "")}
+												onChange={(e) => setEditingSlotRoom(prev => ({
+													...prev,
+													[team._id]: {
+														slotId: prev[team._id]?.slotId !== undefined ? prev[team._id].slotId : (team.slotId ?? ""),
+														roomNo: e.target.value
+													}
+												}))}
+												placeholder="e.g. R101"
+												className="w-24 px-2 py-1 text-sm bg-zinc-800 border border-zinc-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+												maxLength={10}
+											/>
+										</td>
 										<td className="px-6 py-4 text-gray-200">
 											<div className="flex flex-col gap-1">
 												{team.teamMembers.map((m, idx) => (
@@ -314,13 +413,6 @@ export function CollegeStudentsManager() {
 													</div>
 												))}
 											</div>
-										</td>
-										<td className="px-6 py-4 text-gray-400">
-											{team.submittedAt
-												? new Date(team.submittedAt).toLocaleDateString()
-												: team.createdAt
-												? new Date(team.createdAt).toLocaleDateString()
-												: "—"}
 										</td>
 										<td className="px-6 py-4">
 											<span

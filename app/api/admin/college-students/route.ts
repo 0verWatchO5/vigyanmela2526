@@ -8,6 +8,7 @@ function sanitize(doc: any) {
     _id: obj?._id?.toString?.() ?? obj?._id ?? "",
     teamName: obj.teamName,
     projectSummary: obj.projectSummary,
+    projectImage: obj.projectImage || null,
     teamSize: obj.teamSize,
     segments: Array.isArray(obj.segments) ? obj.segments : [],
     teamMembers: Array.isArray(obj.teamMembers)
@@ -20,6 +21,8 @@ function sanitize(doc: any) {
           yearOfStudy: m.yearOfStudy,
         }))
       : [],
+    slotId: obj.slotId || null,
+    roomNo: obj.roomNo || null,
     registrationStatus: obj.registrationStatus ?? "pending",
     linkedinId: obj.linkedinId || null,
     submittedAt: obj.submittedAt ? new Date(obj.submittedAt).toISOString() : null,

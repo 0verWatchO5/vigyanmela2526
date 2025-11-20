@@ -48,6 +48,7 @@ interface SubmissionRecord {
 	id: string;
 	teamName: string;
 	projectSummary: string;
+	projectImage?: string;
 	teamSize: number;
 	segments: string[];
 	teamMembers: TeamMember[];
@@ -76,6 +77,10 @@ export default function CollegeRegistrationForm() {
 
 	const [teamName, setTeamName] = useState("");
 	const [projectSummary, setProjectSummary] = useState("");
+	const [projectImage, setProjectImage] = useState<string>("");
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string>("");
+	const [uploadingImage, setUploadingImage] = useState(false);
 	const [teamSize, setTeamSize] = useState<TeamSizeOption>(TEAM_SIZE_OPTIONS[0]);
 	const [segments, setSegments] = useState<string[]>([]);
 	const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() =>
@@ -179,6 +184,8 @@ export default function CollegeRegistrationForm() {
 	const populateFormFromSubmission = useCallback((submission: SubmissionRecord) => {
 		setTeamName(submission.teamName);
 		setProjectSummary(submission.projectSummary);
+		setProjectImage(submission.projectImage || "");
+		setImagePreview(submission.projectImage || "");
 		setTeamSize(submission.teamSize as TeamSizeOption);
 		setSegments([...submission.segments]);
 		setTeamMembers(submission.teamMembers.map((m) => ({ ...m })));
@@ -227,6 +234,62 @@ export default function CollegeRegistrationForm() {
 		}
 	}, [sessionStatus, fetchExisting]);
 
+	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		// Validate file type
+		if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+			setErrorMessage("Only JPEG, PNG, WebP, and GIF images are allowed");
+			return;
+		}
+
+		// Validate file size (20MB)
+		if (file.size > 20 * 1024 * 1024) {
+			setErrorMessage("Image size must be less than 20MB");
+			return;
+		}
+
+		setImageFile(file);
+		
+		// Create preview
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			setImagePreview(reader.result as string);
+		};
+		reader.readAsDataURL(file);
+	};
+
+	const uploadImage = async (): Promise<string | null> => {
+		if (!imageFile) return projectImage || null;
+
+		setUploadingImage(true);
+		try {
+			const formData = new FormData();
+			formData.append("file", imageFile);
+			formData.append("title", `project-${teamName}-${Date.now()}`);
+
+			const response = await fetch("/api/cloudinary", {
+				method: "POST",
+				body: formData,
+			});
+
+			const data = await response.json();
+			if (!response.ok) {
+				throw new Error(data.error || "Upload failed");
+			}
+
+			console.log('Image uploaded successfully:', data.data?.url);
+			return data.data?.url || null;
+		} catch (error) {
+			console.error("Image upload error:", error);
+			setErrorMessage("Failed to upload image. Please try again.");
+			return null;
+		} finally {
+			setUploadingImage(false);
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrorMessage(null);
@@ -237,13 +300,28 @@ export default function CollegeRegistrationForm() {
 		}
 		setLoading(true);
 		try {
+			// Upload image first if new image selected
+			let imageUrl = projectImage || "";
+			if (imageFile) {
+				const uploadedUrl = await uploadImage();
+				if (!uploadedUrl) {
+					setLoading(false);
+					setErrorMessage("Failed to upload image. Please try again.");
+					return; // Stop if image upload failed
+				}
+				imageUrl = uploadedUrl;
+				setProjectImage(uploadedUrl); // Save to state
+			}
+
 			const method: "POST" | "PATCH" = existingData ? "PATCH" : "POST";
+			console.log('Submitting with image URL:', imageUrl);
 			const res = await fetch("/api/college-registration", {
 				method,
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					teamName: teamName.trim(),
 					projectSummary: projectSummary.trim(),
+					projectImage: imageUrl,
 					teamSize,
 					segments,
 					teamMembers: teamMembers.map((m) => ({
@@ -267,6 +345,7 @@ export default function CollegeRegistrationForm() {
 				populateFormFromSubmission(saved);
 			}
 			setIsEditing(false);
+			setImageFile(null);
 			setFeedbackMessage(existingData ? "Registration updated successfully." : "Registration submitted successfully.");
 		} catch (err) {
 			setErrorMessage("Unexpected error. Try again.");
@@ -348,6 +427,19 @@ export default function CollegeRegistrationForm() {
                   <span className="text-neutral-500 block text-sm mb-1">Project Summary</span>
                   <p className="text-sm text-neutral-200 leading-relaxed break-words">{existingData.projectSummary}</p>
                 </div>
+
+								{existingData.projectImage && (
+									<div className="mt-4 w-full max-w-full">
+										<span className="text-neutral-500 block text-sm mb-2">Project Image</span>
+										<div className="relative h-64 w-full rounded-lg overflow-hidden border border-neutral-700">
+											<img
+												src={existingData.projectImage}
+												alt={existingData.teamName}
+												className="w-full h-full object-cover"
+											/>
+										</div>
+									</div>
+								)}
 
 							</div>
 							<div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4">
@@ -452,6 +544,44 @@ export default function CollegeRegistrationForm() {
 									placeholder="Explain the problem you solve and the impact you aim to create."
 									required
 								/>
+							</LabelInputContainer>
+
+							<LabelInputContainer>
+								<Label htmlFor="project-image">
+									Project Image (Optional)
+								</Label>
+								<input
+									id="project-image"
+									type="file"
+									accept="image/*"
+									onChange={handleImageChange}
+									className="flex h-10 w-full border-none bg-neutral-800 text-white rounded-md px-3 py-2 text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+								/>
+								{imagePreview && (
+									<div className="mt-3 relative w-full h-48 rounded-lg overflow-hidden border border-neutral-700">
+										<img
+											src={imagePreview}
+											alt="Project preview"
+											className="w-full h-full object-cover"
+										/>
+										<button
+											type="button"
+											onClick={() => {
+												setImageFile(null);
+												setImagePreview("");
+												setProjectImage("");
+											}}
+											className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition"
+										>
+											<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+											</svg>
+										</button>
+									</div>
+								)}
+								<p className="text-xs text-neutral-500 mt-1">
+									Accepted formats: JPEG, PNG, WebP, GIF (Max 20MB)
+								</p>
 							</LabelInputContainer>
 
 							<div>
@@ -618,10 +748,10 @@ export default function CollegeRegistrationForm() {
 						<div className="flex flex-col sm:flex-row gap-4">
 							<button
 								type="submit"
-								disabled={loading || !isFormValid}
+								disabled={loading || uploadingImage || !isFormValid}
 								className="bg-linear-to-br relative group/btn from-black to-neutral-600 w-full sm:w-auto px-6 text-white rounded-md h-11 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								{loading ? (existingData ? "Saving..." : "Submitting...") : existingData ? "Save Changes" : "Submit Registration"}
+								{uploadingImage ? "Uploading image..." : loading ? (existingData ? "Saving..." : "Submitting...") : existingData ? "Save Changes" : "Submit Registration"}
 								<BottomGradient />
 							</button>
 							{existingData && (
