@@ -3,10 +3,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -289,9 +289,13 @@ const Header = ({ onMenuClick, isOpen }: { onMenuClick: () => void; isOpen: bool
         "sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 lg:hidden",
         "border-border" 
       )}>
-      <h1 className="whitespace-nowrap font-bold text-xl text-foreground">
-        Vigyan Mela
-      </h1>
+      <Image
+        src="/images/mobilenavbar.png"
+        alt="Vigyan Mela"
+        width={140}
+        height={36}
+        className="h-9 w-auto"
+      />
       <div className="flex items-center gap-2">
         <ThemeToggle />
         <button
@@ -310,7 +314,7 @@ const MobileNavMenu = ({ isOpen, onClose, currentPath }: { isOpen: boolean; onCl
   return (
     <div
       className={cn(
-        "fixed top-16 left-0 z-20 w-full border-b bg-background p-4",
+        "fixed top-16 left-0 z-40 w-full border-b bg-background p-4",
         "border-border", 
         "lg:hidden", 
         "transition-transform duration-300 ease-in-out",
