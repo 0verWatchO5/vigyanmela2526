@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,8 +23,6 @@ function cn(...inputs: any[]) {
 }
 
 // Simple fallback SmoothScrollProvider — no-op wrapper when a dedicated provider isn't available
-// Replace this with an import of your real provider if/when you add one:
-// import { SmoothScrollProvider } from "your-smooth-scroll-package";
 const SmoothScrollProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
@@ -350,23 +349,26 @@ const SidebarBody = ({ children, isCollapsed }: { children: React.ReactNode; isC
     <div className="flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden">
       <div
         className={cn(
-          "flex items-center",
-          isCollapsed ? "justify-center" : "justify-between"
+          "flex items-center py-2",
+          isCollapsed ? "justify-center" : "justify-start"
         )}
       >
-        <h1
-          className={cn(
-            "whitespace-nowrap font-bold text-2xl text-foreground", 
-            isCollapsed && "hidden"
-          )}
-        >
-          Vigyan Mela
-        </h1>
+        {/* Logo replacing the text */}
+        <div className={cn("relative transition-all duration-300", isCollapsed ? "w-50 h-10" : "w-50 h-30")}>
+           <Image 
+             src="/images/logo.png" 
+             alt="Vigyan Mela Logo" 
+             fill 
+             className="object-contain rounded-lg"
+             priority
+           />
+        </div>
       </div>
+      
       <p
         className={cn(
-          "whitespace-nowrap text-muted-foreground text-sm mb-4",
-          isCollapsed && "hidden"
+          "whitespace-nowrap text-muted-foreground text-sm mb-4 mt-2 transition-opacity duration-200",
+          isCollapsed ? "hidden opacity-0" : "block opacity-100"
         )}
       >
         Where Science Meets Innovation
@@ -395,7 +397,6 @@ const SidebarLink = ({
       href={link.href}
       className={cn(
         "relative group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200", 
-        // FIXED: Adaptive background colors (light gray in light mode, dark gray in dark mode)
         isActive ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-100 dark:hover:bg-zinc-800", 
         isCollapsed && "justify-center"
       )}
@@ -458,18 +459,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // LIFTED STATE: Sidebar state is now managed here
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const pathname = usePathname(); 
 
   return (
-
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`} // MODIFIED: text-primary to text-foreground
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning
       >
         <SessionProvider>
@@ -505,7 +504,6 @@ export default function RootLayout({
                 <main 
                   className={cn(
                     "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out",
-                    // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
                     isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
                   )}
                 >
@@ -526,7 +524,6 @@ export default function RootLayout({
               <main 
                 className={cn(
                   "flex flex-1 flex-col items-stretch w-full transition-all duration-300 ease-in-out overflow-y-auto",
-                  // When collapsed: 80px (lg:ml-20), When expanded: 256px (lg:ml-64)
                   isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
                 )}
               >
