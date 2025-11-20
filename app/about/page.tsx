@@ -1,23 +1,53 @@
 "use client";
 
+import { useState, useCallback, useEffect } from "react";
 import { ParallaxScrollSecond } from "@/components/ui/parallax-scroll-2";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
   "/images/G1.jpg",
-  "/images/G2.jpg",
-  "https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3387&q=80",
-  "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
-  "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3540&q=80",
-  "https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3540&q=80",
-  "https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3540&q=80",
-  "https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3540&q=80",
-  "https://images.unsplash.com/photo-1439853949127-fa647821eba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=2640&q=80",
-  "https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3387&q=80",
-  "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
-  "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3540&q=80",
-  "https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3387&q=80",
-  "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%3D&auto=format&fit=crop&w=3070&q=80",
+  "/images/G3.JPG",
+  "/images/G4.JPG",
+  "/images/G5.JPG",
+  "/images/G6.JPG",
+  "/images/G7.jpg",
+  "/images/G8.jpg",
+  "/images/G9.jpg",
+  "/images/G10.png",
+  "/images/G11.png",
+  "/images/G12.png",
+  "/images/G13.png",
+  "/images/G14.png",
+  "/images/G15.png", 
+  "/images/G18.png",
+  "/images/G19.png",
+  "/images/G20.png",
+  "/images/G21.png",
+  "/images/G22.png",
+  "/images/G23.png",
+  "/images/G24.png",
+  "/images/G25.png",
+  "/images/G26.png",
+  "/images/G27.png",
+  "/images/G28.png",
+  "/images/G29.png",
+  "/images/G30.png",
+  "/images/G31.png",
+  "/images/G32.png",
+  "/images/G33.png",
+  "/images/G34.png",
+  "/images/G35.jpg",
+  "/images/G36.jpg",
+  "/images/G37.jpg",
+  "/images/G38.jpg",
+  "/images/G39.jpg",
+  "/images/G40.jpg",
+  "/images/G41.jpg",
+  "/images/G42.jpg",
+  "/images/G43.jpg",
+  "/images/G44.jpg",
+  "/images/G45.png",
 ];
 
 const teamMembers = [
@@ -41,7 +71,7 @@ const teamMembers = [
     quote:
       "Connecting with schools, partners, and the media to spread the word and bring our community together.",
     name: "Liyakat Shaikh",
-    designation: "Developer",
+    designation: "Core Contributors",
     src: "/images/Liyakat.jpg",
     link: "https://www.linkedin.com/in/shaikh-liyakat/",
   },
@@ -49,7 +79,7 @@ const teamMembers = [
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Meet Korpe",
-    designation: "Developer",
+    designation: "Core Contributors",
     src: "images/Meet.jpg",
     link: "https://www.linkedin.com/in/meet-korpe/",
   },
@@ -57,14 +87,60 @@ const teamMembers = [
     quote:
       "Designing the look and feel of the event, ensuring every poster, stage, and screen inspires creativity.",
     name: "Vishnuraj Vishwakarma",
-    designation: "Alumni Coordinator",
+    designation: "Austrange Solution - Alumni Coordinator",
     src: "images/Vishnu.png",
     link: "https://www.linkedin.com/in/vishnuraj-vishwakarma/",
   },
 ];
 
 export default function About() {
-  // Map existing teamMembers to the format required by AnimatedTooltip
+  // --- LIGHTBOX STATE & LOGIC ---
+  const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null);
+
+  // This finds the index of the clicked image URL so we know where to start navigating
+  const openLightbox = (url: string) => {
+    const index = images.indexOf(url);
+    if (index !== -1) {
+      setCurrentImageIndex(index);
+    }
+  };
+
+  const closeLightbox = () => {
+    setCurrentImageIndex(null);
+  };
+
+  // Navigate to next image (loops back to start)
+  const handleNext = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (currentImageIndex !== null) {
+      setCurrentImageIndex((prev) => 
+        prev === null ? null : (prev + 1) % images.length
+      );
+    }
+  }, [currentImageIndex]);
+
+  // Navigate to previous image (loops to end)
+  const handlePrev = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (currentImageIndex !== null) {
+      setCurrentImageIndex((prev) => 
+        prev === null ? null : (prev - 1 + images.length) % images.length
+      );
+    }
+  }, [currentImageIndex]);
+
+  // Keyboard support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (currentImageIndex === null) return;
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentImageIndex, handleNext, handlePrev]);
+
   const tooltipItems = teamMembers.map((member, index) => ({
     id: index + 1,
     name: member.name,
@@ -74,7 +150,7 @@ export default function About() {
   }));
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       
       {/* About Section */}
       <div className="p-8 pt-24 lg:pt-8">
@@ -96,13 +172,59 @@ export default function About() {
         <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
       </div>
 
-      {/* Gallery Component */}
-      <ParallaxScrollSecond images={images} />
+      {/* Gallery Component - Passes the click handler */}
+      <ParallaxScrollSecond images={images} onImageClick={openLightbox} />
       
+      {/* --- LIGHTBOX OVERLAY --- */}
+      {currentImageIndex !== null && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={closeLightbox}
+        >
+          {/* Close Button */}
+          <button 
+            onClick={closeLightbox}
+            className="absolute top-6 right-6 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition z-50"
+          >
+            <X size={32} />
+          </button>
+
+          {/* Main Image Container */}
+          <div 
+            className="relative w-full h-full flex items-center justify-center p-4 md:p-12"
+            onClick={(e) => e.stopPropagation()} // Prevents closing when clicking the image area
+          >
+            <img 
+              src={images[currentImageIndex]} 
+              alt="Gallery preview" 
+              className="max-h-[85vh] max-w-[90vw] object-contain shadow-2xl rounded-md select-none"
+            />
+          </div>
+
+          {/* Previous Button */}
+          <button 
+            onClick={handlePrev}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-black/40 hover:bg-white/10 rounded-full transition z-50 backdrop-blur-sm"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={40} />
+          </button>
+
+          {/* Next Button */}
+          <button 
+            onClick={handleNext}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-black/40 hover:bg-white/10 rounded-full transition z-50 backdrop-blur-sm"
+            aria-label="Next image"
+          >
+            <ChevronRight size={40} />
+          </button>
+        </div>
+      )}
+
       {/* Team Section */}
       <div className="p-8">
          <h2 className="text-3xl font-bold mt-16 mb-12 text-center">
-           Meet the Team
+           Meet the Developers
          </h2>
          
          <div className="flex flex-row items-center justify-center mb-10 w-full">

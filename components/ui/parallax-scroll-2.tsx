@@ -1,30 +1,28 @@
 "use client";
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-
+import { useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export const ParallaxScrollSecond = ({
   images,
   className,
+  onImageClick, // 1. Accept the prop
 }: {
   images: string[];
   className?: string;
+  onImageClick?: (url: string) => void; // 2. Define the type
 }) => {
   const gridRef = useRef<any>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { scrollYProgress } = useScroll({
-    container: gridRef, // This tells useScroll to track the div with gridRef
+    container: gridRef,
     offset: ["start start", "end start"],
   });
 
-  const translateYFirst = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const translateXFirst = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const rotateXFirst = useTransform(scrollYProgress, [0, 1], [0, -20]);
-
-  const translateYThird = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const translateXThird = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const rotateXThird = useTransform(scrollYProgress, [0, 1], [0, 20]);
+  const translateFirst = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const translateSecond = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const translateThird = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
   const third = Math.ceil(images.length / 3);
 
@@ -34,101 +32,53 @@ export const ParallaxScrollSecond = ({
 
   return (
     <div
-  className={cn(
-    "h-[40rem] items-start overflow-y-auto overflow-x-hidden w-full scrollbar-width-none [&::-webkit-scrollbar]:hidden",
-    className
-  )}
-  ref={gridRef}
->
+      className={cn("h-[40rem] items-start overflow-y-auto w-full", className)}
+      ref={gridRef}
+    >
       <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start max-w-5xl mx-auto gap-10 py-40 px-10"
-
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start  max-w-5xl mx-auto gap-10 py-40 px-10"
+        ref={gridRef}
       >
         <div className="grid gap-10">
           {firstPart.map((el, idx) => (
-            <motion.div
-              style={{
-                y: translateYFirst,
-                x: translateXFirst,
-                rotateZ: rotateXFirst,
-              }}
-              key={"grid-1" + idx}
-            >
+            <motion.div style={{ y: translateFirst }} key={"grid-1" + idx}>
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
-                height="400"
-                width="400"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0 cursor-pointer transition hover:opacity-90" 
                 alt="thumbnail"
-                onClick={() => setSelectedImage(el)}
+                // 3. Add the click event here, passing the URL 'el'
+                onClick={() => onImageClick && onImageClick(el)}
               />
             </motion.div>
           ))}
         </div>
         <div className="grid gap-10">
           {secondPart.map((el, idx) => (
-            <motion.div key={"grid-2" + idx}>
+            <motion.div style={{ y: translateSecond }} key={"grid-2" + idx}>
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
-                height="400"
-                width="400"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0 cursor-pointer transition hover:opacity-90"
                 alt="thumbnail"
-                onClick={() => setSelectedImage(el)}
+                // 3. Add the click event here
+                onClick={() => onImageClick && onImageClick(el)}
               />
             </motion.div>
           ))}
         </div>
         <div className="grid gap-10">
           {thirdPart.map((el, idx) => (
-            <motion.div
-              style={{
-                y: translateYThird,
-                x: translateXThird,
-                rotateZ: rotateXThird,
-              }}
-              key={"grid-3" + idx}
-            >
+            <motion.div style={{ y: translateThird }} key={"grid-3" + idx}>
               <img
                 src={el}
-                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 m-0 p-0 cursor-pointer hover:opacity-90 transition"
-                height="400"
-                width="400"
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0 cursor-pointer transition hover:opacity-90"
                 alt="thumbnail"
-                onClick={() => setSelectedImage(el)}
+                // 3. Add the click event here
+                onClick={() => onImageClick && onImageClick(el)}
               />
             </motion.div>
           ))}
         </div>
       </div>
-
-      {/* Fullscreen Image Modal */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className="relative w-full h-full flex items-center justify-center p-4">
-              <img
-                src={selectedImage}
-                alt="Full view"
-                className="max-w-full max-h-[90vh] object-contain rounded-lg"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <button
-                className="absolute top-6 right-6 text-white text-4xl font-bold hover:text-gray-300 transition"
-                onClick={() => setSelectedImage(null)}
-              >
-                ×
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

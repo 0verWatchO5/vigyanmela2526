@@ -110,7 +110,7 @@ export default function Home() {
                       minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
                     }`}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "Register" : "Register Now"}</span>
+                    <span className="relative z-10">{minimizeOverlay ? "Register as a Visitor" : "Register Now"}</span>
                     <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
                   </button>
                   
@@ -120,7 +120,7 @@ export default function Home() {
                       minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
                     }`}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "College" : "College Registration"}</span>
+                    <span className="relative z-10">{minimizeOverlay ? "Register as a College Student" : "College Registration"}</span>
                     <div className="absolute inset-0 bg-linear-to-r from-teal-600 to-green-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
                   </button>
                   
@@ -130,7 +130,7 @@ export default function Home() {
                       minimizeOverlay ? "px-4 py-2.5 text-sm" : "px-8 py-4"
                     }`}
                   >
-                    <span className="relative z-10">{minimizeOverlay ? "Events" : "Explore Events"}</span>
+                    <span className="relative z-10">{minimizeOverlay ? "Explore Events" : "Explore Events"}</span>
                   </button>
                 </div>
               </div>
