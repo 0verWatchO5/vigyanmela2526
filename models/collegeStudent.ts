@@ -1,130 +1,111 @@
 import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema({
-  projectYear: {
-    type: String,
-    required: true,
-    enum: ["First Year", "Second Year"],
-  },
-  projectName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  projectDescription: {
-    type: String,
-    required: true,
-  },
-  projectCategory: {
-    type: String,
-    required: true,
-    enum: [
-      "Web Development",
-      "Mobile App Development",
-      "AI/ML",
-      "Data Science",
-      "IoT",
-      "Blockchain",
-      "Cybersecurity",
-      "Game Development",
-      "AR/VR",
-      "Cloud Computing",
-      "Other",
-    ],
-  },
-  projectPhotos: [{
-    type: String, // Cloudinary URLs
-  }],
-  projectDocumentation: {
-    type: String, // Cloudinary URL for PDF
-    default: null,
-  },
-  projectLink: {
-    type: String,
-    default: null,
-  },
-  technologyStack: [{
-    type: String,
-  }],
-  targetAudience: [{
-    type: String,
-    required: true,
-  }],
-});
+export const DEPARTMENT_OPTIONS = [
+  "BSc. IT",
+  "BMS",
+  "BAF",
+  "BBA",
+  "BFM",
+  "BMM",
+];
 
-const collegeStudentSchema = new mongoose.Schema(
+export const YEAR_OF_STUDY_OPTIONS = [
+  "First Year",
+  "Second Year",
+  "Third Year",
+  "Fourth Year",
+];
+
+export const SEGMENT_OPTIONS = [
+  "Technology & Innovation",
+  "Environment & Sustainability",
+  "Health & Education",
+  "Social Good",
+  "Creative Science",
+];
+
+const teamMemberSchema = new mongoose.Schema(
   {
-    // Personal Details
-    studentName: {
+    fullName: {
       type: String,
-      required: [true, "Student name is required"],
+      required: true,
       trim: true,
+    },
+    department: {
+      type: String,
+      required: true,
+      enum: DEPARTMENT_OPTIONS,
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
-      unique: true,
+      required: true,
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
     },
-    password: {
+    contactNumber: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
-    },
-    phoneNumber: {
-      type: String,
-      required: [true, "Phone number is required"],
+      required: true,
       match: [/^[0-9]{10}$/, "Please provide a valid 10-digit phone number"],
-    },
-    collegeName: {
-      type: String,
-      required: [true, "College name is required"],
-      trim: true,
-    },
-    currentYear: {
-      type: String,
-      required: [true, "Current year of study is required"],
-      enum: ["2nd Year", "3rd Year"],
-    },
-    academicSession: {
-      type: String,
-      required: [true, "Academic session is required"],
-      trim: true,
     },
     rollNumber: {
       type: String,
-      required: [true, "Roll number is required"],
+      required: true,
       trim: true,
+    },
+    yearOfStudy: {
+      type: String,
+      required: true,
+      enum: YEAR_OF_STUDY_OPTIONS,
+    },
+  },
+  { _id: false }
+);
+
+const collegeStudentSchema = new mongoose.Schema(
+  {
+    teamName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    projectSummary: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    teamSize: {
+      type: Number,
+      required: true,
+      enum: [2, 3, 4],
+    },
+    segments: {
+      type: [
+        {
+          type: String,
+          enum: SEGMENT_OPTIONS,
+        },
+      ],
+      required: true,
+      validate: {
+        validator: (segments: string[]) => Array.isArray(segments) && segments.length > 0,
+        message: "Select at least one segment",
+      },
+    },
+    teamMembers: {
+      type: [teamMemberSchema],
+      required: true,
+      validate: {
+        validator(this: { teamSize: number }, members: unknown[]): boolean {
+          return Array.isArray(members) && members.length === this.teamSize;
+        },
+        message: "Team member count must match the provided team size",
+      },
     },
     linkedinId: {
       type: String,
-      unique: true,
       sparse: true,
     },
-
-    // Projects
-    projects: {
-      type: [projectSchema],
-      validate: {
-        validator: function (projects: any[]) {
-          if (this.currentYear === "2nd Year") {
-            return projects.length === 1;
-          } else if (this.currentYear === "3rd Year") {
-            return projects.length === 2;
-          }
-          return false;
-        },
-        message: function (props: any) {
-          const year = props.instance.currentYear;
-          const expected = year === "2nd Year" ? 1 : 2;
-          return `${year} students must upload exactly ${expected} project(s)`;
-        },
-      },
-    },
-
-    // Metadata
     registrationStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -140,12 +121,11 @@ const collegeStudentSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
-collegeStudentSchema.index({ email: 1 });
-collegeStudentSchema.index({ rollNumber: 1 });
-collegeStudentSchema.index({ currentYear: 1 });
+collegeStudentSchema.index({ teamName: 1 });
+collegeStudentSchema.index({ "teamMembers.email": 1 });
+collegeStudentSchema.index({ "teamMembers.rollNumber": 1 });
+collegeStudentSchema.index({ registrationStatus: 1 });
 
-// Delete existing model if it exists (for hot reloading)
 delete mongoose.models.CollegeStudent;
 
 const CollegeStudent = mongoose.model("CollegeStudent", collegeStudentSchema);

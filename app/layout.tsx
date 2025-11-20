@@ -6,7 +6,6 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { SmoothScrollProvider } from "@/contexts/SmoothScrollContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +20,13 @@ const geistMono = Geist_Mono({
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
+
+// Simple fallback SmoothScrollProvider — no-op wrapper when a dedicated provider isn't available
+// Replace this with an import of your real provider if/when you add one:
+// import { SmoothScrollProvider } from "your-smooth-scroll-package";
+const SmoothScrollProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};
 
 // --- ICONS ---
 
@@ -153,6 +159,27 @@ const IconSparkles = (props: any) => (
   </svg>
 );
 
+const IconSchool = (props: any) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4 text-muted-foreground"
+    {...props}
+  >
+    {/* mortarboard */}
+    <path d="M22 12L12 7 2 12 12 17 22 12z" />
+    {/* tassel */}
+    <path d="M12 17v4" />
+    {/* base line / support */}
+    <path d="M4 13v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+  </svg>
+);
+
 const IconX = (props: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -215,6 +242,11 @@ export const navigationItems = [
     label: "Sponsors",
     href: "/sponsors",
     icon: <IconSparkles />,
+  },
+  {
+    label: "College Students",
+    href: "/college-registration",
+    icon: <IconSchool />,
   },
 ];
 
