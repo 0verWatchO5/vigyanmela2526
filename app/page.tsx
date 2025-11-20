@@ -114,7 +114,7 @@ export default function Home() {
                     }`}
                     duration={1}
                   >
-                    {minimizeOverlay ? "Register" : "Register Now"}
+                    {minimizeOverlay ? "Register as a Visitor" : "Register Now"}
                   </HoverBorderGradient>
                   
                   <HoverBorderGradient
@@ -125,7 +125,7 @@ export default function Home() {
                     }`}
                     duration={1}
                   >
-                    {minimizeOverlay ? "College" : "College Registration"}
+                    {minimizeOverlay ? "Register as a College Student" : "College Registration"}
                   </HoverBorderGradient>
                   
                   <HoverBorderGradient
@@ -136,7 +136,7 @@ export default function Home() {
                     }`}
                     duration={1}
                   >
-                    {minimizeOverlay ? "Events" : "Explore Events"}
+                    {minimizeOverlay ? "Explore Events" : "Explore Events"}
                   </HoverBorderGradient>
                 </div>
               </div>
