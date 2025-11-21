@@ -203,3 +203,22 @@ html.has-scroll-smooth {
     transform: translateY(0);
   }
 }
+
+/* For WebKit browsers */
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(71, 71, 71);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #5ae2e6;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #2a8e92;
+}
