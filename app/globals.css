@@ -131,6 +131,24 @@
   display: none;             /* Chrome, Safari and Opera */
 }
 
+/* Animated gradient effect */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+
 /* Locomotive Scroll Animations */
 .is-reveal {
   opacity: 1 !important;

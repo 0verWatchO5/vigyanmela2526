@@ -105,13 +105,37 @@ const timelineData = [
     year: "2023",
     title: "Growth & Recognition",
     content:
-      "The event expanded significantly, attracting projects from multiple departments and earning inter-college recognition.",
+      "The event expanded significantly, attracting visitors from multiple departments and earning inter-college recognition.",
   },
   {
     year: "2024",
     title: "Innovation Hub",
     content:
-      "Vigyan Mela became a launchpad for startups, with several projects receiving support from the college&apos;s CIEL initiative.",
+      "Vigyan Mela became a launchpad for startups, with several projects participating in the RT-MSSU(Ratan Tata Maharashtra State Skill University) 2025 Competition.",
+  },
+  {
+    year : "2025",
+    title : "Results & Achievements",
+    content: (
+      <>
+        A product that begin as a group project at Vigyan Mela has now evolved into a successful startup,{" "}
+        <a
+          href="https://www.austrangesolutions.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold hover:underline gradient-animate"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #3b82f6, #ec4899, #1e40af)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Austrange Solutions
+        </a>
+        , winning the RT-MSSU 2025 Competition.
+      </>
+    ),
   },
   {
     year: "2025",
