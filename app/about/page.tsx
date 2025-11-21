@@ -181,11 +181,11 @@ export default function About() {
     <div className="w-full relative">
       
       {/* About Section */}
-      <div className="p-8 pt-24 lg:pt-8">
+      <div className="p-8 pt-24 lg:pt-8 pl-20 mt-10" >
         <h1 className="text-4xl font-bold">About Vigyan Mela</h1>
         <p className="text-muted-foreground mt-4 text-lg max-w-3xl">
           Vigyaan Mela is not just a technical exhibition; 
-          it's the flagship annual showcase of the BSc IT Department, 
+          It&apos;s the flagship annual showcase of the BSc IT Department, 
           a platform where innovation, collaboration, and practical learning converge. 
           Our mission is to empower students to move beyond theory, 
           providing a stage to showcase their most ambitious technology-driven projects.
@@ -194,7 +194,7 @@ export default function About() {
           From sophisticated IoT-based solutions to cutting-edge software innovations, 
           Vigyaan Mela is where excellence is recognized and futures are launched. 
           We celebrate a legacy of inter-college awards and are proud to be the launching pad for
-          projects that have become official startups, now further supported by our college's CIEL initiative.
+          projects that have become official startups, now further supported by our college&apos;s CIEL initiative.
         </p>
       </div>
 
@@ -203,7 +203,7 @@ export default function About() {
 
       {/* Gallery Component - Passes the click handler */}
       <div className="p-8">
-        <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
+        <h2 className="text-3xl font-bold mt-16 mb-8 pl-20" >Our Gallery</h2>
       </div>
       <ParallaxScrollSecond images={images} onImageClick={openLightbox} />
       
