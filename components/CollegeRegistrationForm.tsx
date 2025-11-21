@@ -94,6 +94,7 @@ export default function CollegeRegistrationForm() {
 	const [loading, setLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+    const [shareLoading, setShareLoading] = useState(false);
 
 	useEffect(() => {
 		setTeamMembers((prev) => {
@@ -371,6 +372,60 @@ export default function CollegeRegistrationForm() {
 
 	const handleRefresh = () => fetchExisting(true);
 
+	const handleShareOnLinkedIn = async () => {
+		setErrorMessage(null);
+		setFeedbackMessage(null);
+		if (!session?.user?.id) {
+			setErrorMessage("Please sign in to share on LinkedIn.");
+			return;
+		}
+		if (!existingData) {
+			setErrorMessage("No submission found to share.");
+			return;
+		}
+		if (!existingData.projectImage) {
+			setErrorMessage("Please add a project image to enable LinkedIn sharing.");
+			return;
+		}
+
+		setShareLoading(true);
+		try {
+			const hashtags = ["VigyanMela", "Innovation", "Science", ...existingData.segments]
+				.map((s) => `#${String(s).replace(/[^A-Za-z0-9]/g, "")}`)
+				.filter(Boolean)
+				.join(" ");
+
+			const comment = `Excited to share our project "${existingData.teamName}" for Vigyan Mela 2025-26!\n\n${existingData.projectSummary}\n\n${hashtags}`.slice(0, 2500);
+
+			const res = await fetch("/api/linkedin/post", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					comment,
+					title: existingData.teamName,
+					description: existingData.projectSummary,
+					imageUrl: existingData.projectImage,
+				}),
+			});
+
+			const json = await res.json().catch(() => ({}));
+			if (!res.ok) {
+				setErrorMessage(json?.error || "Failed to share on LinkedIn.");
+				return;
+			}
+
+			const postId: string | undefined = json?.data?.id;
+			const postLink = postId && typeof postId === "string" && postId.startsWith("urn:li:ugcPost:")
+				? `https://www.linkedin.com/feed/update/${postId}`
+				: null;
+			setFeedbackMessage(postLink ? "Shared on LinkedIn! View your post via your LinkedIn feed." : "Shared on LinkedIn successfully.");
+		} catch (e) {
+			setErrorMessage("Unexpected error while sharing. Please try again.");
+		} finally {
+			setShareLoading(false);
+		}
+	};
+
 	const statusLabel = existingData?.registrationStatus ?? "pending";
 	const statusClass = STATUS_STYLES[statusLabel] ?? STATUS_STYLES.pending;
 	const submittedOn = existingData ? (existingData.updatedAt || existingData.submittedAt) : null;
@@ -463,10 +518,16 @@ export default function CollegeRegistrationForm() {
 							</div>
 						</div>
 						<div className="mt-8 flex flex-col sm:flex-row gap-3">
+	                            <button onClick={handleShareOnLinkedIn} disabled={shareLoading || isFetchingExisting || !existingData.projectImage} className="flex-1 px-4 py-2 bg-[#0a66c2] text-white rounded-md hover:opacity-90 transition disabled:opacity-60">
+	                                {shareLoading ? "Sharing..." : "Share on LinkedIn"}
+	                            </button>
 							<button onClick={handleStartEdit} className="flex-1 px-4 py-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white rounded-md hover:opacity-90 transition">Edit Submission</button>
 							<button disabled={isFetchingExisting} onClick={() => handleRefresh()} className="flex-1 px-4 py-2 bg-transparent border border-neutral-700 text-neutral-200 rounded-md hover:bg-neutral-800 transition disabled:opacity-60">Refresh</button>
 							<a href="/" className="flex-1 px-4 py-2 text-center bg-transparent border border-neutral-700 text-neutral-200 rounded-md hover:bg-neutral-800 transition">Home</a>
 						</div>
+	                        {!existingData.projectImage && (
+	                            <p className="mt-2 text-xs text-neutral-400">Add a project image to enable LinkedIn sharing.</p>
+	                        )}
 					</div>
 				</div>
 			</div>
