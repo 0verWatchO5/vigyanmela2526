@@ -3,7 +3,7 @@ import RegistrationAuth from "@/components/auth/RegistrationAuth";
 
 export default function CollegeRegistrationPage() {
   return (
-    <div className="min-h-screen w-full bg-neutral-950 py-12 px-4">
+    <div className="min-h-screen w-full bg-background py-12 px-4">
       <RegistrationAuth
         className="mx-auto w-full max-w-5xl"
         unauthenticatedClassName="mx-auto"
