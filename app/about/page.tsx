@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { ParallaxScrollSecond } from "@/components/ui/parallax-scroll-2";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
+import { Timeline } from "@/components/ui/timeline";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
@@ -93,6 +94,33 @@ const teamMembers = [
   },
 ];
 
+const timelineData = [
+  {
+    year: "2022",
+    title: "2022 -Foundation",
+    content:
+      "Vigyan Mela began as a vision to showcase student innovation and technical excellence.",
+  },
+  {
+    year: "2023",
+    title: "Growth & Recognition",
+    content:
+      "The event expanded significantly, attracting projects from multiple departments and earning inter-college recognition.",
+  },
+  {
+    year: "2024",
+    title: "Innovation Hub",
+    content:
+      "Vigyan Mela became a launchpad for startups, with several projects receiving support from the college&apos;s CIEL initiative.",
+  },
+  {
+    year: "2025",
+    title: "Vigyan Mela 4.0",
+    content:
+      "A premier tech festival celebrating cutting-edge innovations, fostering collaboration, and empowering the next generation of tech leaders.",
+  },
+];
+
 export default function About() {
   // --- LIGHTBOX STATE & LOGIC ---
   const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null);
@@ -168,11 +196,15 @@ export default function About() {
           We celebrate a legacy of inter-college awards and are proud to be the launching pad for
           projects that have become official startups, now further supported by our college's CIEL initiative.
         </p>
-
-        <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
       </div>
 
+      {/* Timeline Component */}
+      <Timeline data={timelineData} />
+
       {/* Gallery Component - Passes the click handler */}
+      <div className="p-8">
+        <h2 className="text-3xl font-bold mt-16 mb-8">Our Gallery</h2>
+      </div>
       <ParallaxScrollSecond images={images} onImageClick={openLightbox} />
       
       {/* --- LIGHTBOX OVERLAY --- */}

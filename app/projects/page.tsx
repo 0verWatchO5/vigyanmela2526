@@ -147,7 +147,7 @@ export default function ProjectsPage() {
           {filteredProjects.map((project) => (
             <div
               key={project._id}
-              className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg transition-all hover:shadow-xl hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg shadow-blue-200 dark:shadow-none dark:shadow-blue-500/20 transition-all hover:shadow-xl hover:-translate-y-1"
             >
               {/* Gradient Border Effect */}
               <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>

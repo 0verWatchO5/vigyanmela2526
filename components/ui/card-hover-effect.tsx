@@ -58,7 +58,7 @@ export const Card = ({
       className={cn(
         // FIXED: Adaptive background (White in light mode, Black in dark mode)
         "rounded-2xl h-full w-full p-4 overflow-hidden relative z-20",
-        "bg-white border border-neutral-200 dark:bg-black dark:border-white/[0.2]",
+        "bg-white border border-neutral-200 shadow-md shadow-purple-200 dark:bg-black dark:border-white/[0.2] dark:shadow-none dark:shadow-purple-500/20",
         "group-hover:border-slate-700",
         className
       )}

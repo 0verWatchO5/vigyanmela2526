@@ -75,7 +75,7 @@ export default function Sponsors() {
             className="block" // The link wraps the whole card
           >
             <CardContainer className="inter-var w-full h-full">
-              <CardBody className="bg-gray-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-full rounded-xl p-6 border flex flex-col justify-start">
+              <CardBody className="bg-gray-50 shadow-md shadow-blue-200 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] dark:shadow-none dark:shadow-emerald-500/20 border-black/[0.1] w-full h-full rounded-xl p-6 border flex flex-col justify-start">
                 {/* Sponsor Logo Section */}
                 <CardItem
                   translateZ="50"
