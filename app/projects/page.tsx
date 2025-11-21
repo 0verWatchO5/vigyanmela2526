@@ -27,6 +27,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSegment, setSelectedSegment] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     fetchProjects();
@@ -53,6 +54,17 @@ export default function ProjectsPage() {
       setLoading(false);
     }
   };
+
+  // Filter projects based on search query
+  const filteredProjects = projects.filter((project) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      project.teamName.toLowerCase().includes(query) ||
+      project.projectSummary.toLowerCase().includes(query) ||
+      project.segments.some((seg) => seg.toLowerCase().includes(query)) ||
+      project.teamMembers.some((member) => member.fullName.toLowerCase().includes(query))
+    );
+  });
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -93,6 +105,34 @@ export default function ProjectsPage() {
         ))}
       </div>
 
+      {/* Search Bar */}
+      <div className="mb-8 flex justify-center">
+        <div className="w-full max-w-md">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={`Search ${selectedSegment === "all" ? "all" : selectedSegment} projects by name, team, or description...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pr-12 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
+            />
+            <svg
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
@@ -102,9 +142,9 @@ export default function ProjectsPage() {
       )}
 
       {/* Projects Grid */}
-      {!loading && projects.length > 0 && (
+      {!loading && filteredProjects.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div
               key={project._id}
               className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg transition-all hover:shadow-xl hover:-translate-y-1"
@@ -192,16 +232,18 @@ export default function ProjectsPage() {
       )}
 
       {/* Empty State */}
-      {!loading && projects.length === 0 && (
+      {!loading && filteredProjects.length === 0 && (
         <div className="text-center py-12">
           <svg className="mx-auto h-24 w-24 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <h3 className="mt-4 text-xl font-semibold">No projects found</h3>
           <p className="mt-2 text-muted-foreground">
-            {selectedSegment === "all" 
-              ? "No approved projects yet. Check back soon!"
-              : `No projects in "${selectedSegment}" segment yet.`}
+            {searchQuery 
+              ? `No projects match "${searchQuery}" in "${selectedSegment === "all" ? "all segments" : selectedSegment}".`
+              : `${selectedSegment === "all" 
+                ? "No approved projects yet. Check back soon!"
+                : `No projects in "${selectedSegment}" segment yet.`}`}
           </p>
         </div>
       )}
