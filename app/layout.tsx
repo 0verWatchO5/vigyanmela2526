@@ -287,7 +287,7 @@ export const navigationItems = [
     icon: <IconSparkles />,
   },
   {
-    label: "Regester your Project to Display",
+    label: "Project Registration",
     href: "/college-registration",
     icon: <IconSchool />,
   },

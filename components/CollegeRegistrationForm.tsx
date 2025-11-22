@@ -586,7 +586,7 @@ export default function CollegeRegistrationForm() {
 			<div className="max-w-4xl mx-auto">
 				<div className="bg-linear-to-br from-neutral-900 to-neutral-950 rounded-2xl p-8 shadow-2xl border border-neutral-800">
 					<h1 className="text-4xl font-bold bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-3">
-						{existingData ? "Edit Your Registration" : "Regester Your Project to Display at Vigyan Mela 2025-26"}
+						{existingData ? "Edit Your Registration" : "Register your Project to display at Vigyan Mela 2025"}
 					</h1>
 					<p className="text-neutral-400 mb-8">
 						{existingData ? "Update your details and save changes." : "Share your team details to participate in Vigyan Mela 2025-26."}

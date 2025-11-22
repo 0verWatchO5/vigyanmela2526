@@ -125,7 +125,7 @@ export default function Home() {
                     }`}
                     duration={1}
                   >
-                    {minimizeOverlay ? "Register as a College Student" : "Register your project to display"}
+                    {minimizeOverlay ? "Register as a College Student" : "Project Registration"}
                   </HoverBorderGradient>
                   
                   <HoverBorderGradient
