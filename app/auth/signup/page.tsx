@@ -14,15 +14,39 @@ function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  function validateContact(contact: string): string | null {
+    const raw = contact.trim();
+    if (!raw) return "Contact number is required.";
+    if (!/^[0-9]{10}$/.test(raw)) return "Contact must be exactly 10 digits.";
+    const allSameDigit = /(\d)\1{9}/.test(raw);
+    const sequentialAsc = raw === "0123456789" || raw === "1234567890";
+    const sequentialDesc = raw === "9876543210";
+    const disallowed = new Set([
+      "0000000000","1111111111","2222222222","3333333333","4444444444","5555555555","6666666666","7777777777","8888888888","9999999999","0123456789","1234567890","9876543210"
+    ]);
+    const weakPrefix = /^[01]/.test(raw);
+    if (allSameDigit || sequentialAsc || sequentialDesc || disallowed.has(raw) || weakPrefix) {
+      return "Enter a valid non-repetitive phone number.";
+    }
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
+      // sanitize contact input
+      const sanitizedContact = form.contact.replace(/[^0-9]/g, '').slice(0,10);
+      const contactError = validateContact(sanitizedContact);
+      if (contactError) {
+        throw new Error(contactError);
+      }
+      const payload = { ...form, contact: sanitizedContact };
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Signup failed");
@@ -65,7 +89,10 @@ function SignupForm() {
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="contact">Contact (10 digits)</Label>
-              <Input id="contact" required value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
+              <Input id="contact" required value={form.contact} onChange={(e) => {
+                const digits = e.target.value.replace(/[^0-9]/g,'').slice(0,10);
+                setForm({ ...form, contact: digits });
+              }} />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="password">Password</Label>

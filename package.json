@@ -20,6 +20,8 @@
     "@tsparticles/slim": "^3.9.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/next-auth": "^3.13.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.8.0",

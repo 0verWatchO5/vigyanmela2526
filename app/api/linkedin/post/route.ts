@@ -158,7 +158,6 @@ async function submitLinkedInPost(accessToken: string, body: Record<string, unkn
 export async function POST(req: Request) {
   try {
     const session = (await getServerSession(authOptions as any)) as any;
-    console.log("Server session:", session);
     if (!session || !session.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -170,8 +169,6 @@ export async function POST(req: Request) {
 
     const identity = await fetchLinkedInIdentity(session.accessToken as string);
     const personUrn = identity.personUrn;
-    console.log("LinkedIn person URN:", personUrn);
-    console.log("Preparing to post with data:", { comment, shareUrl, title, description, imageUrl, template });
 
     const shouldUploadImage = Boolean(imageUrl || template);
 

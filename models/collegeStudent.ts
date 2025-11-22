@@ -58,6 +58,12 @@ const teamMemberSchema = new mongoose.Schema(
       required: true,
       enum: YEAR_OF_STUDY_OPTIONS,
     },
+    linkedinProfile: {
+      type: String,
+      required: true,
+      trim: true,
+      match: [/^https:\/\/(www\.)?linkedin\.com\/.+/i, "Provide a valid LinkedIn profile URL"],
+    },
   },
   { _id: false }
 );

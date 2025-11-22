@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import { FloatingDock } from "@/components/ui/floating-dock";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,6 +67,44 @@ const IconMoon = ({ className }: { className?: string }) => (
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   </svg>
 );
+
+// Social Icons for Floating Dock
+const IconLinkedin = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path d="M20 0H4C1.8 0 0 1.8 0 4v16c0 2.2 1.8 4 4 4h16c2.2 0 4-1.8 4-4V4c0-2.2-1.8-4-4-4zM7.5 20H5V10h2.5v10zM6.25 8.5c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7-1.5-1.5-1.5zM20 20h-2.5v-5c0-1.3-.5-2.2-1.7-2.2-1 0-1.5.7-1.8 1.3-.1.2-.1.5-.1.8V20h-2.5V10h2.5v1.4c.4-.6 1.2-1.5 2.9-1.5 2.2 0 3.8 1.4 3.8 4.5V20z" />
+  </svg>
+);
+
+const IconInstagram = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" strokeWidth="2" />
+    <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" strokeWidth="2" />
+    <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
+  </svg>
+);
+
+const IconTwitter = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7z" />
+  </svg>
+);
+
+
 
 const IconHome = (props: any) => (
   <svg
@@ -223,7 +262,7 @@ export const navigationItems = [
     icon: <IconHome />,
   },
   {
-    label: "About",
+    label: "About US",
     href: "/about",
     icon: <IconInfoCircle />,
   },
@@ -233,7 +272,7 @@ export const navigationItems = [
     icon: <IconSchool />,
   },
   {
-    label: "Registration",
+    label: "Free Pass for Visitors",
     href: "/registration",
     icon: <IconUsers />,
   },
@@ -248,7 +287,7 @@ export const navigationItems = [
     icon: <IconSparkles />,
   },
   {
-    label: "College Students",
+    label: "Regester your Project to Display",
     href: "/college-registration",
     icon: <IconSchool />,
   },
@@ -541,6 +580,28 @@ export default function RootLayout({
               </main>
             </div>
           )}
+
+          {/* Floating Dock with Social Handles */}
+          <FloatingDock
+            items={[
+              {
+                title: "LinkedIn",
+                icon: <IconLinkedin className="h-5 w-5" />,
+                href: "https://www.linkedin.com/showcase/vigyan-mela22/",
+              },
+              {
+                title: "Instagram",
+                icon: <IconInstagram className="h-5 w-5" />,
+                href: "https://www.instagram.com/vigyanmela.tech",
+              },
+              {
+                title: "Twitter",
+                icon: <IconTwitter className="h-5 w-5" />,
+                href: "https://twitter.com/vigyanmela",
+              },
+            ]}
+            hideOnHomeMobile={pathname === "/"}
+          />
         </ThemeProvider>
         </SessionProvider>
       </body>

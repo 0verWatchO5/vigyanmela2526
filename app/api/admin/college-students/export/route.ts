@@ -27,6 +27,7 @@ export async function GET() {
       { header: "Email", key: "email", width: 30 },
       { header: "Contact Number", key: "contactNumber", width: 16 },
       { header: "Roll Number", key: "rollNumber", width: 16 },
+      { header: "LinkedIn Profile", key: "linkedinProfile", width: 40 },
     ];
 
     students.forEach((team: any) => {
@@ -56,6 +57,7 @@ export async function GET() {
             email: m.email,
             contactNumber: m.contactNumber,
             rollNumber: m.rollNumber,
+            linkedinProfile: m.linkedinProfile || "",
           });
         });
       } else {
