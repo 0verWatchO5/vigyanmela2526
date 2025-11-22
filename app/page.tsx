@@ -105,12 +105,12 @@ export default function Home() {
                 )}
                 
                 {/* Action Buttons */}
-                <div className={`flex ${minimizeOverlay ? "flex-row gap-3" : "flex-col md:flex-row md:justify-center gap-6"}`}>
+                <div className={`flex ${minimizeOverlay ? "flex-row gap-3" : "flex-col md:flex-row  md:justify-center gap-6 mb[5%] " }`}>
                   <HoverBorderGradient
                     onClick={() => handleNavigation("/registration")}
                     containerClassName="rounded-full"
                     className={`bg-black text-white font-semibold ${
-                      minimizeOverlay ? "px-6 py-2 text-sm" : "px-10 py-3"
+                      minimizeOverlay ? "px- py-2 text-sm" : "px-10 py-3"
                     }`}
                     duration={1}
                   >

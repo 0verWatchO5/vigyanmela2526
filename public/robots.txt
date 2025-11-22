@@ -1,0 +1,13 @@
+# Allow search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of private or sensitive pages (if needed)
+# Disallow: /admin/login/vigyanmela
+# Disallow: */api/
+
+# Crawl delay (optional - time in seconds between requests)
+# Crawl-delay: 3600
+
+# Sitemap location
+Sitemap: https://vigyanmela.chetanacollege.in/sitemap.xml
