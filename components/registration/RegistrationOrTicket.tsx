@@ -95,12 +95,6 @@ export default function RegistrationOrTicket() {
   );
 
   useEffect(() => {
-    console.log(
-      "Effect: isLinkedInAuthed=",
-      isLinkedInAuthed,
-      " ticketData=",
-      ticketData
-    );
     if (typeof window === "undefined") return;
     if (!isLinkedInAuthed) return;
     // Restore ticket from session storage if exists

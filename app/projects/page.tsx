@@ -44,7 +44,6 @@ export default function ProjectsPage() {
       const data = await response.json();
       
       if (data.success) {
-        console.log('Projects data:', data.projects);
         console.log('First project slotId/roomNo:', data.projects[0]?.slotId, data.projects[0]?.roomNo);
         setProjects(data.projects);
       }

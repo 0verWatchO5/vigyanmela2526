@@ -285,34 +285,6 @@ export function EventRegistrationForm({
     return Object.keys(tempErrors).length === 0;
   };
 
-  // New effect: after LinkedIn auth, restore ticket (if created pre-auth) and share
-  // React.useEffect(() => {
-  //   console.log("Effect: isLinkedInAuthed=", isLinkedInAuthed, " ticketData=", ticketData);
-  //   if (typeof window === "undefined") return;
-  //   if (!isLinkedInAuthed) return;
-  //   // Restore ticket from session storage if exists
-  //   if (!ticketData) {
-  //     const storedTicket = sessionStorage.getItem("vm_ticketData");
-  //     if (storedTicket) {
-  //       try {
-  //         const parsed = JSON.parse(storedTicket);
-  //         if (parsed && parsed.ticketCode) {
-  //           setTicketData(parsed);
-  //         }
-  //       } catch {}
-  //     }
-  //   }
-  //   const shareFlag = sessionStorage.getItem("vm_shareAfterLinkedIn");
-  //   if (!shareFlag) return;
-  //   const doShare = async () => {
-  //     if (!postedOnceRef.current) {
-  //       await shareOnLinkedIn({ suppressSignIn: true });
-  //     }
-  //     sessionStorage.removeItem("vm_shareAfterLinkedIn");
-  //   };
-  //   doShare();
-  // }, []);
-
   // Fallback: if user returned authed with ticket but flag missing (e.g., storage cleared), attempt share once.
   React.useEffect(() => {
     if (!isLinkedInAuthed) return;
