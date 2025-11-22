@@ -1,13 +1,15 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") || "/registration";
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", contact: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,7 @@ export default function SignupPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Signup failed");
-      router.push("/registration");
+      router.push(returnUrl);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -71,7 +73,7 @@ export default function SignupPage() {
             </div>
             <button
               type="button"
-              onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
+              onClick={() => signIn("linkedin", { callbackUrl: returnUrl })}
               className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition mb-2"
             >
               Continue with LinkedIn
@@ -84,10 +86,24 @@ export default function SignupPage() {
           </form>
 
           <div className="text-sm text-muted-foreground mt-2 text-center">
-            Already have an account? <Link href="/registration" className="text-blue-600">Login</Link>
+            Already have an account? <Link href={`/auth/login${returnUrl !== "/registration" ? `?returnUrl=${returnUrl}` : ""}`} className="text-blue-600">Sign in</Link>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[70vh] items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-background/50 backdrop-blur p-6 shadow-sm">
+          <p className="text-center text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

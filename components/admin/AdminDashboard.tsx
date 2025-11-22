@@ -7,6 +7,7 @@ import { UsersGrid } from "./UsersGrid";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { AdminManagement } from "./AdminManagement";
 import { CollegeStudentsManager } from "./CollegeStudentsManager";
+import ReviewsManager from "./ReviewsManager";
 import TicketCard from "@/components/ui/TicketCard";
 
 interface User {
@@ -23,7 +24,7 @@ interface User {
   updatedAt: string;
 }
 
-type TabType = "users" | "college-students" | "admins" | "settings" | "visitors";
+type TabType = "users" | "college-students" | "reviews" | "admins" | "settings" | "visitors";
 
 export function AdminDashboard() {
   const router = useRouter();
@@ -222,6 +223,19 @@ export function AdminDashboard() {
             )}
           </button>
           <button
+            onClick={() => setActiveTab("reviews")}
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeTab === "reviews"
+                ? "text-blue-500"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            ⭐ Reviews
+            {activeTab === "reviews" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+            )}
+          </button>
+          <button
             onClick={() => setActiveTab("visitors")}
             className={`px-6 py-3 font-medium transition-colors relative ${
               activeTab === "visitors"
@@ -372,6 +386,18 @@ export function AdminDashboard() {
             </p>
           </div>
           <CollegeStudentsManager />
+        </div>
+      ) : activeTab === "reviews" ? (
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Reviews Management
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              View and manage all project reviews
+            </p>
+          </div>
+          <ReviewsManager />
         </div>
       ) : activeTab === "admins" ? (
 

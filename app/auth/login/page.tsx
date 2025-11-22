@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") || "/registration";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +20,7 @@ export default function LoginPage() {
     setError(null);
     const res = await signIn("credentials", {
       redirect: true,
-      callbackUrl: "/registration",
+      callbackUrl: returnUrl,
       email,
       password,
     });
@@ -36,7 +39,7 @@ export default function LoginPage() {
         <div className="flex flex-col gap-3">
           <button
             type="button"
-            onClick={() => signIn("linkedin", { callbackUrl: "/registration" })}
+            onClick={() => signIn("linkedin", { callbackUrl: returnUrl })}
             className="w-full rounded-md bg-[#0a66c2] text-white py-2.5 text-sm font-medium hover:brightness-110 transition"
           >
             Continue with LinkedIn
@@ -68,5 +71,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[70vh] items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-background/50 backdrop-blur p-6 shadow-sm">
+          <p className="text-center text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

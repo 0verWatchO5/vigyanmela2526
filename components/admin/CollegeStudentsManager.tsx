@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import StarRating from "../reviews/StarRating";
 
 type RegistrationStatus = "pending" | "approved" | "rejected";
 
@@ -29,6 +30,17 @@ interface CollegeTeam {
 	createdAt?: string;
 }
 
+interface ProjectReview {
+	_id: string;
+	reviewerName: string;
+	reviewerEmail: string;
+	rating: number;
+	comment: string;
+	hidden: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
 const STATUS_STYLES: Record<RegistrationStatus, string> = {
 	pending: "bg-yellow-500/20 text-yellow-200",
 	approved: "bg-green-500/20 text-green-200",
@@ -47,6 +59,9 @@ export function CollegeStudentsManager() {
 	const [isExporting, setIsExporting] = useState<boolean>(false);
 	const [editingSlotRoom, setEditingSlotRoom] = useState<{ [key: string]: { slotId: string; roomNo: string } }>({});
 	const [savingSlotRoom, setSavingSlotRoom] = useState<string | null>(null);
+	const [projectReviews, setProjectReviews] = useState<ProjectReview[]>([]);
+	const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
+	const [togglingReview, setTogglingReview] = useState<string | null>(null);
 
 	const fetchTeams = async () => {
 		try {
@@ -69,6 +84,83 @@ export function CollegeStudentsManager() {
 	useEffect(() => {
 		fetchTeams();
 	}, []);
+
+	const fetchProjectReviews = async (projectId: string) => {
+		try {
+			setLoadingReviews(true);
+			const response = await fetch(`/api/admin/reviews/project/${projectId}`);
+			const data = await response.json();
+
+			if (data.success) {
+				setProjectReviews(data.reviews);
+			} else {
+				console.error("Failed to fetch reviews:", data.error);
+				setProjectReviews([]);
+			}
+		} catch (error) {
+			console.error("Error fetching reviews:", error);
+			setProjectReviews([]);
+		} finally {
+			setLoadingReviews(false);
+		}
+	};
+
+	const handleToggleReviewVisibility = async (reviewId: string, currentHidden: boolean) => {
+		try {
+			setTogglingReview(reviewId);
+			const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ hidden: !currentHidden }),
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				// Update local state
+				setProjectReviews(projectReviews.map(review => 
+					review._id === reviewId ? { ...review, hidden: !currentHidden } : review
+				));
+			} else {
+				alert(data.error || "Failed to update review visibility");
+			}
+		} catch (error) {
+			console.error("Error toggling review visibility:", error);
+			alert("An error occurred");
+		} finally {
+			setTogglingReview(null);
+		}
+	};
+
+	const handleDeleteReview = async (reviewId: string) => {
+		if (!confirm("Are you sure you want to delete this review?")) return;
+
+		try {
+			const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+				method: "DELETE",
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				setProjectReviews(projectReviews.filter(review => review._id !== reviewId));
+			} else {
+				alert(data.error || "Failed to delete review");
+			}
+		} catch (error) {
+			console.error("Error deleting review:", error);
+			alert("An error occurred while deleting the review");
+		}
+	};
+
+	// Fetch reviews when a team is selected
+	useEffect(() => {
+		if (selectedTeam) {
+			fetchProjectReviews(selectedTeam._id);
+		} else {
+			setProjectReviews([]);
+		}
+	}, [selectedTeam]);
 
 	const handleExport = async () => {
 		setIsExporting(true);
@@ -572,6 +664,81 @@ export function CollegeStudentsManager() {
 										Delete
 									</button>
 								</div>
+							</section>
+
+							{/* Reviews Section */}
+							<section className="space-y-4 border-t border-zinc-800 pt-6">
+								<div className="flex items-center justify-between">
+									<h3 className="text-lg font-semibold text-white">Project Reviews</h3>
+									<span className="text-sm text-gray-400">
+										{projectReviews.length} review(s)
+									</span>
+								</div>
+
+								{loadingReviews ? (
+									<div className="text-center py-8 text-gray-400">
+										Loading reviews...
+									</div>
+								) : projectReviews.length === 0 ? (
+									<div className="text-center py-8 text-gray-400">
+										No reviews yet for this project.
+									</div>
+								) : (
+									<div className="space-y-3">
+										{projectReviews.map((review) => (
+											<div
+												key={review._id}
+												className={`border rounded-xl p-4 ${
+													review.hidden 
+														? "border-red-800 bg-red-900/20" 
+														: "border-zinc-800 bg-zinc-900/70"
+												}`}
+											>
+												<div className="flex items-start justify-between mb-3">
+													<div>
+														<StarRating rating={review.rating} size="sm" />
+														<p className="mt-1 text-white font-medium">{review.reviewerName}</p>
+														<p className="text-xs text-gray-400">{review.reviewerEmail}</p>
+														<p className="text-xs text-gray-500 mt-1">
+															{new Date(review.createdAt).toLocaleDateString()} 
+															{review.createdAt !== review.updatedAt && " (edited)"}
+														</p>
+														{review.hidden && (
+															<span className="inline-block mt-2 px-2 py-1 text-xs rounded bg-red-500/20 text-red-200">
+																Hidden from public
+															</span>
+														)}
+													</div>
+													<div className="flex gap-2">
+														<button
+															onClick={() => handleToggleReviewVisibility(review._id, review.hidden)}
+															disabled={togglingReview === review._id}
+															className={`px-3 py-1 text-xs rounded transition ${
+																review.hidden
+																	? "bg-green-500/20 text-green-200 hover:bg-green-500/30"
+																	: "bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30"
+															} disabled:opacity-50`}
+														>
+															{togglingReview === review._id 
+																? "..." 
+																: review.hidden ? "Show" : "Hide"
+															}
+														</button>
+														<button
+															onClick={() => handleDeleteReview(review._id)}
+															className="px-3 py-1 text-xs rounded bg-red-500/20 text-red-200 hover:bg-red-500/30 transition"
+														>
+															Delete
+														</button>
+													</div>
+												</div>
+												<p className="text-sm text-gray-300 leading-relaxed">
+													{review.comment}
+												</p>
+											</div>
+										))}
+									</div>
+								)}
 							</section>
 						</div>
 					</div>

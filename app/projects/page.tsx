@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { SEGMENT_OPTIONS } from "@/models/collegeStudent";
+import StarRating from "@/components/reviews/StarRating";
+import ReviewPanel from "@/components/reviews/ReviewPanel";
+import { SessionProvider } from "next-auth/react";
 
 interface TeamMember {
   fullName: string;
@@ -23,11 +26,19 @@ interface Project {
   teamMembers: TeamMember[];
 }
 
+interface ReviewStats {
+  averageRating: number;
+  totalReviews: number;
+}
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [reviewStats, setReviewStats] = useState<Record<string, ReviewStats>>({});
   const [loading, setLoading] = useState(true);
   const [selectedSegment, setSelectedSegment] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [reviewPanelOpen, setReviewPanelOpen] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -47,11 +58,46 @@ export default function ProjectsPage() {
         console.log('Projects data:', data.projects);
         console.log('First project slotId/roomNo:', data.projects[0]?.slotId, data.projects[0]?.roomNo);
         setProjects(data.projects);
+        
+        // Fetch review stats for all projects
+        fetchAllReviewStats(data.projects);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllReviewStats = async (projectsList: Project[]) => {
+    const stats: Record<string, ReviewStats> = {};
+    
+    await Promise.all(
+      projectsList.map(async (project) => {
+        try {
+          const response = await fetch(`/api/reviews/stats?projectId=${project._id}`);
+          const data = await response.json();
+          stats[project._id] = data;
+        } catch (error) {
+          console.error(`Error fetching stats for project ${project._id}:`, error);
+          stats[project._id] = { averageRating: 0, totalReviews: 0 };
+        }
+      })
+    );
+    
+    setReviewStats(stats);
+  };
+
+  const handleOpenReviews = (project: Project) => {
+    setSelectedProject(project);
+    setReviewPanelOpen(true);
+  };
+
+  const handleCloseReviews = () => {
+    setReviewPanelOpen(false);
+    // Refresh stats when panel closes (in case reviews were added/edited)
+    if (selectedProject) {
+      fetchAllReviewStats(projects);
     }
   };
 
@@ -67,7 +113,8 @@ export default function ProjectsPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <SessionProvider>
+      <div className="container mx-auto px-4 py-12">
       {/* Header */}
       <div className="mb-12 text-center">
         <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -209,6 +256,27 @@ export default function ProjectsPage() {
                   )}
                 </div>
 
+                {/* Review Stats with Blend Effect */}
+                {reviewStats[project._id] && reviewStats[project._id].totalReviews > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-linear-to-r from-yellow-400 to-orange-400 blur-md opacity-50"></div>
+                        <div className="relative flex items-center gap-2 bg-white dark:bg-gray-900 rounded-lg px-3 py-1">
+                          <StarRating
+                            rating={reviewStats[project._id].averageRating}
+                            size="sm"
+                            showNumber
+                          />
+                        </div>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        ({reviewStats[project._id].totalReviews} {reviewStats[project._id].totalReviews === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Team Members Preview */}
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-xs font-semibold text-muted-foreground mb-2">TEAM MEMBERS</p>
@@ -225,6 +293,14 @@ export default function ProjectsPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Reviews Button */}
+                <button
+                  onClick={() => handleOpenReviews(project)}
+                  className="mt-4 w-full rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-4 py-2 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  View Reviews
+                </button>
               </div>
             </div>
           ))}
@@ -247,6 +323,17 @@ export default function ProjectsPage() {
           </p>
         </div>
       )}
+
+      {/* Review Panel */}
+      {selectedProject && (
+        <ReviewPanel
+          projectId={selectedProject._id}
+          projectName={selectedProject.teamName}
+          isOpen={reviewPanelOpen}
+          onClose={handleCloseReviews}
+        />
+      )}
     </div>
+    </SessionProvider>
   );
 }
