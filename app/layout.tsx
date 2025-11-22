@@ -223,7 +223,7 @@ export const navigationItems = [
     icon: <IconHome />,
   },
   {
-    label: "About",
+    label: "About US",
     href: "/about",
     icon: <IconInfoCircle />,
   },
@@ -233,7 +233,7 @@ export const navigationItems = [
     icon: <IconSchool />,
   },
   {
-    label: "Registration",
+    label: "Free Pass for Visitors",
     href: "/registration",
     icon: <IconUsers />,
   },
@@ -248,7 +248,7 @@ export const navigationItems = [
     icon: <IconSparkles />,
   },
   {
-    label: "College Students",
+    label: "Regester your Project to Display",
     href: "/college-registration",
     icon: <IconSchool />,
   },

@@ -19,6 +19,7 @@ function sanitize(doc: any) {
           contactNumber: m.contactNumber,
           rollNumber: m.rollNumber,
           yearOfStudy: m.yearOfStudy,
+          linkedinProfile: m.linkedinProfile || null,
         }))
       : [],
     slotId: obj.slotId || null,

@@ -59,7 +59,7 @@ export default function LoginPage() {
             <button disabled={loading} className="w-full rounded-md bg-blue-600 hover:bg-blue-700 text-white py-2.5 text-sm font-medium disabled:opacity-50">
               {loading ? "Signing in..." : "Sign in"}
             </button>
-            {error && <div className="text-sm text-red-500">{error}</div>}
+            {error && <div className="text-sm text-red-500">Wrong email or password</div>}
           </form>
 
           <div className="text-sm text-muted-foreground mt-2 text-center">

@@ -42,6 +42,7 @@ interface TeamMember {
 	contactNumber: string;
 	rollNumber: string;
 	yearOfStudy: string;
+    linkedinProfile?: string;
 }
 
 interface SubmissionRecord {
@@ -64,6 +65,7 @@ const createEmptyMember = (): TeamMember => ({
 	contactNumber: "",
 	rollNumber: "",
 	yearOfStudy: "",
+    linkedinProfile: "",
 });
 
 const STATUS_STYLES: Record<string, string> = {
@@ -124,6 +126,11 @@ export default function CollegeRegistrationForm() {
 			if (linkedUser.email && !leader.email) {
 				leader.email = linkedUser.email;
 			}
+			// Prefill leader's LinkedIn profile URL if available on session
+			const possibleLinkedIn = (linkedUser as any)?.profileUrl || (linkedUser as any)?.linkedin || (linkedUser as any)?.url;
+			if (possibleLinkedIn && !leader.linkedinProfile) {
+				leader.linkedinProfile = String(possibleLinkedIn);
+			}
 
 			next[0] = leader;
 			return next;
@@ -173,12 +180,14 @@ export default function CollegeRegistrationForm() {
 				member.email.trim().length > 0 &&
 				member.contactNumber.trim().length === 10 &&
 				member.rollNumber.trim().length > 0 &&
-				member.yearOfStudy.trim().length > 0;
+				member.yearOfStudy.trim().length > 0 &&
+				(member.linkedinProfile || "").trim().length > 0;
 
 			const emailValid = /^\S+@\S+\.\S+$/.test(member.email.trim());
 			const contactValid = /^[0-9]{10}$/.test(member.contactNumber.trim());
+			const linkedinValid = /^https:\/\/(www\.)?linkedin\.com\//i.test((member.linkedinProfile || "").trim());
 
-			return hasRequiredFields && emailValid && contactValid;
+			return hasRequiredFields && emailValid && contactValid && linkedinValid;
 		});
 	}, [teamMembers, teamName, projectSummary, segments]);
 
@@ -332,6 +341,7 @@ export default function CollegeRegistrationForm() {
 						contactNumber: m.contactNumber.trim(),
 						rollNumber: m.rollNumber.trim(),
 						yearOfStudy: m.yearOfStudy,
+						linkedinProfile: (m.linkedinProfile || "").trim(),
 					})),
 				}),
 			});
@@ -347,7 +357,44 @@ export default function CollegeRegistrationForm() {
 			}
 			setIsEditing(false);
 			setImageFile(null);
-			setFeedbackMessage(existingData ? "Registration updated successfully." : "Registration submitted successfully.");
+			// Auto-share on LinkedIn for initial submissions if possible
+			let baseMessage = existingData ? "Registration updated successfully." : "Registration submitted successfully";
+			if (method === "POST") {
+				if (!imageUrl) {
+					baseMessage += ". Add a project image to enable LinkedIn sharing.";
+				} else if (!session?.user?.id) {
+					baseMessage += ". (Sign in again to share on LinkedIn.)";
+				} else {
+					try {
+						const hashtags = ["VigyanMela", "Innovation", "Science", ...segments]
+							.map((s) => `#${String(s).replace(/[^A-Za-z0-9]/g, "")}`)
+							.filter(Boolean)
+							.join(" ");
+
+						const comment = `Excited to share our project \"${teamName.trim()}\" for Vigyan Mela 2025-26!\n\n${projectSummary.trim()}\n\n${hashtags}`.slice(0, 2500);
+
+						const shareRes = await fetch("/api/linkedin/post", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								comment,
+								title: teamName.trim(),
+								description: projectSummary.trim(),
+								imageUrl,
+							}),
+						});
+						const shareJson = await shareRes.json().catch(() => ({}));
+						if (shareRes.ok) {
+							baseMessage += " and shared on LinkedIn.";
+						} else {
+							baseMessage += ` (LinkedIn share failed: ${shareJson?.error || "error"}).`;
+						}
+					} catch (shareErr) {
+						baseMessage += " (LinkedIn share encountered an unexpected error.)";
+					}
+				}
+			}
+			setFeedbackMessage(baseMessage);
 		} catch (err) {
 			setErrorMessage("Unexpected error. Try again.");
 		} finally {
@@ -518,9 +565,9 @@ export default function CollegeRegistrationForm() {
 							</div>
 						</div>
 						<div className="mt-8 flex flex-col sm:flex-row gap-3">
-	                            <button onClick={handleShareOnLinkedIn} disabled={shareLoading || isFetchingExisting || !existingData.projectImage} className="flex-1 px-4 py-2 bg-[#0a66c2] text-white rounded-md hover:opacity-90 transition disabled:opacity-60">
+	                            {/* <button onClick={handleShareOnLinkedIn} disabled={shareLoading || isFetchingExisting || !existingData.projectImage} className="flex-1 px-4 py-2 bg-[#0a66c2] text-white rounded-md hover:opacity-90 transition disabled:opacity-60">
 	                                {shareLoading ? "Sharing..." : "Share on LinkedIn"}
-	                            </button>
+	                            </button> */}
 							<button onClick={handleStartEdit} className="flex-1 px-4 py-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white rounded-md hover:opacity-90 transition">Edit Submission</button>
 							<button disabled={isFetchingExisting} onClick={() => handleRefresh()} className="flex-1 px-4 py-2 bg-transparent border border-neutral-700 text-neutral-200 rounded-md hover:bg-neutral-800 transition disabled:opacity-60">Refresh</button>
 							<a href="/" className="flex-1 px-4 py-2 text-center bg-transparent border border-neutral-700 text-neutral-200 rounded-md hover:bg-neutral-800 transition">Home</a>
@@ -539,7 +586,7 @@ export default function CollegeRegistrationForm() {
 			<div className="max-w-4xl mx-auto">
 				<div className="bg-linear-to-br from-neutral-900 to-neutral-950 rounded-2xl p-8 shadow-2xl border border-neutral-800">
 					<h1 className="text-4xl font-bold bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-3">
-						{existingData ? "Edit Your Registration" : "College Team Registration"}
+						{existingData ? "Edit Your Registration" : "Regester Your Project to Display at Vigyan Mela 2025-26"}
 					</h1>
 					<p className="text-neutral-400 mb-8">
 						{existingData ? "Update your details and save changes." : "Share your team details to participate in Vigyan Mela 2025-26."}
@@ -687,6 +734,7 @@ export default function CollegeRegistrationForm() {
 									const contactId = `member-${index}-contact`;
 									const rollId = `member-${index}-roll`;
 									const yearId = `member-${index}-year`;
+									const linkedinId = `member-${index}-linkedin`;
 
 									return (
 										<div
@@ -798,6 +846,18 @@ export default function CollegeRegistrationForm() {
 															</option>
 														))}
 													</select>
+												</LabelInputContainer>
+												<LabelInputContainer>
+													<Label htmlFor={linkedinId}>LinkedIn Profile URL</Label>
+													<Input
+														id={linkedinId}
+														value={member.linkedinProfile || ""}
+														onChange={(event) =>
+															updateTeamMember(index, "linkedinProfile", event.target.value)
+														}
+														placeholder="https://www.linkedin.com/in/username"
+														required
+													/>
 												</LabelInputContainer>
 											</div>
 										</div>

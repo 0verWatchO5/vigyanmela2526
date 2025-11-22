@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { signIn } from "next-auth/react";
+import React, { useState, useRef, useCallback } from "react";
+import TicketCard from "@/components/ui/TicketCard";
+import { signIn, useSession } from "next-auth/react";
 import { Input } from "@/components/ui/form-inputs";
 import {
   Label,
@@ -31,6 +32,7 @@ interface FormErrors {
   organization?: string;
   industry?: string;
   linkedin?: string;
+  policy?: string;
 }
 
 export function EventRegistrationForm({
@@ -67,6 +69,20 @@ export function EventRegistrationForm({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [shareInFlight, setShareInFlight] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+  const { data: session } = useSession();
+  const isLinkedInAuthed = Boolean((session as any)?.accessToken);
+  // Removed autoFlowRan (previous auto registration after auth)
+  const postedOnceRef = useRef(false); // ensures LinkedIn post fires only once per page load/auth cycle
+  const [ticketData, setTicketData] = useState<{
+    ticketCode: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    contact: string;
+  } | null>(null);
+  const [showLinkedInPrompt, setShowLinkedInPrompt] = useState(false);
+  const [initiatedLinkedInFlow, setInitiatedLinkedInFlow] = useState(false); // hides form after user chooses LinkedIn path
 
   const closeModalAndRefresh = () => {
     setShowSuccessModal(false);
@@ -102,46 +118,59 @@ export function EventRegistrationForm({
     }
   };
 
-  const shareOnLinkedIn = async () => {
-    setShareFeedback(null);
-    setShareInFlight(true);
-    try {
-      const response = await fetch("/api/linkedin/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          comment: "I've registered for Vigyan Mela 25! Check your ticket and join.",
-          title: "Registered for Vigyan Mela 25",
-          description: "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
-          imageUrl: "https://vigyanmela.chetanacollege.in/images/VN.png",
-          shareUrl: "https://vigyanmela.chetanacollege.in/registration",
-        }),
-      });
-
-      const json = await response.json();
-      console.log("LinkedIn share response:", json);
-      if (!response.ok) {
-        if (response.status === 401) {
-          if (typeof window !== "undefined") {
-            await signIn("linkedin", { callbackUrl: window.location.href });
-          } else {
-            await signIn("linkedin");
-          }
-          return;
-        }
-        setShareFeedback(json.error || "LinkedIn post failed. Please retry.");
+  const shareOnLinkedIn = useCallback(
+    async (opts?: { suppressSignIn?: boolean }) => {
+      // Guard: do not post more than once automatically
+      if (postedOnceRef.current) {
         return;
       }
+      setShareFeedback(null);
+      setShareInFlight(true);
+      try {
+        const response = await fetch("/api/linkedin/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            comment:
+              "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \n\nIf you’d like to join as a visitor, you can register here:\nhttps://vigyanmela.chetanacollege.in/registration \n\nStay updated by following the official Vigyan Mela LinkedIn page:\nhttps://www.linkedin.com/company/vigyanmela/\n\nSee you at the event!",
+            title: "Registered for Vigyan Mela 25",
+            description:
+              "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
+            template: "registration-ticket",
+            shareUrl: "https://vigyanmela.chetanacollege.in/registration",
+          }),
+        });
 
-      setShareFeedback("Shared to LinkedIn successfully!");
-    } catch (error) {
-      setShareFeedback("LinkedIn post failed. Check your connection and try again.");
-    } finally {
-      setShareInFlight(false);
-    }
-  };
+        const json = await response.json();
+        console.log("LinkedIn share response:", json);
+        if (!response.ok) {
+          if (response.status === 401) {
+            if (!opts?.suppressSignIn) {
+              if (typeof window !== "undefined") {
+                await signIn("linkedin", { callbackUrl: window.location.href });
+              } else {
+                await signIn("linkedin");
+              }
+            }
+            return;
+          }
+          setShareFeedback(json.error || "LinkedIn post failed. Please retry.");
+          return;
+        }
+        postedOnceRef.current = true; // mark posted
+        setShareFeedback("Shared to LinkedIn successfully!");
+      } catch (error) {
+        setShareFeedback(
+          "LinkedIn post failed. Check your connection and try again."
+        );
+      } finally {
+        setShareInFlight(false);
+      }
+    },
+    [signIn]
+  );
 
   const handleFileChange = (files: File[]) => {
     // setIdCardFiles(files);
@@ -175,29 +204,66 @@ export function EventRegistrationForm({
 
     if (!formData.contact.trim()) {
       tempErrors.contact = "Contact number is required.";
-    } else if (!/^[0-9]{10}$/.test(formData.contact)) {
+    } else if (!/^[0-9]{10}$/.test(formData.contact.trim())) {
       tempErrors.contact = "Contact must be exactly 10 digits.";
+    } else {
+      const phone = formData.contact.trim();
+      const allSameDigit = /(\d)\1{9}/.test(phone);
+      const sequentialAsc = phone === "0123456789" || phone === "1234567890";
+      const sequentialDesc = phone === "9876543210";
+      const disallowedList = new Set([
+        "0000000000",
+        "1111111111",
+        "2222222222",
+        "3333333333",
+        "4444444444",
+        "5555555555",
+        "6666666666",
+        "7777777777",
+        "8888888888",
+        "9999999999",
+        "1234567890",
+        "0123456789",
+        "9876543210",
+      ]);
+      // Disallow starting with 0 or 1 (adjust if not desired)
+      const weakPrefix = /^[01]/.test(phone);
+      if (
+        allSameDigit ||
+        sequentialAsc ||
+        sequentialDesc ||
+        disallowedList.has(phone) ||
+        weakPrefix
+      ) {
+        tempErrors.contact = "Enter a valid non-repetitive phone number.";
+      }
     }
 
     if (!formData.age.trim()) {
       tempErrors.age = "Age is required.";
     } else {
       const ageVal = parseInt(formData.age, 10);
-      if (isNaN(ageVal) || ageVal < 10 || ageVal > 120) {
-        tempErrors.age = "Please enter a valid age between 10 and 120.";
+      if (isNaN(ageVal) || ageVal < 14 || ageVal > 65) {
+        tempErrors.age = "Please enter a valid age between 14 and 65.";
       }
     }
-
     if (!formData.organization.trim()) {
       tempErrors.organization = "Organization / College name is required.";
+    } else {
+      const org = formData.organization.trim();
+      if (/^[0-9]+$/.test(org)) {
+        tempErrors.organization = "Organization name cannot be only numbers.";
+      } else if (!/^[A-Za-z]/.test(org)) {
+        tempErrors.organization = "Organization name must start with a letter.";
+      }
     }
 
     if (!formData.industry.trim()) {
       tempErrors.industry = "Please select an industry.";
     }
 
-    if (!formData.linkedin.trim()) {
-      tempErrors.linkedin = "LinkedIn profile is required.";
+    if (!acceptedPolicy) {
+      tempErrors.policy = "Please accept the privacy policy to continue.";
     }
 
     if (formData.linkedin.trim()) {
@@ -219,21 +285,78 @@ export function EventRegistrationForm({
     return Object.keys(tempErrors).length === 0;
   };
 
+  // New effect: after LinkedIn auth, restore ticket (if created pre-auth) and share
+  // React.useEffect(() => {
+  //   console.log("Effect: isLinkedInAuthed=", isLinkedInAuthed, " ticketData=", ticketData);
+  //   if (typeof window === "undefined") return;
+  //   if (!isLinkedInAuthed) return;
+  //   // Restore ticket from session storage if exists
+  //   if (!ticketData) {
+  //     const storedTicket = sessionStorage.getItem("vm_ticketData");
+  //     if (storedTicket) {
+  //       try {
+  //         const parsed = JSON.parse(storedTicket);
+  //         if (parsed && parsed.ticketCode) {
+  //           setTicketData(parsed);
+  //         }
+  //       } catch {}
+  //     }
+  //   }
+  //   const shareFlag = sessionStorage.getItem("vm_shareAfterLinkedIn");
+  //   if (!shareFlag) return;
+  //   const doShare = async () => {
+  //     if (!postedOnceRef.current) {
+  //       await shareOnLinkedIn({ suppressSignIn: true });
+  //     }
+  //     sessionStorage.removeItem("vm_shareAfterLinkedIn");
+  //   };
+  //   doShare();
+  // }, []);
+
+  // Fallback: if user returned authed with ticket but flag missing (e.g., storage cleared), attempt share once.
+  React.useEffect(() => {
+    if (!isLinkedInAuthed) return;
+    if (!ticketData) return;
+    if (postedOnceRef.current) return;
+    // Only auto-fire if flow was initiated via LinkedIn path to avoid unexpected shares.
+    if (!initiatedLinkedInFlow) return;
+    const shareFlag =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("vm_shareAfterLinkedIn")
+        : null;
+    if (shareFlag) return; // original effect will handle
+    // If user has ticket, authed, no share yet -> share
+    shareOnLinkedIn({ suppressSignIn: true });
+  }, [isLinkedInAuthed, ticketData, initiatedLinkedInFlow, shareOnLinkedIn]);
+
+  // After success modal appears (ticket created), perform LinkedIn share once if authed
+  React.useEffect(() => {
+    if (!showSuccessModal) return;
+    if (!isLinkedInAuthed) return;
+    if (postedOnceRef.current) return;
+    shareOnLinkedIn({ suppressSignIn: true });
+  }, [showSuccessModal, isLinkedInAuthed, shareOnLinkedIn]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setSubmitStatus({ type: null, message: "" });
+    // Show modal if user not authed; actual registration deferred.
+    if (!isLinkedInAuthed) {
+      setShowLinkedInPrompt(true);
+      return;
+    }
+    await performRegistration();
+  };
 
+  const performRegistration = async (opts?: { skipModal?: boolean }) => {
     if (!validate()) {
       setSubmitStatus({
         type: "error",
-        message: "Please fix all errors before submitting.",
+        message: "Please Fill all the details before submitting",
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       const submitData = new FormData();
       submitData.append("firstname", formData.firstname);
@@ -244,41 +367,36 @@ export function EventRegistrationForm({
       submitData.append("organization", formData.organization);
       submitData.append("industry", formData.industry);
       submitData.append("linkedin", formData.linkedin);
-      // submitData.append("idcard", idCardFiles[0]);
-
       const response = await fetch("/api/register", {
         method: "POST",
         body: submitData,
       });
-
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Registration failed");
-      }
-
+      if (!response.ok) throw new Error(result.error || "Registration failed");
       setSubmitStatus({
         type: "success",
         message: "Registration successful! Welcome to Vigyan Mela 25.",
       });
-
-      setFormData({
-        firstname: "",
-        lastname: "",
-        email: "",
-        contact: "",
-        age: "",
-        organization: "",
-        industry: "",
-        linkedin: "",
-      });
-      // setIdCardFiles([]);
+      if (result?.data?.ticketCode) {
+        const t = {
+          ticketCode: result.data.ticketCode,
+          firstName: result.data.firstName || formData.firstname,
+          lastName: result.data.lastName || formData.lastname,
+          email: result.data.email || formData.email,
+          contact: result.data.contact || formData.contact,
+        };
+        setTicketData(t);
+        try {
+          sessionStorage.setItem("vm_ticketData", JSON.stringify(t));
+        } catch {}
+      }
       setErrors({});
-
-      // show success modal with share option
-      setShowSuccessModal(true);
+      if (!opts?.skipModal) {
+        setShowSuccessModal(true);
+      } else {
+        setShowSuccessModal(false);
+      }
       setShareFeedback(null);
-
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setSubmitStatus({
@@ -313,156 +431,279 @@ export function EventRegistrationForm({
         </div>
       )}
 
-      <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-        {}
-        <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+      {!ticketData && !initiatedLinkedInFlow && (
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+          {}
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+            <LabelInputContainer>
+              <Label htmlFor="firstname">First name</Label>
+              <Input
+                id="firstname"
+                placeholder="Name"
+                type="text"
+                value={formData.firstname}
+                onChange={handleChange}
+                error={errors.firstname}
+                disabled={isSubmitting}
+              />
+            </LabelInputContainer>
+            <LabelInputContainer>
+              <Label htmlFor="lastname">Last name</Label>
+              <Input
+                id="lastname"
+                placeholder="Surname"
+                type="text"
+                value={formData.lastname}
+                onChange={handleChange}
+                error={errors.lastname}
+                disabled={isSubmitting}
+              />
+            </LabelInputContainer>
+          </div>
+
+          {}
           <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
+            <Label htmlFor="email">Email Address</Label>
             <Input
-              id="firstname"
-              placeholder="Name"
-              type="text"
-              value={formData.firstname}
+              id="email"
+              placeholder="example@gmail.com"
+              type="email"
+              value={formData.email}
               onChange={handleChange}
-              error={errors.firstname}
+              error={errors.email}
               disabled={isSubmitting}
             />
           </LabelInputContainer>
+
+          {}
           <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
+            <Label htmlFor="contact">Contact Number</Label>
             <Input
-              id="lastname"
-              placeholder="Surname"
-              type="text"
-              value={formData.lastname}
-              onChange={handleChange}
-              error={errors.lastname}
-              disabled={isSubmitting}
-            />
-          </LabelInputContainer>
-        </div>
-
-        {}
-        <LabelInputContainer>
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            placeholder="example@gmail.com"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            disabled={isSubmitting}
-          />
-        </LabelInputContainer>
-
-        {}
-        <LabelInputContainer>
-          <Label htmlFor="contact">Contact Number</Label>
-          <Input
-            id="contact"
-            placeholder="......"
-            type="tel"
-            value={formData.contact}
-            onChange={handleChange}
-            error={errors.contact}
-            disabled={isSubmitting}
-          />
-        </LabelInputContainer>
-
-        <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-          <LabelInputContainer>
-            <Label htmlFor="age">Age</Label>
-            <Input
-              id="age"
-              placeholder="10-120"
+              id="contact"
+              placeholder="......"
               type="tel"
-              value={formData.age}
+              value={formData.contact}
               onChange={handleChange}
-              error={errors.age}
+              error={errors.contact}
+              disabled={isSubmitting}
+            />
+          </LabelInputContainer>
+
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+            <LabelInputContainer>
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                placeholder="14-65"
+                type="tel"
+                value={formData.age}
+                onChange={handleChange}
+                error={errors.age}
+                disabled={isSubmitting}
+              />
+            </LabelInputContainer>
+
+            <LabelInputContainer>
+              <Label htmlFor="industry">Role</Label>
+              <select
+                id="industry"
+                value={formData.industry}
+                onChange={handleChange}
+                className={cn(
+                  "h-10 w-full rounded-md border px-3 focus:outline-none focus:ring-2",
+                  // FIXED: Adaptive colors
+                  "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500",
+                  "dark:bg-zinc-800 dark:text-white dark:border-gray-600 dark:focus:ring-white"
+                )}
+                disabled={isSubmitting}
+              >
+                <option value="">Select Role</option>
+                {/* <option value="Student">Student</option> */}
+                <option value="Visitor">Company Representative</option>
+                <option value="Media">Media</option>
+                <option value="Guest">Guest</option>
+                <option value="Other">Other</option>
+              </select>
+
+              {errors.industry && (
+                <p className="text-sm text-red-500">{errors.industry}</p>
+              )}
+            </LabelInputContainer>
+          </div>
+
+          <LabelInputContainer>
+            <Label htmlFor="organization">Organization / College</Label>
+            <Input
+              id="organization"
+              placeholder="Your organization or college"
+              type="text"
+              value={formData.organization}
+              onChange={handleChange}
+              error={errors.organization}
               disabled={isSubmitting}
             />
           </LabelInputContainer>
 
           <LabelInputContainer>
-            <Label htmlFor="industry">Role</Label>
-            <select
-              id="industry"
-              value={formData.industry}
+            <Label htmlFor="linkedin">LinkedIn Profile (optional) </Label>
+            <Input
+              id="linkedin"
+              placeholder="https://www.linkedin.com/in/username"
+              type="url"
+              required={false}
+              value={formData.linkedin}
               onChange={handleChange}
-              className={cn(
-                "h-10 w-full rounded-md border px-3 focus:outline-none focus:ring-2",
-                // FIXED: Adaptive colors
-                "bg-zinc-100 text-zinc-900 border-transparent focus:ring-indigo-500",
-                "dark:bg-zinc-800 dark:text-white dark:border-gray-600 dark:focus:ring-white"
-              )}
+              error={errors.linkedin}
+              disabled={isSubmitting}
+            />
+          </LabelInputContainer>
+
+          {}
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <input
+                id="accept-policy"
+                type="checkbox"
+                checked={acceptedPolicy}
+                onChange={(e) => {
+                  setAcceptedPolicy(e.target.checked);
+                  if (errors.policy)
+                    setErrors((prev) => ({ ...prev, policy: undefined }));
+                }}
+                className="mt-1 h-4 w-4 rounded border-neutral-600 bg-neutral-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500"
+              />
+              <label
+                htmlFor="accept-policy"
+                className="text-sm text-neutral-300"
+              >
+                I agree to the{" "}
+                <a
+                  href="/privacy"
+                  className="text-cyan-400 underline hover:opacity-90"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </label>
+            </div>
+            {errors.policy && (
+              <p className="text-xs text-red-500">{errors.policy}</p>
+            )}
+
+            <button
+              className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-zinc-900 to-zinc-900 font-medium text-zinc-200 shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] dark:shadow-[0px_1px_0px_0px_#ffffff10_inset,0px_-1px_0px_0px_#ffffff10_inset] disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={isSubmitting || !acceptedPolicy}
+            >
+              {isSubmitting ? " " : "Confirm your free pass through LinkedIn →"}
+              <BottomGradient />
+            </button>
+          </div>
+        </form>
+      )}
+
+      {ticketData && !showSuccessModal && (
+        <div className="mt-8 flex justify-center">
+          <TicketCard
+            logoSrc="/images/VN.png"
+            attendingText="Visitor ID"
+            title="Vigyan Mela 25"
+            venue="706, 7th-floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
+            name={`${ticketData.firstName} ${ticketData.lastName}`}
+            email={ticketData.email}
+            phone={ticketData.contact}
+            ticketId={ticketData.ticketCode}
+          />
+        </div>
+      )}
+      {ticketData && !showSuccessModal && (
+        <div className="mt-4 space-y-2">
+          {shareInFlight && (
+            <div className="rounded-md border border-blue-500 bg-blue-500/10 px-3 py-2 text-xs text-blue-300">
+              Posting your participation to LinkedIn...
+            </div>
+          )}
+          {shareFeedback &&
+            (shareFeedback.toLowerCase().includes("success") ? (
+              <div className="rounded-md border border-green-500 bg-green-500/10 px-3 py-2 text-xs text-green-400">
+                {shareFeedback}
+              </div>
+            ) : (
+              <div className="rounded-md border border-yellow-500 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-400">
+                {shareFeedback}{" "}
+                <button
+                  onClick={() =>
+                    !shareInFlight && shareOnLinkedIn({ suppressSignIn: true })
+                  }
+                  disabled={shareInFlight}
+                  className="ml-2 underline disabled:opacity-50"
+                >
+                  Retry
+                </button>
+              </div>
+            ))}
+        </div>
+      )}
+      {showLinkedInPrompt && !ticketData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-neutral-900 border border-neutral-700">
+            <h3 className="text-lg font-semibold mb-2">
+              Share Your Participation?
+            </h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+              Sign in with LinkedIn to automatically share that you&apos;re
+              attending Vigyan Mela 25. You can also continue without sharing.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              <button
+                onClick={async () => {
+                  // Validate and register BEFORE LinkedIn auth so user never refills.
+                  if (!validate()) return;
+                  setShowLinkedInPrompt(false);
+                  setInitiatedLinkedInFlow(true);
+                  await performRegistration({ skipModal: true });
+                  try {
+                    sessionStorage.setItem("vm_shareAfterLinkedIn", "1");
+                  } catch {}
+                  try {
+                    if (typeof window !== "undefined") {
+                      await signIn("linkedin", {
+                        callbackUrl: window.location.href,
+                        redirect: false,
+                      });
+                    } else {
+                      await signIn("linkedin");
+                    }
+                  } catch (err) {
+                    console.error("LinkedIn sign-in error", err);
+                  }
+                }}
+                className="flex-1 bg-[#0a66c2] text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
+                disabled={isSubmitting}
+              >
+                Sign in & Auto Share
+              </button>
+              <button
+                onClick={async () => {
+                  setShowLinkedInPrompt(false);
+                  await performRegistration();
+                }}
+                className="flex-1 border border-neutral-300 dark:border-neutral-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                disabled={isSubmitting}
+              >
+                Continue Without Sharing
+              </button>
+            </div>
+            <button
+              onClick={() => setShowLinkedInPrompt(false)}
+              className="mt-4 w-full text-center text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
               disabled={isSubmitting}
             >
-              <option value="">Select Role</option>
-              <option value="Student">Student</option>
-              <option value="Visitor">Visitor</option>
-              <option value="Media">Media</option>
-              <option value="Guest">Guest</option>
-              <option value="Other">Other</option>
-            </select>
-
-            {errors.industry && (
-              <p className="text-sm text-red-500">{errors.industry}</p>
-            )}
-          </LabelInputContainer>
+              Cancel
+            </button>
+          </div>
         </div>
-
-        <LabelInputContainer>
-          <Label htmlFor="organization">Organization / College</Label>
-          <Input
-            id="organization"
-            placeholder="Your organization or college"
-            type="text"
-            value={formData.organization}
-            onChange={handleChange}
-            error={errors.organization}
-            disabled={isSubmitting}
-          />
-        </LabelInputContainer>
-
-        <LabelInputContainer>
-          <Label htmlFor="linkedin">LinkedIn Profile </Label>
-          <Input
-            id="linkedin"
-            placeholder="https://www.linkedin.com/in/username"
-            type="url"
-            value={formData.linkedin}
-            onChange={handleChange}
-            error={errors.linkedin}
-            disabled={isSubmitting}
-          />
-        </LabelInputContainer>
-
-        {}
-        {/* <LabelInputContainer>
-          <Label htmlFor="idcard">Upload ID Card</Label>
-          <FileUpload
-            id="idcard"
-            name="idcard"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileChange}
-            error={errors.idcard}
-            maxSize={20}
-            files={idCardFiles}
-          />
-        </LabelInputContainer> */}
-
-        {}
-        <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-zinc-900 to-zinc-900 font-medium text-zinc-200 shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] dark:shadow-[0px_1px_0px_0px_#ffffff10_inset,0px_-1px_0px_0px_#ffffff10_inset] disabled:opacity-50 disabled:cursor-not-allowed"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Registering..." : "Register →"}
-          <BottomGradient />
-        </button>
-      </form>
-
+      )}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="mx-4 w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-neutral-900">
@@ -471,13 +712,19 @@ export function EventRegistrationForm({
               Check your email for your ticket.
             </p>
             <div className="mt-4 flex gap-3">
-              <button
-                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={shareOnLinkedIn}
-                disabled={shareInFlight}
-              >
-                {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
-              </button>
+              {!isLinkedInAuthed &&
+                !(
+                  shareFeedback &&
+                  shareFeedback.toLowerCase().includes("success")
+                ) && (
+                  <button
+                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => shareOnLinkedIn()}
+                    disabled={shareInFlight}
+                  >
+                    {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
+                  </button>
+                )}
               <TwitterShareButton
                 children={"Share on Twitter"}
                 url="https://vigyanmela.chetanacollege.in"
@@ -490,9 +737,28 @@ export function EventRegistrationForm({
                 Close
               </button>
             </div>
-            {shareFeedback && (
-              <p className="mt-3 text-xs text-muted-foreground">{shareFeedback}</p>
-            )}
+            {shareFeedback &&
+              (shareFeedback.toLowerCase().includes("success") ? (
+                <div className="mt-3 flex items-center gap-2 rounded-md border border-green-500 bg-green-500/10 p-2 text-xs text-green-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-2.59a.75.75 0 10-1.22-.92l-3.66 4.86-1.83-1.83a.75.75 0 10-1.06 1.06l2.5 2.5a.75.75 0 001.14-.09l4.19-5.58z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>{shareFeedback}</span>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {shareFeedback}
+                </p>
+              ))}
           </div>
         </div>
       )}

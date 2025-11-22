@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { signIn, useSession } from "next-auth/react";
 import { EventRegistrationForm } from "@/components/registration/EventRegistrationForm";
 import TicketCard from "@/components/ui/TicketCard";
@@ -18,49 +24,106 @@ export default function RegistrationOrTicket() {
   const [loading, setLoading] = useState(true);
   const [visitor, setVisitor] = useState<Visitor | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [profile, setProfile] = useState<{ firstName?: string; lastName?: string; email?: string; contact?: string } | null>(null);
+  const [profile, setProfile] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    contact?: string;
+  } | null>(null);
   const [shareInFlight, setShareInFlight] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const isLinkedInAuthed = Boolean((session as any)?.accessToken);
+  const [ticketData, setTicketData] = useState<Visitor | null>(
+    sessionStorage.getItem("vm_ticketData")
+      ? JSON.parse(sessionStorage.getItem("vm_ticketData")!)
+      : null
+  );
+  const postedOnceRef = useRef(false);
 
-  const shareOnLinkedIn = async () => {
-    setShareFeedback(null);
-    setShareInFlight(true);
-    try {
-      const response = await fetch("/api/linkedin/post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          comment: "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \nIf you’d like to join as a visitor, you can register here-https://vigyanmela.chetanacollege.in/registration \nSee you at the event!",
-          title: "Registered for Vigyan Mela 25",
-          description: "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
-          template: "registration-ticket",
-          shareUrl: "https://vigyanmela.chetanacollege.in/registration",
-        }),
-      });
-
-      if (!response.ok) {
-        const json = await response.json().catch(() => ({}));
-        if (response.status === 401) {
-            if (typeof window !== "undefined") {
-              await signIn("linkedin", { callbackUrl: window.location.href });
-            } else {
-              await signIn("linkedin");
-            }
-        } else if (response.status === 403) {
-          setShareFeedback("Insufficient permissions. Please re-authenticate with LinkedIn.");
-        } else {
-          setShareFeedback((json as { error?: string }).error || "LinkedIn post failed. Please retry.");
-        }
+  const shareOnLinkedIn = useCallback(
+    async (opts?: { suppressSignIn?: boolean }) => {
+      // Guard: do not post more than once automatically
+      if (postedOnceRef.current) {
         return;
       }
+      setShareFeedback(null);
+      setShareInFlight(true);
+      try {
+        const response = await fetch("/api/linkedin/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            comment:
+              "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \n\nIf you’d like to join as a visitor, you can register here:\nhttps://vigyanmela.chetanacollege.in/registration \n\nStay updated by following the official Vigyan Mela LinkedIn page:\nhttps://www.linkedin.com/company/vigyanmela/\n\nSee you at the event!",
+            description:
+              "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
+            template: "registration-ticket",
+            shareUrl: "https://vigyanmela.chetanacollege.in/registration",
+          }),
+        });
 
-      setShareFeedback("Shared to LinkedIn successfully!");
-    } catch (error) {
-      setShareFeedback("LinkedIn post failed. Check your connection and try again.");
-    } finally {
-      setShareInFlight(false);
+        const json = await response.json();
+        console.log("LinkedIn share response:", json);
+        if (!response.ok) {
+          if (response.status === 401) {
+            if (!opts?.suppressSignIn) {
+              if (typeof window !== "undefined") {
+                await signIn("linkedin", { callbackUrl: window.location.href });
+              } else {
+                await signIn("linkedin");
+              }
+            }
+            return;
+          }
+          setShareFeedback(json.error || "LinkedIn post failed. Please retry.");
+          return;
+        }
+        postedOnceRef.current = true; // mark posted
+        sessionStorage.removeItem("vm_shareAfterLinkedIn");
+        setShareFeedback("Shared to LinkedIn successfully!");
+      } catch (error) {
+        setShareFeedback(
+          "LinkedIn post failed. Check your connection and try again."
+        );
+      } finally {
+        setShareInFlight(false);
+      }
+    },
+    [signIn]
+  );
+
+  useEffect(() => {
+    console.log(
+      "Effect: isLinkedInAuthed=",
+      isLinkedInAuthed,
+      " ticketData=",
+      ticketData
+    );
+    if (typeof window === "undefined") return;
+    if (!isLinkedInAuthed) return;
+    // Restore ticket from session storage if exists
+    if (!ticketData) {
+      const storedTicket = sessionStorage.getItem("vm_ticketData");
+      if (storedTicket) {
+        try {
+          const parsed = JSON.parse(storedTicket);
+          if (parsed && parsed.ticketCode) {
+            setTicketData(parsed);
+          }
+        } catch {}
+      }
     }
-  };
+    const shareFlag = sessionStorage.getItem("vm_shareAfterLinkedIn");
+    if (!shareFlag) return;
+    const doShare = async () => {
+      if (!postedOnceRef.current) {
+        await shareOnLinkedIn({ suppressSignIn: true });
+      }
+    };
+    doShare();
+  }, [isLinkedInAuthed, ticketData, shareOnLinkedIn]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -110,7 +173,12 @@ export default function RegistrationOrTicket() {
     if (!email && session?.user?.email) {
       email = session.user.email;
     }
-    return { firstname: first, lastname: last, email, contact } as Partial<{ firstname: string; lastname: string; email: string; contact: string }>;
+    return { firstname: first, lastname: last, email, contact } as Partial<{
+      firstname: string;
+      lastname: string;
+      email: string;
+      contact: string;
+    }>;
   }, [profile, session]);
 
   if (status === "loading" || loading) {
@@ -136,25 +204,33 @@ export default function RegistrationOrTicket() {
           venue="706, 7th floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
         />
         <div className="mt-6 flex w-full max-w-sm flex-col items-center gap-3">
-          <p className="text-sm text-muted-foreground text-center">Share with friends</p>
+          <p className="text-sm text-muted-foreground text-center">
+            Share with friends
+          </p>
           <div className="flex gap-3">
-            <button
-              className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={shareOnLinkedIn}
-              disabled={shareInFlight}
-            >
-              {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
-            </button>
+            {!isLinkedInAuthed && (
+              <button
+                className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => shareOnLinkedIn({ suppressSignIn: false })}
+                disabled={shareInFlight}
+              >
+                {shareInFlight ? "Sharing..." : "Share on LinkedIn"}
+              </button>
+            )}
             <TwitterShareButton
               url="https://vigyanmela.chetanacollege.in"
               title="Excited to share that I’m participating in Vigyan Mela 2025! 🎉
 Check your ticket and join the celebration of innovation."
             >
-              <span className="inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium">Share on Twitter</span>
+              <span className="inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium">
+                Share on Twitter
+              </span>
             </TwitterShareButton>
           </div>
           {shareFeedback && (
-            <p className="text-xs text-muted-foreground text-center">{shareFeedback}</p>
+            <p className="text-xs text-muted-foreground text-center">
+              {shareFeedback}
+            </p>
           )}
         </div>
       </div>

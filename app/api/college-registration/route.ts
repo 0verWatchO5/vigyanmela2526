@@ -21,6 +21,7 @@ type RawTeamMember = {
   contactNumber?: string;
   rollNumber?: string;
   yearOfStudy?: string;
+  linkedinProfile?: string;
 };
 
 type NormalizedMember = {
@@ -30,6 +31,7 @@ type NormalizedMember = {
   contactNumber: string;
   rollNumber: string;
   yearOfStudy: string;
+  linkedinProfile: string;
 };
 
 type NormalizedSubmission = {
@@ -84,6 +86,7 @@ function sanitizeRegistration(doc: any): SanitizedRegistration {
         contactNumber: member.contactNumber,
         rollNumber: member.rollNumber,
         yearOfStudy: member.yearOfStudy,
+        linkedinProfile: member.linkedinProfile,
       }))
     : [];
 
@@ -135,6 +138,15 @@ function normalizeTeamMember(raw: RawTeamMember, index: number): NormalizedMembe
     throw new Error(`Member ${index + 1} has an invalid year of study`);
   }
 
+  const linkedinProfile = typeof raw?.linkedinProfile === "string" ? raw.linkedinProfile.trim() : "";
+  if (!linkedinProfile) {
+    throw new Error(`Member ${index + 1} is missing a LinkedIn profile URL`);
+  }
+  const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\//i;
+  if (!LINKEDIN_REGEX.test(linkedinProfile)) {
+    throw new Error(`Member ${index + 1} must have a valid LinkedIn profile URL`);
+  }
+
   return {
     fullName,
     department,
@@ -142,6 +154,7 @@ function normalizeTeamMember(raw: RawTeamMember, index: number): NormalizedMembe
     contactNumber,
     rollNumber,
     yearOfStudy,
+    linkedinProfile,
   };
 }
 

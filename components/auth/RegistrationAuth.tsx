@@ -122,7 +122,7 @@ export default function RegistrationAuth({
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>
-              {error && <div className="text-sm text-red-500">{error}</div>}
+              {error && <div className="text-sm text-red-500">Wrong email or password</div>}
             </form>
 
             <div className="text-sm text-muted-foreground mt-1 text-center">

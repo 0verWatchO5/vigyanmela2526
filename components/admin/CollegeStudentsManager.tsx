@@ -11,6 +11,7 @@ interface TeamMember {
 	contactNumber: string;
 	rollNumber: string;
 	yearOfStudy: string;
+    linkedinProfile?: string;
 }
 
 interface CollegeTeam {
@@ -110,6 +111,7 @@ export function CollegeStudentsManager() {
 					member.email,
 					member.rollNumber,
 					member.department,
+                    member.linkedinProfile || "",
 				]
 					.join(" ")
 					.toLowerCase()
@@ -410,6 +412,20 @@ export function CollegeStudentsManager() {
 														<span className="text-cyan-300 font-medium">{idx === 0 ? "Leader" : `Member ${idx + 1}`}:</span>{" "}
 														<span className="text-white">{m.fullName}</span>{" "}
 														<span className="text-gray-400">({m.email})</span>
+														{m.linkedinProfile ? (
+															<>
+																{" "}
+																<a
+																	href={m.linkedinProfile}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="text-blue-300 underline"
+																	title="Open LinkedIn profile"
+																>
+																	LinkedIn
+																</a>
+															</>
+														) : null}
 													</div>
 												))}
 											</div>
@@ -532,6 +548,19 @@ export function CollegeStudentsManager() {
 												<li>Email: {member.email}</li>
 												<li>Contact: {member.contactNumber}</li>
 												<li>Roll: {member.rollNumber}</li>
+												{member.linkedinProfile ? (
+													<li>
+														LinkedIn: {" "}
+														<a
+															href={member.linkedinProfile}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="text-blue-300 underline"
+														>
+															{member.linkedinProfile}
+														</a>
+													</li>
+												) : null}
 											</ul>
 										</div>
 									))}
