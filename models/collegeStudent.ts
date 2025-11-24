@@ -1,28 +1,10 @@
 import mongoose from "mongoose";
-
-export const DEPARTMENT_OPTIONS = [
-  "BSc. IT",
-  "BMS",
-  "BAF",
-  "BBA",
-  "BFM",
-  "BMM",
-];
-
-export const YEAR_OF_STUDY_OPTIONS = [
-  "First Year",
-  "Second Year",
-  "Third Year",
-  "Fourth Year",
-];
-
-export const SEGMENT_OPTIONS = [
-  "Technology & Innovation",
-  "Environment & Sustainability",
-  "Health & Education",
-  "Social Good",
-  "Creative Science",
-];
+import crypto from "crypto";
+import {
+  DEPARTMENT_OPTIONS,
+  YEAR_OF_STUDY_OPTIONS,
+  SEGMENT_OPTIONS,
+} from "./collegeStudentOptions";
 
 const teamMemberSchema = new mongoose.Schema(
   {
@@ -133,6 +115,13 @@ const collegeStudentSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    // Public UUID for sharing / friendly URLs
+    uuid: {
+      type: String,
+      required: true,
+      unique: true,
+      default: () => crypto.randomUUID(),
+    },
   },
   {
     timestamps: true,
@@ -143,6 +132,7 @@ collegeStudentSchema.index({ teamName: 1 });
 collegeStudentSchema.index({ "teamMembers.email": 1 });
 collegeStudentSchema.index({ "teamMembers.rollNumber": 1 });
 collegeStudentSchema.index({ registrationStatus: 1 });
+collegeStudentSchema.index({ uuid: 1 }, { unique: true });
 
 const CollegeStudent = 
   mongoose.models?.CollegeStudent || 

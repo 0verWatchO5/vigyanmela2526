@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import Dbconns from "@/dbconfig/dbconn";
-import CollegeStudent, {
+import CollegeStudent from "@/models/collegeStudent";
+import {
   DEPARTMENT_OPTIONS,
   SEGMENT_OPTIONS,
   YEAR_OF_STUDY_OPTIONS,
-} from "@/models/collegeStudent";
+} from "@/models/collegeStudentOptions";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const ALLOWED_TEAM_SIZES = [2, 3, 4] as const;
@@ -45,6 +46,7 @@ type NormalizedSubmission = {
 
 type SanitizedRegistration = NormalizedSubmission & {
   id: string;
+  uuid?: string;
   registrationStatus: string;
   submittedAt?: string;
   updatedAt?: string;
@@ -92,6 +94,7 @@ function sanitizeRegistration(doc: any): SanitizedRegistration {
 
   const sanitized = {
     id: obj?._id?.toString?.() ?? obj?.id ?? "",
+    uuid: obj?.uuid ?? undefined,
     teamName: obj.teamName,
     projectSummary: obj.projectSummary,
     projectImage: obj.projectImage || undefined,

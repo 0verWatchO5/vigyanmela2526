@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SEGMENT_OPTIONS } from "@/models/collegeStudent";
+import { SEGMENT_OPTIONS } from "@/models/collegeStudentOptions";
 import StarRating from "@/components/reviews/StarRating";
 import ReviewPanel from "@/components/reviews/ReviewPanel";
 import { SessionProvider } from "next-auth/react";
@@ -17,6 +17,7 @@ interface TeamMember {
 
 interface Project {
   _id: string;
+  uuid?: string;
   teamName: string;
   projectSummary: string;
   projectImage?: string;
@@ -193,7 +194,11 @@ export default function ProjectsPage() {
           {filteredProjects.map((project) => (
             <div
               key={project._id}
-              className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg shadow-blue-200 dark:shadow-none dark:shadow-blue-500/20 transition-all hover:shadow-xl hover:-translate-y-1"
+              onClick={() => window.open(`/projects/${project.uuid ?? project._id}`, "_blank")}
+              role="button"
+              tabIndex={0}
+              className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg shadow-blue-200 dark:shadow-none dark:shadow-blue-500/20 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+              onKeyDown={(e) => { if (e.key === "Enter") window.open(`/projects/${project.uuid ?? project._id}`, "_blank"); }}
             >
               {/* Gradient Border Effect */}
               <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -295,10 +300,13 @@ export default function ProjectsPage() {
 
                 {/* Reviews Button */}
                 <button
-                  onClick={() => handleOpenReviews(project)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`/projects/${project.uuid ?? project._id}`, "_blank");
+                  }}
                   className="mt-4 w-full rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-4 py-2 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
                 >
-                  View Reviews
+                  View Project
                 </button>
               </div>
             </div>
