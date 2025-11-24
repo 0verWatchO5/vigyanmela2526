@@ -31,15 +31,15 @@ export default async function ProjectDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch reviews for this project (only visible ones)
-  const reviews = await Review.find({ projectId: project._id, hidden: false })
-    .sort({ createdAt: -1 })
-    .lean();
-
   // Cast to `any` for safe runtime mutation and convert any non-primitive
   // values (ObjectId, Date) to strings so they can be rendered or passed
   // to client components without Next serialization errors.
   const projectAny: any = project as any;
+
+  // Fetch reviews for this project (only visible ones)
+  const reviews = await Review.find({ projectId: projectAny._id, hidden: false })
+    .sort({ createdAt: -1 })
+    .lean();
   projectAny._id = projectAny._id?.toString?.() ?? projectAny._id;
   if (projectAny.uuid && typeof projectAny.uuid !== "string") {
     projectAny.uuid = String(projectAny.uuid);
