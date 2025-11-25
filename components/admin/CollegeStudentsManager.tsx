@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import StarRating from "../reviews/StarRating";
 
 type RegistrationStatus = "pending" | "approved" | "rejected";
@@ -60,6 +60,7 @@ export function CollegeStudentsManager() {
 	const [isExporting, setIsExporting] = useState<boolean>(false);
 	const [editingSlotRoom, setEditingSlotRoom] = useState<{ [key: string]: { slotId: string; roomNo: string } }>({});
 	const [savingSlotRoom, setSavingSlotRoom] = useState<string | null>(null);
+	const [slotValidationErrors, setSlotValidationErrors] = useState<Record<string, string>>({});
 	const [projectReviews, setProjectReviews] = useState<ProjectReview[]>([]);
 	const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
 	const [togglingReview, setTogglingReview] = useState<string | null>(null);
@@ -187,6 +188,27 @@ export function CollegeStudentsManager() {
 		}
 	};
 
+	const findDuplicateSlotOwner = useCallback(
+		(teamId: string, slotValue: string) => {
+			const normalized = slotValue.trim().toLowerCase();
+			if (!normalized) {
+				return undefined;
+			}
+
+			for (const team of teams) {
+				if (team._id === teamId) continue;
+				const candidateRaw = editingSlotRoom[team._id]?.slotId ?? team.slotId ?? "";
+				const candidate = candidateRaw.trim().toLowerCase();
+				if (candidate && candidate === normalized) {
+					return team;
+				}
+			}
+
+			return undefined;
+		},
+		[teams, editingSlotRoom]
+	);
+
 	const filteredTeams = useMemo(() => {
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return teams;
@@ -294,14 +316,31 @@ export function CollegeStudentsManager() {
 		const values = editingSlotRoom[teamId];
 		if (!values) return;
 
+		const trimmedSlotId = (values.slotId ?? "").trim();
+		const duplicateOwner = findDuplicateSlotOwner(teamId, trimmedSlotId);
+		if (duplicateOwner) {
+			setSlotValidationErrors((prev) => ({
+				...prev,
+				[teamId]: `Slot ID already assigned to ${duplicateOwner.teamName}.`,
+			}));
+			return;
+		}
+
+		setSlotValidationErrors((prev) => {
+			if (!prev[teamId]) return prev;
+			const next = { ...prev };
+			delete next[teamId];
+			return next;
+		});
+
 		setSavingSlotRoom(teamId);
 		try {
 			const response = await fetch(`/api/admin/college-students/${teamId}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ 
-					slotId: values.slotId.trim() || null,
-					roomNo: values.roomNo.trim() || null 
+				body: JSON.stringify({
+					slotId: trimmedSlotId || null,
+					roomNo: (values.roomNo ?? "").trim() || null,
 				}),
 			});
 
@@ -311,19 +350,26 @@ export function CollegeStudentsManager() {
 				throw new Error(data.error || "Failed to update slot/room");
 			}
 
-			console.log('Update response:', data);
-			console.log('Updated slotId:', values.slotId.trim(), 'roomNo:', values.roomNo.trim());
-
 			setTeams((prev) =>
 				prev.map((team) =>
 					team._id === teamId 
-						? { ...team, slotId: values.slotId.trim() || undefined, roomNo: values.roomNo.trim() || undefined } 
+						? {
+								...team,
+								slotId: trimmedSlotId || undefined,
+								roomNo: (values.roomNo ?? "").trim() || undefined,
+						  }
 						: team
 				)
 			);
 
 			// Clear editing state for this team
 			setEditingSlotRoom((prev) => {
+				const next = { ...prev };
+				delete next[teamId];
+				return next;
+			});
+			setSlotValidationErrors((prev) => {
+				if (!prev[teamId]) return prev;
 				const next = { ...prev };
 				delete next[teamId];
 				return next;
@@ -455,29 +501,61 @@ export function CollegeStudentsManager() {
 											</div>
 										</td>
 										<td className="px-6 py-4">
-											<div className="flex items-center gap-1">
-												<input
-													type="text"
-													value={editingSlotRoom[team._id]?.slotId !== undefined ? editingSlotRoom[team._id].slotId : (team.slotId ?? "")}
-													onChange={(e) => setEditingSlotRoom(prev => ({
-														...prev,
-														[team._id]: {
-															slotId: e.target.value,
-															roomNo: prev[team._id]?.roomNo !== undefined ? prev[team._id].roomNo : (team.roomNo ?? "")
-														}
-													}))}
-													placeholder="e.g. S001"
-													className="w-24 px-2 py-1 text-sm bg-zinc-800 border border-zinc-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-													maxLength={10}
-												/>
-												{editingSlotRoom[team._id] && (
-													<button
-														onClick={() => handleSlotRoomUpdate(team._id)}
-														disabled={savingSlotRoom === team._id}
-														className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-													>
-														{savingSlotRoom === team._id ? "..." : "✓"}
-													</button>
+											<div className="flex flex-col gap-1">
+												<div className="flex items-center gap-1">
+													<input
+														type="text"
+														value={editingSlotRoom[team._id]?.slotId !== undefined ? editingSlotRoom[team._id].slotId : (team.slotId ?? "")}
+														onChange={(e) => {
+															const nextValue = e.target.value;
+															setEditingSlotRoom((prev) => ({
+																...prev,
+																[team._id]: {
+																	slotId: nextValue,
+																	roomNo:
+																		prev[team._id]?.roomNo !== undefined
+																			? prev[team._id].roomNo
+																		: (team.roomNo ?? ""),
+																},
+															}));
+															setSlotValidationErrors((prevErrors) => {
+																const duplicateOwner = findDuplicateSlotOwner(team._id, nextValue);
+																if (duplicateOwner) {
+																	return {
+																		...prevErrors,
+																		[team._id]: `Slot ID already assigned to ${duplicateOwner.teamName}.`,
+																	};
+																}
+																if (!prevErrors[team._id]) {
+																	return prevErrors;
+																}
+																const nextErrors = { ...prevErrors };
+																delete nextErrors[team._id];
+																return nextErrors;
+															});
+														}}
+														placeholder="e.g. S001"
+														className={`w-24 px-2 py-1 text-sm bg-zinc-800 border rounded text-white placeholder-gray-500 focus:outline-none ${
+															slotValidationErrors[team._id]
+																? "border-red-500 focus:border-red-400"
+																: "border-zinc-700 focus:border-cyan-500"
+														}`}
+														maxLength={10}
+													/>
+													{editingSlotRoom[team._id] && (
+														<button
+															onClick={() => handleSlotRoomUpdate(team._id)}
+															disabled={savingSlotRoom === team._id || Boolean(slotValidationErrors[team._id])}
+															className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+														>
+															{savingSlotRoom === team._id ? "..." : "✓"}
+														</button>
+													)}
+												</div>
+												{slotValidationErrors[team._id] && (
+													<p className="text-xs text-red-400">
+														{slotValidationErrors[team._id]}
+													</p>
 												)}
 											</div>
 										</td>
