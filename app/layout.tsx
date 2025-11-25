@@ -325,7 +325,7 @@ function ThemeToggle() {
 const Header = ({ onMenuClick, isOpen }: { onMenuClick: () => void; isOpen: boolean }) => {
   return (
     <header className={cn(
-        "sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 lg:hidden",
+        "sticky top-0 z-99 flex h-16 w-full items-center justify-between border-b bg-background px-4 lg:hidden",
         "border-border" 
       )}>
       <Image
@@ -353,7 +353,7 @@ const MobileNavMenu = ({ isOpen, onClose, currentPath }: { isOpen: boolean; onCl
   return (
     <div
       className={cn(
-        "fixed top-16 left-0 z-40 w-full border-b bg-background p-4",
+        "fixed top-16 left-0 z-100 w-full border-b bg-background p-4",
         "border-border", 
         "lg:hidden", 
         "transition-transform duration-300 ease-in-out",
