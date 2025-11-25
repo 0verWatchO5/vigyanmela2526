@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
         console.log("[register] sending confirmation email to:", savedVisitor.email);
 
         const resp = await resend.emails.send({
-          from: process.env.RESEND_FROM || "placements@chetanacollege.in",
+          from: "Vigyan Mela 2025 <placements@chetanacollege.in>",
           to: savedVisitor.email,
           subject: "Vigyan Mela 25 — Registration confirmed",
           html,
