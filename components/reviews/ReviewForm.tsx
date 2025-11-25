@@ -15,6 +15,8 @@ interface ReviewFormProps {
     rating: number;
     comment: string;
   } | null;
+  // Optional return URL to use when redirecting unauthenticated users to login
+  loginReturnUrl?: string;
 }
 
 export default function ReviewForm({
@@ -23,6 +25,7 @@ export default function ReviewForm({
   onSuccess,
   onCancel,
   existingReview,
+  loginReturnUrl = "/projects",
 }: ReviewFormProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -37,7 +40,7 @@ export default function ReviewForm({
 
     // Check authentication
     if (status === "unauthenticated") {
-      router.push(`/auth/login?returnUrl=/projects`);
+      router.push(`/auth/login?returnUrl=${encodeURIComponent(loginReturnUrl)}`);
       return;
     }
 

@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     }
 
     const projects = await CollegeStudent.find(query)
-      .select("teamName projectSummary projectImage segments slotId roomNo teamMembers")
+      .select("teamName projectSummary projectImage segments slotId roomNo teamMembers uuid _id")
       .sort({ submittedAt: -1 })
       .lean();
 
