@@ -59,6 +59,11 @@ function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
+            <div className="text-right text-sm">
+              <Link href="/auth/reset-password" className="text-blue-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <button disabled={loading} className="w-full rounded-md bg-blue-600 hover:bg-blue-700 text-white py-2.5 text-sm font-medium disabled:opacity-50">
               {loading ? "Signing in..." : "Sign in"}
             </button>
