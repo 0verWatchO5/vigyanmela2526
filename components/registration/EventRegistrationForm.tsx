@@ -312,6 +312,14 @@ export function EventRegistrationForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitStatus({ type: null, message: "" });
+    const isValid = validate();
+    if (!isValid) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please fill in the required details before submitting.",
+      });
+      return;
+    }
     // Show modal if user not authed; actual registration deferred.
     if (!isLinkedInAuthed) {
       setShowLinkedInPrompt(true);

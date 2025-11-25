@@ -35,6 +35,80 @@ const YEAR_OF_STUDY_OPTIONS = [
 const TEAM_SIZE_OPTIONS = [2, 3, 4] as const;
 type TeamSizeOption = (typeof TEAM_SIZE_OPTIONS)[number];
 
+type ValidatedMemberField =
+	| "fullName"
+	| "department"
+	| "email"
+	| "contactNumber"
+	| "rollNumber"
+	| "yearOfStudy"
+	| "linkedinProfile";
+
+type TeamMemberErrors = Partial<Record<ValidatedMemberField, string>>;
+
+interface FormErrors {
+	teamName?: string;
+	projectSummary?: string;
+	segments?: string;
+	teamMembers: TeamMemberErrors[];
+}
+
+const emailRegex = /^\S+@\S+\.\S+$/;
+const contactRegex = /^[0-9]{10}$/;
+const linkedinRegex = /^https:\/\/(www\.)?linkedin\.com\//i;
+const validatedMemberFields: ValidatedMemberField[] = [
+	"fullName",
+	"department",
+	"email",
+	"contactNumber",
+	"rollNumber",
+	"yearOfStudy",
+	"linkedinProfile",
+];
+
+const buildMemberErrorArray = (count: number): TeamMemberErrors[] =>
+	Array.from({ length: count }, () => ({}));
+
+const getMemberFieldError = (field: ValidatedMemberField, value: string): string | undefined => {
+	const trimmed = value.trim();
+	switch (field) {
+		case "fullName":
+			if (!trimmed) return "Full name is required.";
+			if (trimmed.length < 2) return "Full name must be at least 2 characters.";
+			return undefined;
+		case "department":
+			if (!trimmed) return "Department is required.";
+			return undefined;
+		case "email":
+			if (!trimmed) return "Email is required.";
+			if (!emailRegex.test(trimmed)) return "Enter a valid email address.";
+			return undefined;
+		case "contactNumber":
+			if (!trimmed) return "Contact number is required.";
+			if (!contactRegex.test(trimmed)) return "Enter a 10-digit contact number.";
+			return undefined;
+		case "rollNumber":
+			if (!trimmed) return "Roll number is required.";
+			return undefined;
+		case "yearOfStudy":
+			if (!trimmed) return "Year of study is required.";
+			return undefined;
+		case "linkedinProfile":
+			if (!trimmed) return "LinkedIn profile is required.";
+			if (!linkedinRegex.test(trimmed)) return "Enter a valid LinkedIn URL.";
+			return undefined;
+		default:
+			return undefined;
+	}
+};
+
+const hasAnyErrors = (errors: FormErrors): boolean => {
+	if (errors.teamName || errors.projectSummary || errors.segments) {
+		return true;
+	}
+	return errors.teamMembers.some((member) => Object.values(member).some(Boolean));
+};
+
 interface TeamMember {
 	fullName: string;
 	department: string;
@@ -88,6 +162,9 @@ export default function CollegeRegistrationForm() {
 	const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() =>
 		Array.from({ length: TEAM_SIZE_OPTIONS[0] }, createEmptyMember)
 	);
+	const [formErrors, setFormErrors] = useState<FormErrors>({
+		teamMembers: buildMemberErrorArray(TEAM_SIZE_OPTIONS[0]),
+	});
 	const [existingData, setExistingData] = useState<SubmissionRecord | null>(null);
 	const [isEditing, setIsEditing] = useState(false);
 	const [isFetchingExisting, setIsFetchingExisting] = useState(false);
@@ -110,6 +187,19 @@ export default function CollegeRegistrationForm() {
 			return prev.slice(0, teamSize);
 		});
 	}, [teamSize]);
+
+	useEffect(() => {
+		setFormErrors((prev) => {
+			if (prev.teamMembers.length === teamMembers.length) {
+				return prev;
+			}
+			const nextMemberErrors = prev.teamMembers.slice(0, teamMembers.length);
+			while (nextMemberErrors.length < teamMembers.length) {
+				nextMemberErrors.push({});
+			}
+			return { ...prev, teamMembers: nextMemberErrors };
+		});
+	}, [teamMembers.length]);
 
 	useEffect(() => {
 		const linkedUser = session?.user;
@@ -145,17 +235,60 @@ export default function CollegeRegistrationForm() {
 		[teamMembers]
 	);
 
+	const computeErrors = useCallback((): FormErrors => {
+		const memberErrors = teamMembers.map((member) => {
+			const errors: TeamMemberErrors = {};
+			validatedMemberFields.forEach((field) => {
+				const rawValue = (member[field] ?? "") as string;
+				const fieldError = getMemberFieldError(field, rawValue);
+				if (fieldError) {
+					errors[field] = fieldError;
+				}
+			});
+			return errors;
+		});
+
+		const errors: FormErrors = { teamMembers: memberErrors };
+		if (!teamName.trim()) {
+			errors.teamName = "Team name is required.";
+		}
+		if (!projectSummary.trim()) {
+			errors.projectSummary = "Project summary is required.";
+		}
+		if (segments.length === 0) {
+			errors.segments = "Select at least one segment.";
+		}
+
+		return errors;
+	}, [teamMembers, teamName, projectSummary, segments]);
+
+	const validateForm = useCallback(() => {
+		const validationErrors = computeErrors();
+		setFormErrors(validationErrors);
+		return !hasAnyErrors(validationErrors);
+	}, [computeErrors]);
+
 	const handleSegmentToggle = (segment: string) => {
-		setSegments((prev) =>
-			prev.includes(segment)
+		setSegments((prev) => {
+			const updated = prev.includes(segment)
 				? prev.filter((item) => item !== segment)
-				: [...prev, segment]
-		);
+				: [...prev, segment];
+			setFormErrors((errors) => {
+				if (!errors.segments) {
+					return errors;
+				}
+				if (updated.length === 0) {
+					return errors;
+				}
+				return { ...errors, segments: undefined };
+			});
+			return updated;
+		});
 	};
 
 	const updateTeamMember = (
 		index: number,
-		field: keyof TeamMember,
+		field: ValidatedMemberField,
 		value: string
 	) => {
 		setTeamMembers((prev) => {
@@ -163,33 +296,48 @@ export default function CollegeRegistrationForm() {
 			next[index] = { ...next[index], [field]: value };
 			return next;
 		});
+		setFormErrors((prev) => {
+			const nextMemberErrors = [...prev.teamMembers];
+			const current = { ...(nextMemberErrors[index] ?? {}) };
+			const fieldError = getMemberFieldError(field, value);
+			if (!Object.keys(current).length && !fieldError) {
+				return prev;
+			}
+			if (fieldError) {
+				current[field] = fieldError;
+			} else {
+				delete current[field];
+			}
+			nextMemberErrors[index] = current;
+			return { ...prev, teamMembers: nextMemberErrors };
+		});
 	};
 
-	const isFormValid = useMemo(() => {
-		const baseValid =
-			teamName.trim().length > 0 &&
-			projectSummary.trim().length > 0 &&
-			segments.length > 0;
-
-		if (!baseValid) return false;
-
-		return teamMembers.every((member) => {
-			const hasRequiredFields =
-				member.fullName.trim().length > 0 &&
-				member.department.trim().length > 0 &&
-				member.email.trim().length > 0 &&
-				member.contactNumber.trim().length === 10 &&
-				member.rollNumber.trim().length > 0 &&
-				member.yearOfStudy.trim().length > 0 &&
-				(member.linkedinProfile || "").trim().length > 0;
-
-			const emailValid = /^\S+@\S+\.\S+$/.test(member.email.trim());
-			const contactValid = /^[0-9]{10}$/.test(member.contactNumber.trim());
-			const linkedinValid = /^https:\/\/(www\.)?linkedin\.com\//i.test((member.linkedinProfile || "").trim());
-
-			return hasRequiredFields && emailValid && contactValid && linkedinValid;
+	const handleTeamNameChange = (value: string) => {
+		setTeamName(value);
+		setFormErrors((prev) => {
+			if (!prev.teamName) {
+				return prev;
+			}
+			if (value.trim()) {
+				return { ...prev, teamName: undefined };
+			}
+			return prev;
 		});
-	}, [teamMembers, teamName, projectSummary, segments]);
+	};
+
+	const handleProjectSummaryChange = (value: string) => {
+		setProjectSummary(value);
+		setFormErrors((prev) => {
+			if (!prev.projectSummary) {
+				return prev;
+			}
+			if (value.trim()) {
+				return { ...prev, projectSummary: undefined };
+			}
+			return prev;
+		});
+	};
 
 	const populateFormFromSubmission = useCallback((submission: SubmissionRecord) => {
 		setTeamName(submission.teamName);
@@ -199,6 +347,7 @@ export default function CollegeRegistrationForm() {
 		setTeamSize(submission.teamSize as TeamSizeOption);
 		setSegments([...submission.segments]);
 		setTeamMembers(submission.teamMembers.map((m) => ({ ...m })));
+		setFormErrors({ teamMembers: buildMemberErrorArray(submission.teamMembers.length) });
 	}, []);
 
 	const fetchExisting = useCallback(async (force = false) => {
@@ -304,6 +453,11 @@ export default function CollegeRegistrationForm() {
 		e.preventDefault();
 		setErrorMessage(null);
 		setFeedbackMessage(null);
+		const isValid = validateForm();
+		if (!isValid) {
+			setErrorMessage("Please fill in the required details before submitting.");
+			return;
+		}
 		if (!session?.user?.id) {
 			setErrorMessage("Please sign in to submit or edit your registration.");
 			return;
@@ -611,9 +765,10 @@ export default function CollegeRegistrationForm() {
 									<Input
 										id="team-name"
 										value={teamName}
-										onChange={(event) => setTeamName(event.target.value)}
+										onChange={(event) => handleTeamNameChange(event.target.value)}
 										placeholder="Innovators United"
 										required
+										error={formErrors.teamName}
 									/>
 								</LabelInputContainer>
 								<LabelInputContainer>
@@ -647,11 +802,14 @@ export default function CollegeRegistrationForm() {
 								<textarea
 									id="project-summary"
 									value={projectSummary}
-									onChange={(event) => setProjectSummary(event.target.value)}
+									onChange={(event) => handleProjectSummaryChange(event.target.value)}
 									className="flex min-h-[120px] w-full border-none bg-neutral-800 text-white rounded-md px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-600"
 									placeholder="Explain the problem you solve and the impact you aim to create."
 									required
 								/>
+								{formErrors.projectSummary && (
+									<p className="mt-1 text-xs text-red-500">{formErrors.projectSummary}</p>
+								)}
 							</LabelInputContainer>
 
 							<LabelInputContainer>
@@ -712,10 +870,8 @@ export default function CollegeRegistrationForm() {
 										</label>
 									))}
 								</div>
-								{segments.length === 0 && (
-									<p className="text-xs text-red-400 mt-2">
-										Select at least one segment.
-									</p>
+								{formErrors.segments && (
+									<p className="mt-2 text-xs text-red-500">{formErrors.segments}</p>
 								)}
 							</div>
 						</section>
@@ -735,6 +891,7 @@ export default function CollegeRegistrationForm() {
 									const rollId = `member-${index}-roll`;
 									const yearId = `member-${index}-year`;
 									const linkedinId = `member-${index}-linkedin`;
+									const memberErrors: TeamMemberErrors = formErrors.teamMembers[index] ?? {};
 
 									return (
 										<div
@@ -761,6 +918,7 @@ export default function CollegeRegistrationForm() {
 														}
 														placeholder="Enter full name"
 														required
+														error={memberErrors.fullName}
 													/>
 												</LabelInputContainer>
 
@@ -782,6 +940,9 @@ export default function CollegeRegistrationForm() {
 															</option>
 														))}
 													</select>
+													{memberErrors.department && (
+														<p className="mt-1 text-xs text-red-500">{memberErrors.department}</p>
+													)}
 												</LabelInputContainer>
 
 												<LabelInputContainer>
@@ -795,6 +956,7 @@ export default function CollegeRegistrationForm() {
 														}
 														placeholder="team.member@college.edu"
 														required
+														error={memberErrors.email}
 													/>
 												</LabelInputContainer>
 
@@ -812,6 +974,7 @@ export default function CollegeRegistrationForm() {
 														}
 														placeholder="10-digit number"
 														required
+														error={memberErrors.contactNumber}
 													/>
 												</LabelInputContainer>
 
@@ -825,6 +988,7 @@ export default function CollegeRegistrationForm() {
 														}
 														placeholder="College roll number"
 														required
+														error={memberErrors.rollNumber}
 													/>
 												</LabelInputContainer>
 
@@ -846,6 +1010,9 @@ export default function CollegeRegistrationForm() {
 															</option>
 														))}
 													</select>
+													{memberErrors.yearOfStudy && (
+														<p className="mt-1 text-xs text-red-500">{memberErrors.yearOfStudy}</p>
+													)}
 												</LabelInputContainer>
 												<LabelInputContainer>
 													<Label htmlFor={linkedinId}>LinkedIn Profile URL</Label>
@@ -857,6 +1024,7 @@ export default function CollegeRegistrationForm() {
 														}
 														placeholder="https://www.linkedin.com/in/username"
 														required
+														error={memberErrors.linkedinProfile}
 													/>
 												</LabelInputContainer>
 											</div>
@@ -869,7 +1037,7 @@ export default function CollegeRegistrationForm() {
 						<div className="flex flex-col sm:flex-row gap-4">
 							<button
 								type="submit"
-								disabled={loading || uploadingImage || !isFormValid}
+								disabled={loading || uploadingImage}
 								className="bg-linear-to-br relative group/btn from-black to-neutral-600 w-full sm:w-auto px-6 text-white rounded-md h-11 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								{uploadingImage ? "Uploading image..." : loading ? (existingData ? "Saving..." : "Submitting...") : existingData ? "Save Changes" : "Submit Registration"}
