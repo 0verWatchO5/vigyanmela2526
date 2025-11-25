@@ -151,7 +151,7 @@ export default function Sponsors() {
 
               {/* Button Section */}
               <div className="flex flex-col gap-4 md:justify-end">
-                <a href="tel:+919999999999" className="w-full">
+                <a href="tel:+917021524797" className="w-full">
                   <HoverBorderGradient
                     containerClassName="rounded-lg w-full"
                     as="button"
