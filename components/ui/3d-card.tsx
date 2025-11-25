@@ -121,7 +121,8 @@ export const CardItem = React.forwardRef<
       rotateY = 0,
       rotateZ = 0,
       ...rest
-    }
+    },
+    ref
   ) => {
     const internalRef = useRef<HTMLDivElement>(null);
     const [isMouseEntered] = useMouseEnter();
@@ -140,7 +141,7 @@ export const CardItem = React.forwardRef<
     }, [handleAnimations]);
 
     const props: React.ComponentProps<typeof Tag> = {
-      ref: internalRef,
+      ref: ref || internalRef,
       className: cn("w-fit transition duration-200 ease-linear", className),
       ...rest,
     } as React.ComponentProps<typeof Tag>;

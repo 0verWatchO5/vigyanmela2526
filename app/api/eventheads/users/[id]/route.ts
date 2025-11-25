@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Dbconns from "@/dbconfig/dbconn";
 import User from "@/models/registration";
+import Visitor from "@/models/visitor";
 
 export async function DELETE(
   request: Request,
@@ -20,9 +21,19 @@ export async function DELETE(
       );
     }
 
+    // Cascade delete: Delete associated visitor ticket if email matches
+    let deletedVisitorCount = 0;
+    if (deletedUser.email) {
+      const deleteResult = await Visitor.deleteMany({ email: deletedUser.email });
+      deletedVisitorCount = deleteResult.deletedCount || 0;
+    }
+
     return NextResponse.json({
       success: true,
-      message: `User ${deletedUser.firstName} ${deletedUser.lastName} deleted successfully`,
+      message: `User ${deletedUser.firstName} ${deletedUser.lastName} deleted successfully${
+        deletedVisitorCount > 0 ? ` (${deletedVisitorCount} associated visitor ticket(s) also deleted)` : ""
+      }`,
+      deletedVisitorTickets: deletedVisitorCount,
     });
   } catch (error: any) {
     console.error("Error deleting user:", error);

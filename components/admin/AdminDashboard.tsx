@@ -8,7 +8,7 @@ import { ChangePasswordForm } from "./ChangePasswordForm";
 import { AdminManagement } from "./AdminManagement";
 import { CollegeStudentsManager } from "./CollegeStudentsManager";
 import ReviewsManager from "./ReviewsManager";
-import TicketCard from "@/components/ui/TicketCard";
+import { VisitorsManager } from "./VisitorsManager";
 
 interface User {
   _id: string;
@@ -35,17 +35,6 @@ export function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [visitors, setVisitors] = useState<Array<{
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    contact?: string;
-    industry?: string;
-    organization?: string;
-    createdAt?: string;
-    ticketCode?: string;
-  }>>([]);
 
   const checkSuperAdmin = async () => {
     try {
@@ -81,23 +70,9 @@ export function AdminDashboard() {
     }
   };
 
-  const fetchVisitors = async () => {
-    try {
-      const res = await fetch("/api/visitors");
-      if (!res.ok) {
-        throw new Error("Failed to fetch visitors");
-      }
-      const data = await res.json();
-      setVisitors(data.visitors || []);
-    } catch (err) {
-      console.error("Failed to load visitors", err);
-    }
-  };
-
   useEffect(() => {
     fetchUsers();
     checkSuperAdmin();
-    fetchVisitors();
   }, []);
 
   const handleLogout = async () => {
@@ -146,10 +121,11 @@ export function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-muted-foreground">Loading users...</p>
+      <div className="flex items-center justify-center min-h-screen relative">
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900"></div>
+        <div className="text-center space-y-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+          <p className="text-white/80">Loading users...</p>
         </div>
       </div>
     );
@@ -157,12 +133,13 @@ export function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="text-center space-y-4">
-          <p className="text-red-500">Error: {error}</p>
+      <div className="flex items-center justify-center min-h-screen p-4 relative">
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900"></div>
+        <div className="text-center space-y-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl">
+          <p className="text-red-400">Error: {error}</p>
           <button
             onClick={fetchUsers}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="px-6 py-2.5 bg-blue-500/20 backdrop-blur-sm text-white border border-blue-400/50 rounded-xl hover:bg-blue-500 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
           >
             Retry
           </button>
@@ -172,109 +149,95 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      {}
+    <div className="min-h-screen p-4 md:p-8 relative">
+      {/* Gradient Background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 dark:from-purple-950 dark:via-blue-950 dark:to-indigo-950"></div>
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-400/20 via-transparent to-transparent dark:from-cyan-600/10"></div>
+      
+      {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-white drop-shadow-lg">
               Admin Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-white/80 mt-1">
               Manage registered users for Vigyan Mela 25
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors"
+            className="px-6 py-2.5 bg-red-500/20 backdrop-blur-sm text-white border border-red-400/50 rounded-xl hover:bg-red-500 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/50 transition-all duration-300"
           >
             Logout
           </button>
         </div>
       </div>
 
-      {}
+      {/* Tab Navigation */}
       <div className="max-w-7xl mx-auto mb-6">
-        <div className="flex gap-2 border-b border-border">
+        <div className="flex gap-2 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-2 shadow-xl overflow-x-auto">
           <button
             onClick={() => setActiveTab("users")}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
               activeTab === "users"
-                ? "text-blue-500"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             👥 Users Management
-            {activeTab === "users" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
           </button>
           <button
             onClick={() => setActiveTab("college-students")}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
               activeTab === "college-students"
-                ? "text-blue-500"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             🎓 College Students
-            {activeTab === "college-students" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
               activeTab === "reviews"
-                ? "text-blue-500"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             ⭐ Reviews
-            {activeTab === "reviews" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
           </button>
           <button
             onClick={() => setActiveTab("visitors")}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
               activeTab === "visitors"
-                ? "text-blue-500"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             🧾 Visitors
-            {activeTab === "visitors" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
           </button>
           {isSuperAdmin && (
             <button
               onClick={() => setActiveTab("admins")}
-              className={`px-6 py-3 font-medium transition-colors relative ${
+              className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
                 activeTab === "admins"
-                  ? "text-blue-500"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                  : "text-white/70 hover:text-white hover:bg-white/10"
               }`}
             >
               👑 Admin Management
-              {activeTab === "admins" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-              )}
             </button>
           )}
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-6 py-3 font-medium transition-all duration-300 rounded-xl whitespace-nowrap ${
               activeTab === "settings"
-                ? "text-blue-500"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white/20 backdrop-blur-sm text-white shadow-lg shadow-blue-500/50 border border-white/30"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             ⚙️ Settings
-            {activeTab === "settings" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
           </button>
         </div>
       </div>
@@ -282,71 +245,71 @@ export function AdminDashboard() {
       {}
       {activeTab === "users" ? (
         <>
-          {}
+          {/* Stats Cards */}
           <div className="max-w-7xl mx-auto mb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-zinc-900 border border-border rounded-lg p-4">
-                <p className="text-muted-foreground text-sm">Total Users</p>
-                <p className="text-3xl font-bold text-foreground mt-1">
+              <div className="bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105">
+                <p className="text-white/70 text-sm">Total Users</p>
+                <p className="text-4xl font-bold text-white mt-2 drop-shadow-lg">
                   {users.length}
                 </p>
               </div>
-              <div className="bg-zinc-900 border border-border rounded-lg p-4">
-                <p className="text-muted-foreground text-sm">Admin Users</p>
-                <p className="text-3xl font-bold text-green-500 mt-1">
+              <div className="bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300 hover:scale-105">
+                <p className="text-white/70 text-sm">Admin Users</p>
+                <p className="text-4xl font-bold text-green-400 mt-2 drop-shadow-lg">
                   {users.filter((u) => u.isAdmin).length}
                 </p>
               </div>
-              <div className="bg-zinc-900 border border-border rounded-lg p-4">
-                <p className="text-muted-foreground text-sm">Regular Users</p>
-                <p className="text-3xl font-bold text-blue-500 mt-1">
+              <div className="bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
+                <p className="text-white/70 text-sm">Regular Users</p>
+                <p className="text-4xl font-bold text-cyan-400 mt-2 drop-shadow-lg">
                   {users.filter((u) => !u.isAdmin).length}
                 </p>
               </div>
             </div>
           </div>
 
-          {}
+          {/* Search and Controls */}
           <div className="max-w-7xl mx-auto mb-6">
-            <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-zinc-900 border border-border rounded-lg p-4">
-              {}
+            <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-4 shadow-xl">
+              {/* Search Input */}
               <input
                 type="text"
                 placeholder="Search by name, email, or contact..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-2 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all"
               />
 
-              {}
+              {/* View Controls */}
               <div className="flex gap-2">
-                <div className="flex gap-2 bg-background border border-border rounded-md p-1">
+                <div className="flex gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-1">
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       viewMode === "table"
-                        ? "bg-blue-500 text-white"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-blue-500 text-white shadow-lg shadow-blue-500/50"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     📋 Table
                   </button>
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       viewMode === "grid"
-                        ? "bg-blue-500 text-white"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-blue-500 text-white shadow-lg shadow-blue-500/50"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     📱 Cards
                   </button>
                 </div>
 
-                {}
+                {/* Export Button */}
                 <button
                   onClick={handleExportToExcel}
-                  className="px-4 py-2 bg-green-500/10 text-green-500 border border-green-500 rounded-md hover:bg-green-500 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
+                  className="px-4 py-2 bg-green-500/20 backdrop-blur-sm text-white border border-green-400/50 rounded-xl hover:bg-green-500 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300 flex items-center gap-2 text-sm font-medium"
                 >
                   📊 Export to Excel
                 </button>
@@ -354,11 +317,11 @@ export function AdminDashboard() {
             </div>
           </div>
 
-          {}
+          {/* Users List */}
           <div className="max-w-7xl mx-auto">
             {filteredUsers.length === 0 ? (
-              <div className="text-center p-12 border border-border rounded-lg">
-                <p className="text-muted-foreground">
+              <div className="text-center p-12 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-xl">
+                <p className="text-white/70">
                   {searchQuery
                     ? "No users found matching your search."
                     : "No users registered yet."}
@@ -377,11 +340,11 @@ export function AdminDashboard() {
         </>
       ) : activeTab === "college-students" ? (
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+          <div className="mb-6 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
               College Students Registration
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/70">
               View and manage college student project registrations
             </p>
           </div>
@@ -389,11 +352,11 @@ export function AdminDashboard() {
         </div>
       ) : activeTab === "reviews" ? (
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+          <div className="mb-6 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
               Reviews Management
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/70">
               View and manage all project reviews
             </p>
           </div>
@@ -402,11 +365,11 @@ export function AdminDashboard() {
       ) : activeTab === "admins" ? (
 
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+          <div className="mb-6 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
               Admin Management
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/70">
               Manage admin accounts, reset passwords, and assign admin roles
             </p>
           </div>
@@ -415,11 +378,11 @@ export function AdminDashboard() {
       ) : (
         activeTab === "settings" ? (
           <div className="max-w-7xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-foreground mb-2">
+            <div className="mb-6 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
+              <h2 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
                 Account Settings
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 Manage your admin account security and preferences
               </p>
             </div>
@@ -427,61 +390,11 @@ export function AdminDashboard() {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-foreground mb-2">Visitors</h2>
-              <p className="text-sm text-muted-foreground">Recent visitors who registered for the event</p>
+            <div className="mb-6 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl">
+              <h2 className="text-xl font-semibold text-white drop-shadow-lg mb-2">Visitors Management</h2>
+              <p className="text-sm text-white/70">Manage visitor registrations and tickets</p>
             </div>
-
-            {/* Visitors search */}
-            <div className="max-w-7xl mx-auto mb-6">
-              <div className="flex items-stretch gap-4 bg-zinc-900 border border-border rounded-lg p-4">
-                <input
-                  type="text"
-                  placeholder="Search visitors by name, contact, or role..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="px-4 py-2 bg-zinc-800 text-sm text-foreground border border-border rounded-md hover:bg-zinc-700"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {visitors.length === 0 ? (
-                <div className="p-6 border border-border rounded-lg text-muted-foreground">No visitors yet.</div>
-              ) : (
-                visitors
-                  .filter((v) => {
-                    const q = searchQuery.toLowerCase();
-                    if (!q) return true;
-                    return (
-                      `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) ||
-                      (v.contact || "").includes(q) ||
-                      (v.industry || "").toLowerCase().includes(q) ||
-                      (v.ticketCode || "").toLowerCase().includes(q)
-                    );
-                  })
-                  .map((v) => (
-                    <div key={v._id} className="flex justify-center">
-                      <TicketCard
-                        logoSrc="/images/VN.png"
-                        attendingText="Visitor ID"
-                        title={v.industry || "Visitor"}
-                        venue="706, 7th-floor, Chetana College Bandra (E), Mumbai, Maharashtra, India"
-                        name={`${v.firstName} ${v.lastName}`}
-                        email={v.email || "-"}
-                        phone={v.contact || "-"}
-                        ticketId={v.ticketCode || "AAA000"}
-                      />
-                    </div>
-                  ))
-              )}
-            </div>
+            <VisitorsManager />
           </div>
         )
       )}

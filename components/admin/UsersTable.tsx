@@ -150,9 +150,9 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-lg bg-white/10 backdrop-blur-md border border-white/20">
         <table className="w-full text-sm text-left">
-          <thead className="text-xs uppercase bg-zinc-900 text-zinc-400 border-b border-border">
+          <thead className="text-xs uppercase bg-white/5 backdrop-blur-sm text-white/80 border-b border-white/20">
             <tr>
               <th scope="col" className="px-6 py-3">
                 #
@@ -187,7 +187,7 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
               <tr>
                 <td
                   colSpan={isSuperAdmin ? 8 : 7}
-                  className="px-6 py-8 text-center text-muted-foreground"
+                  className="px-6 py-8 text-center text-white/70"
                 >
                   No users registered yet.
                 </td>
@@ -196,30 +196,30 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
               users.map((user, index) => (
                 <tr
                   key={user._id}
-                  className="bg-background border-b border-border hover:bg-zinc-900/50 transition-colors"
+                  className="border-b border-white/10 hover:bg-white/5 transition-all duration-300"
                 >
-                  <td className="px-6 py-4 font-medium">{index + 1}</td>
-                  <td className="px-6 py-4 font-medium text-foreground">
+                  <td className="px-6 py-4 font-medium text-white">{index + 1}</td>
+                  <td className="px-6 py-4 font-medium text-white">
                     {user.firstName} {user.lastName}
                   </td>
-                  <td className="px-6 py-4 text-muted-foreground">
+                  <td className="px-6 py-4 text-white/70">
                     {user.email}
                   </td>
-                  <td className="px-6 py-4 text-muted-foreground">
+                  <td className="px-6 py-4 text-white/70">
                     {user.contact}
                   </td>
                   <td className="px-6 py-4">
                     {user.isAdmin ? (
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/10 text-green-500 border border-green-500">
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400 border border-green-400/50">
                         Admin
                       </span>
                     ) : (
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-500 border border-blue-500">
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-400/50">
                         User
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-muted-foreground text-xs">
+                  <td className="px-6 py-4 text-white/70 text-xs">
                     {new Date(user.createdAt).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -230,20 +230,20 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
                     <div className="flex gap-2 justify-center">
                       <button
                         onClick={() => handleViewDocument(user)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500/10 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-cyan-500/20 backdrop-blur-sm text-white border border-cyan-400/50 hover:bg-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
                       >
                         View
                       </button>
                       <button
                         onClick={() => handleEditUser(user)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500/10 text-green-500 border border-green-500 hover:bg-green-500 hover:text-white transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-yellow-500/20 backdrop-blur-sm text-white border border-yellow-400/50 hover:bg-yellow-500 hover:shadow-lg hover:shadow-yellow-500/50 transition-all duration-300"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user._id, `${user.firstName} ${user.lastName}`)}
                         disabled={isDeleting && userToDelete === user._id}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500/10 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500/20 backdrop-blur-sm text-white border border-red-400/50 hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isDeleting && userToDelete === user._id ? "..." : "Delete"}
                       </button>
@@ -255,12 +255,12 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
                         <button
                           onClick={() => handleMakeAdmin(user)}
                           disabled={makingAdmin === user._id}
-                          className="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500/10 text-purple-500 border border-purple-500 hover:bg-purple-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-500/20 backdrop-blur-sm text-white border border-purple-400/50 hover:bg-purple-500 hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {makingAdmin === user._id ? "Processing..." : "Make Admin"}
                         </button>
                       ) : (
-                        <span className="text-xs text-muted-foreground">Already Admin</span>
+                        <span className="text-xs text-white/50">Already Admin</span>
                       )}
                     </td>
                   )}
@@ -283,56 +283,56 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
 
       {/* Edit User Modal */}
       {isEditModalOpen && editingUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-neutral-900 rounded-lg shadow-xl max-w-md w-full p-6 border border-neutral-800">
-            <h3 className="text-xl font-semibold mb-4 text-white">Edit User</h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold mb-4 text-white drop-shadow-lg">Edit User</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   First Name
                 </label>
                 <input
                   type="text"
                   value={editingUser.firstName}
                   onChange={(e) => setEditingUser({ ...editingUser, firstName: e.target.value })}
-                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400/50"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Last Name
                 </label>
                 <input
                   type="text"
                   value={editingUser.lastName}
                   onChange={(e) => setEditingUser({ ...editingUser, lastName: e.target.value })}
-                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400/50"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   value={editingUser.email}
                   onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400/50"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Contact
                 </label>
                 <input
                   type="text"
                   value={editingUser.contact}
                   onChange={(e) => setEditingUser({ ...editingUser, contact: e.target.value })}
-                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400/50"
                 />
               </div>
             </div>
@@ -341,7 +341,7 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
               <button
                 onClick={handleSaveEdit}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-cyan-500/20 backdrop-blur-sm text-white border border-cyan-400/50 rounded-xl hover:bg-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>
@@ -351,7 +351,7 @@ export function UsersTable({ users, isSuperAdmin, onRefresh }: UsersTableProps) 
                   setEditingUser(null);
                 }}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 disabled:opacity-50"
               >
                 Cancel
               </button>

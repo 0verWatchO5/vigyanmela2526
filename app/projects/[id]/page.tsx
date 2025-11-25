@@ -7,13 +7,13 @@ import ReviewForm from "@/components/reviews/ReviewForm";
 import StarRating from "@/components/reviews/StarRating";
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default async function ProjectDetailPage({ params }: Props) {
-  const { id } = params;
+  const { id } = await params;
 
   await Dbconns();
 
