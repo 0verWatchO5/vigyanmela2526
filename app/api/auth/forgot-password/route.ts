@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     await PasswordResetToken.create({ userId: user._id, tokenHash, expiresAt });
 
     const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin).replace(/\/$/, "");
-    const resetUrl = `${baseUrl}/auth/reset-password?token=${rawToken}&email=${encodeURIComponent(email)}`;
+    const resetUrl = `vigyanmela.chetanacollege.in/auth/reset-password?token=${rawToken}&email=${encodeURIComponent(email)}`;
 
     let emailError: string | null = null;
 
