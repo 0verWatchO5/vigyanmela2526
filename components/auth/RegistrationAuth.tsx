@@ -108,6 +108,11 @@ export default function RegistrationAuth({
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
+              <div className="text-right text-sm">
+                <Link href="/auth/reset-password" className="text-blue-600 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <button
                 type="button"
                 onClick={() => signIn("linkedin", { callbackUrl })}
