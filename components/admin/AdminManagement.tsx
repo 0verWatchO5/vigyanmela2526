@@ -172,45 +172,45 @@ export function AdminManagement() {
 
   return (
     <div>
-      {}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-zinc-900 border border-border rounded-lg p-4">
-          <p className="text-muted-foreground text-sm">Total Admins</p>
-          <p className="text-3xl font-bold text-foreground mt-1">{admins.length}</p>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105">
+          <p className="text-white/70 text-sm">Total Admins</p>
+          <p className="text-4xl font-bold text-white mt-2 drop-shadow-lg">{admins.length}</p>
         </div>
-        <div className="bg-zinc-900 border border-border rounded-lg p-4">
-          <p className="text-muted-foreground text-sm">Super Admins</p>
-          <p className="text-3xl font-bold text-purple-500 mt-1">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 hover:scale-105">
+          <p className="text-white/70 text-sm">Super Admins</p>
+          <p className="text-4xl font-bold text-purple-400 mt-2 drop-shadow-lg">
             {admins.filter((a) => a.isSuperAdmin).length}
           </p>
         </div>
-        <div className="bg-zinc-900 border border-border rounded-lg p-4">
-          <p className="text-muted-foreground text-sm">Regular Admins</p>
-          <p className="text-3xl font-bold text-green-500 mt-1">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300 hover:scale-105">
+          <p className="text-white/70 text-sm">Regular Admins</p>
+          <p className="text-4xl font-bold text-green-400 mt-2 drop-shadow-lg">
             {admins.filter((a) => !a.isSuperAdmin).length}
           </p>
         </div>
       </div>
 
-      {}
-      <div className="bg-zinc-900 border border-border rounded-lg overflow-hidden">
+      {/* Table */}
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-background border-b border-border">
+            <thead className="bg-white/5 backdrop-blur-sm border-b border-white/10">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                   Email
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                   Contact
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                   Role
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>

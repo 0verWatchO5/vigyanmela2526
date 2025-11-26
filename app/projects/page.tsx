@@ -56,7 +56,11 @@ export default function ProjectsPage() {
       const data = await response.json();
       
       if (data.success) {
-        console.log('First project slotId/roomNo:', data.projects[0]?.slotId, data.projects[0]?.roomNo);
+        console.log('Fetched projects:', data.projects.map((p: Project) => ({ 
+          name: p.teamName, 
+          id: p._id, 
+          uuid: p.uuid 
+        })));
         setProjects(data.projects);
         
         // Fetch review stats for all projects
@@ -191,14 +195,21 @@ export default function ProjectsPage() {
       {/* Projects Grid */}
       {!loading && filteredProjects.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredProjects.map((project) => (
+          {filteredProjects.map((project) => {
+            const projectId = project.uuid ?? project._id;
+            console.log('Rendering project:', project.teamName, 'ID:', projectId);
+            
+            return (
             <div
               key={project._id}
-              onClick={() => window.open(`/projects/${project.uuid ?? project._id}`, "_blank")}
+              onClick={() => {
+                console.log('Card clicked:', project.teamName, 'Opening:', projectId);
+                window.open(`/projects/${projectId}`, "_blank");
+              }}
               role="button"
               tabIndex={0}
               className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-lg shadow-blue-200 dark:shadow-none dark:shadow-blue-500/20 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-              onKeyDown={(e) => { if (e.key === "Enter") window.open(`/projects/${project.uuid ?? project._id}`, "_blank"); }}
+              onKeyDown={(e) => { if (e.key === "Enter") window.open(`/projects/${projectId}`, "_blank"); }}
             >
               {/* Gradient Border Effect */}
               <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -302,7 +313,8 @@ export default function ProjectsPage() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.open(`/projects/${project.uuid ?? project._id}`, "_blank");
+                    console.log('Button clicked:', project.teamName, 'Opening:', projectId);
+                    window.open(`/projects/${projectId}`, "_blank");
                   }}
                   className="mt-4 w-full rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-4 py-2 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
                 >
@@ -310,7 +322,8 @@ export default function ProjectsPage() {
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

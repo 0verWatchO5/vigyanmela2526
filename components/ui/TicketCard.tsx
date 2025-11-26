@@ -24,7 +24,7 @@ export const TicketCard: React.FC<TicketProps> = ({
   ticketId = "AAA000",
 }) => {
   return (
-    <div className="mx-auto max-w-xs bg-white shadow-md rounded-2xl p-5 text-slate-900 font-sans">
+    <div className="mx-auto max-w-xs bg-white dark:bg-white/10 dark:backdrop-blur-xl border border-gray-200 dark:border-white/20 shadow-xl dark:shadow-2xl rounded-2xl p-5 text-gray-900 dark:text-white font-sans">
       {/* Header / Logo */}
       <div className="flex items-center justify-center mb-3">
         <img src={logoSrc} alt="logo" className="h-10 w-10 object-contain" />
@@ -32,15 +32,15 @@ export const TicketCard: React.FC<TicketProps> = ({
 
       {/* Attending text + Title */}
       <div className="text-center">
-        <p className="text-sm text-gray-500">{attendingText}</p>
-        <h1 className="mt-1 text-xl font-semibold">{title}</h1>
+        <p className="text-sm text-gray-600 dark:text-white/70">{attendingText}</p>
+        <h1 className="mt-1 text-xl font-semibold text-gray-900 dark:text-white dark:drop-shadow-lg">{title}</h1>
       </div>
 
-      <hr className="my-4 border-t border-gray-200" />
+      <hr className="my-4 border-t border-gray-200 dark:border-white/20" />
 
       {/* Date row */}
       <div className="flex items-start gap-3">
-        <div className="text-blue-600">
+        <div className="text-blue-600 dark:text-cyan-400">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7 10H9V12H7V10Z" fill="currentColor" />
             <path d="M11 10H13V12H11V10Z" fill="currentColor" />
@@ -49,49 +49,49 @@ export const TicketCard: React.FC<TicketProps> = ({
           </svg>
         </div>
         <div className="flex-1">
-          <p className="text-sm text-gray-500">{dateRange}</p>
+          <p className="text-sm text-gray-700 dark:text-white/80">{dateRange}</p>
         </div>
       </div>
 
       {/* Location row */}
       <div className="flex items-start gap-3 mt-3">
-        <div className="text-red-500">
+        <div className="text-red-600 dark:text-red-400">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C8.13 2 5 5.13 5 9C5 13.25 11.11 19.34 11.45 19.68C11.74 19.97 12.24 19.97 12.53 19.68C12.87 19.34 19 13.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="currentColor" />
           </svg>
         </div>
         <div className="flex-1">
-          <p className="text-sm text-gray-700">{venue}</p>
+          <p className="text-sm text-gray-700 dark:text-white/80">{venue}</p>
         </div>
       </div>
 
-      <hr className="my-4 border-t border-gray-100" />
+      <hr className="my-4 border-t border-gray-200 dark:border-white/20" />
 
       {/* Booking Details heading */}
-      <p className="text-sm font-medium text-gray-600 mb-3">Your Booking Details</p>
+      <p className="text-sm font-medium text-gray-700 dark:text-white/70 mb-3">Your Booking Details</p>
 
-      <div className="bg-gray-50 rounded-xl p-3">
-        <div className="flex justify-between py-2 border-b border-gray-100">
-          <div className="text-xs text-gray-500">Ticket ID</div>
-          <div className="text-sm font-semibold text-gray-900 tracking-widest uppercase">
+      <div className="bg-gray-50 dark:bg-white/5 dark:backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-xl p-3">
+        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
+          <div className="text-xs text-gray-600 dark:text-white/60">Ticket ID</div>
+          <div className="text-sm font-semibold text-gray-900 dark:text-white tracking-widest uppercase">
             {ticketId}
           </div>
         </div>
-        <div className="flex justify-between py-2 border-b border-gray-100">
-          <div className="text-xs text-gray-500">Name</div>
-          <div className="text-sm font-medium text-gray-800">{name}</div>
+        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
+          <div className="text-xs text-gray-600 dark:text-white/60">Name</div>
+          <div className="text-sm font-medium text-gray-900 dark:text-white">{name}</div>
         </div>
         <div className="flex justify-between py-2">
-          <div className="text-xs text-gray-500">Phone</div>
-          <div className="text-sm font-medium text-gray-800">{phone}</div>
+          <div className="text-xs text-gray-600 dark:text-white/60">Phone</div>
+          <div className="text-sm font-medium text-gray-900 dark:text-white">{phone}</div>
         </div>
-        <div className="flex justify-between py-2 border-b border-gray-100">
-          <div className="text-xs text-gray-500">Email</div>
-          <div className="text-sm font-medium text-gray-800">{email}</div>
+        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
+          <div className="text-xs text-gray-600 dark:text-white/60">Email</div>
+          <div className="text-sm font-medium text-gray-900 dark:text-white">{email}</div>
         </div>
       </div>
 
-      <div className="mt-4 text-center text-xs text-gray-400">Present this ticket at entry. Valid ID may be required.</div>
+      <div className="mt-4 text-center text-xs text-gray-500 dark:text-white/50">Present this ticket at entry. Valid ID may be required.</div>
     </div>
   );
 };

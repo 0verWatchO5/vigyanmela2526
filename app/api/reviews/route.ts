@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/dbconfig/dbconn";
 import Review from "@/models/review";
+import Visitor from "@/models/visitor";
+import SiteSettings from "@/models/siteSettings";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -71,6 +73,29 @@ export async function POST(request: NextRequest) {
         { error: "Authentication required. Please sign in with LinkedIn." },
         { status: 401 }
       );
+    }
+
+    // Check strict footfall verification setting
+    const settings = await SiteSettings.findOne();
+    const strictFootfallEnabled = settings?.strictFootfallEnabled || false;
+
+    if (strictFootfallEnabled) {
+      // Verify visitor has approved footfall
+      const visitor = await Visitor.findOne({ email: session.user.email });
+
+      if (!visitor) {
+        return NextResponse.json(
+          { error: "Please make sure you are logged in and your footfall has been approved by the visitor management team." },
+          { status: 403 }
+        );
+      }
+
+      if (!visitor.footfallApproved) {
+        return NextResponse.json(
+          { error: "Please make sure you are logged in and your footfall has been approved by the visitor management team." },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await request.json();

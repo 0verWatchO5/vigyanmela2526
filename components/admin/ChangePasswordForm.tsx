@@ -116,21 +116,21 @@ export function ChangePasswordForm() {
 
   return (
     <div className="mx-auto w-full max-w-md">
-      <div className="shadow-input rounded-lg bg-background p-6 md:p-8 dark:shadow-[0px_0px_1px_1px_#262626]">
-        <h2 className="text-2xl font-bold text-foreground">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 shadow-xl">
+        <h2 className="text-2xl font-bold text-white drop-shadow-lg">
           Change Password
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-white/70">
           Update your admin account password
         </p>
 
-        {}
+        {/* Status Message */}
         {status.type && (
           <div
-            className={`mt-4 rounded-lg border p-4 ${
+            className={`mt-4 rounded-xl border p-4 backdrop-blur-sm ${
               status.type === "success"
-                ? "border-green-500 bg-green-500/10 text-green-500"
-                : "border-red-500 bg-red-500/10 text-red-500"
+                ? "border-green-400/50 bg-green-500/20 text-green-200"
+                : "border-red-400/50 bg-red-500/20 text-red-200"
             }`}
           >
             <p className="text-sm font-medium">{status.message}</p>
@@ -138,7 +138,7 @@ export function ChangePasswordForm() {
         )}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          {}
+          {/* Current Password */}
           <LabelInputContainer>
             <Label htmlFor="oldPassword">Current Password</Label>
             <Input
@@ -152,7 +152,7 @@ export function ChangePasswordForm() {
             />
           </LabelInputContainer>
 
-          {}
+          {/* New Password */}
           <LabelInputContainer>
             <Label htmlFor="newPassword">New Password</Label>
             <Input
@@ -166,7 +166,7 @@ export function ChangePasswordForm() {
             />
           </LabelInputContainer>
 
-          {}
+          {/* Confirm Password */}
           <LabelInputContainer>
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
             <Input
@@ -180,9 +180,9 @@ export function ChangePasswordForm() {
             />
           </LabelInputContainer>
 
-          {}
+          {/* Submit Button */}
           <button
-            className="group/btn relative mt-6 block h-10 w-full rounded-md bg-gradient-to-br from-zinc-900 to-zinc-900 font-medium text-zinc-200 shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-[0px_1px_0px_0px_#ffffff10_inset,0px_-1px_0px_0px_#ffffff10_inset]"
+            className="group/btn relative mt-6 block h-10 w-full rounded-xl bg-blue-500/20 backdrop-blur-sm border border-blue-400/50 font-medium text-white hover:bg-blue-500 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
             type="submit"
             disabled={isSubmitting}
           >
@@ -191,8 +191,8 @@ export function ChangePasswordForm() {
           </button>
         </form>
 
-        <div className="mt-6 rounded-md border border-yellow-500/20 bg-yellow-500/5 p-4">
-          <p className="text-xs text-yellow-600 dark:text-yellow-400">
+        <div className="mt-6 rounded-xl border border-yellow-400/30 bg-yellow-500/10 backdrop-blur-sm p-4">
+          <p className="text-xs text-yellow-200">
             <strong>Security Tip:</strong> Use a strong password with at least 8
             characters, including uppercase, lowercase, numbers, and special
             characters.

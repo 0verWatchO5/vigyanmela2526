@@ -12,6 +12,8 @@ export interface VisitorDocument extends Document {
   linkedin?: string;
   idCardUrl?: string;
   idCardPublicId?: string;
+  footfallApproved: boolean;
+  footfallCount: number;
 }
 
 const visitorSchema = new Schema(
@@ -76,6 +78,16 @@ const visitorSchema = new Schema(
       type: String,
       required: false,
       trim: true,
+    },
+    footfallApproved: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    footfallCount: {
+      type: Number,
+      default: 0,
+      required: true,
     },
   },
   {
