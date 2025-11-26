@@ -134,7 +134,7 @@ export function EventRegistrationForm({
           },
           body: JSON.stringify({
             comment:
-              "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \n\nIf you’d like to join as a visitor, you can register here:\nhttps://vigyanmela.chetanacollege.in/registration \n\nStay updated by following the official Vigyan Mela LinkedIn page:\nhttps://www.linkedin.com/company/vigyanmela/\n\nSee you at the event!\n\n\n\n#Vigyanmela #Vigyanmela4.0 #Vigyanmela25 #VigyanmelaChetnaCollage #Bandra #ChetanaCollage",
+              "Excited to share that I will be visiting and participating in Vigyan Mela 4.0 \nLooking forward to meeting innovative minds, exploring breakthrough projects, and contributing to this vibrant science and technology event. \n\nIf you’d like to join as a visitor, you can register here:\nhttps://vigyanmela.chetanacollege.in/registration \n\nStay updated by following the official Vigyan Mela LinkedIn page:\nhttps://www.linkedin.com/showcase/vigyan-mela22/\n\nSee you at the event!\n\n\n\n#Vigyanmela #Vigyanmela4.0 #Vigyanmela25 #VigyanmelaChetnaCollage #Bandra #ChetanaCollage",
             title: "Registered for Vigyan Mela 25",
             description:
               "Join Vigyan Mela 25 to explore innovation, workshops, and networking.",
