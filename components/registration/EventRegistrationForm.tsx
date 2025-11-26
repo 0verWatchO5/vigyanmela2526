@@ -498,7 +498,7 @@ export function EventRegistrationForm({
                 disabled={isSubmitting}
               >
                 <option value="">Select Role</option>
-                {/* <option value="Student">Student</option> */}
+                <option value="Student">Student</option>
                 <option value="Visitor">Company Representative</option>
                 <option value="Media">Media</option>
                 <option value="Guest">Guest</option>

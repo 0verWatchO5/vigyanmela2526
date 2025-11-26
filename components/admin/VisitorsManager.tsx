@@ -753,6 +753,7 @@ export function VisitorsManager() {
                     className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
                   >
                     <option value="">Select Role</option>
+                    <option value="Student">Student</option>
                     <option value="Visitor">Company Representative</option>
                     <option value="Media">Media</option>
                     <option value="Guest">Guest</option>
