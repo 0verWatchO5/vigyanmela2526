@@ -76,6 +76,10 @@ export function CollegeStudentsManager() {
 	const [projectReviews, setProjectReviews] = useState<ProjectReview[]>([]);
 	const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
 	const [togglingReview, setTogglingReview] = useState<string | null>(null);
+	const [selectedYear, setSelectedYear] = useState<string>("");
+	const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+	const [selectedSegment, setSelectedSegment] = useState<string>("");
+	const [selectedStatus, setSelectedStatus] = useState<RegistrationStatus | "">("");
 
 	// ESC key handler - must be called at top level
 	useEscapeKey(() => setSelectedTeam(null), !!selectedTeam);
@@ -226,30 +230,76 @@ export function CollegeStudentsManager() {
 
 	const filteredTeams = useMemo(() => {
 		const query = searchQuery.trim().toLowerCase();
-		if (!query) return teams;
-
+		
 		return teams.filter((team) => {
-			const matchesTeamName = team.teamName.toLowerCase().includes(query);
-			const matchesSummary = team.projectSummary.toLowerCase().includes(query);
-			const matchesSegments = team.segments.some((segment) =>
-				segment.toLowerCase().includes(query)
-			);
-			const matchesMember = team.teamMembers.some((member) =>
-				[
-					member.fullName,
-					member.email,
-					member.rollNumber,
-					member.department,
-                    member.linkedinProfile || "",
-				]
-					.join(" ")
-					.toLowerCase()
-					.includes(query)
-			);
+			// Text search
+			let matchesSearch = true;
+			if (query) {
+				const matchesTeamName = team.teamName.toLowerCase().includes(query);
+				const matchesSummary = team.projectSummary.toLowerCase().includes(query);
+				const matchesSegments = team.segments.some((segment) =>
+					segment.toLowerCase().includes(query)
+				);
+				const matchesMember = team.teamMembers.some((member) =>
+					[
+						member.fullName,
+						member.email,
+						member.rollNumber,
+						member.department,
+                        member.linkedinProfile || "",
+					]
+						.join(" ")
+						.toLowerCase()
+						.includes(query)
+				);
 
-			return matchesTeamName || matchesSummary || matchesSegments || matchesMember;
+				matchesSearch = matchesTeamName || matchesSummary || matchesSegments || matchesMember;
+			}
+
+			// Filter by segment
+			const matchesSegmentFilter = !selectedSegment || team.segments.includes(selectedSegment);
+
+			// Filter by year
+			const matchesYearFilter = !selectedYear || team.teamMembers.some(m => m.yearOfStudy === selectedYear);
+
+			// Filter by department
+			const matchesDepartmentFilter = !selectedDepartment || team.teamMembers.some(m => m.department === selectedDepartment);
+
+			// Filter by status
+			const matchesStatusFilter = !selectedStatus || (team.registrationStatus ?? "pending") === selectedStatus;
+
+			return matchesSearch && matchesSegmentFilter && matchesYearFilter && matchesDepartmentFilter && matchesStatusFilter;
 		});
-	}, [teams, searchQuery]);
+	}, [teams, searchQuery, selectedSegment, selectedYear, selectedDepartment, selectedStatus]);
+
+	// Get unique segments, years, and departments
+	const uniqueSegments = useMemo(() => {
+		const segments = new Set<string>();
+		teams.forEach(team => {
+			team.segments.forEach(segment => segments.add(segment));
+		});
+		return Array.from(segments).sort();
+	}, [teams]);
+
+	const uniqueYears = useMemo(() => {
+		const years = new Set<string>();
+		teams.forEach(team => {
+			team.teamMembers.forEach(member => {
+				if (member.yearOfStudy) years.add(member.yearOfStudy);
+			});
+		});
+		return Array.from(years).sort();
+	}, [teams]);
+
+	const uniqueDepartments = useMemo(() => {
+		const departments = new Set<string>();
+		teams.forEach(team => {
+			team.teamMembers.forEach(member => {
+				if (member.department) departments.add(member.department);
+			});
+		});
+		return Array.from(departments).sort();
+	}, [teams]);
 
 	const statusCounts = useMemo(() => {
 		return filteredTeams.reduce(
@@ -422,39 +472,75 @@ export function CollegeStudentsManager() {
 
 	return (
 		<div className="space-y-6">
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-				<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105">
-					<p className="text-sm text-white/70">Total Teams</p>
-					<p className="text-4xl font-bold text-white mt-2 drop-shadow-lg">{teams.length}</p>
-				</div>
-				<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-yellow-500/20 transition-all duration-300 hover:scale-105">
-					<p className="text-sm text-white/70">Pending Review</p>
-					<p className="text-4xl font-bold text-yellow-400 mt-2 drop-shadow-lg">
-						{statusCounts.pending}
-					</p>
-				</div>
-				<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300 hover:scale-105">
-					<p className="text-sm text-white/70">Approved</p>
-					<p className="text-4xl font-bold text-green-400 mt-2 drop-shadow-lg">
-						{statusCounts.approved}
-					</p>
-				</div>
-				<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300 hover:scale-105">
-					<p className="text-sm text-white/70">Rejected</p>
-					<p className="text-4xl font-bold text-red-400 mt-2 drop-shadow-lg">
-						{statusCounts.rejected}
-					</p>
-				</div>
+		<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+			<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => setSelectedStatus(selectedStatus === "" ? "" : "")}>
+				<p className="text-sm text-white/70">Total Teams</p>
+				<p className="text-4xl font-bold text-white mt-2 drop-shadow-lg">{teams.length}</p>
 			</div>
-
-			<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
-				<input
-					value={searchQuery}
-					onChange={(event) => setSearchQuery(event.target.value)}
-					placeholder="Search by team name, segment, or member details"
-					className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl border border-white/20 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 placeholder:text-white/50 transition-all"
-				/>
-				<div className="mt-4 flex flex-wrap gap-3">
+			<div className={`bg-white/10 backdrop-blur-md border rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer ${selectedStatus === "pending" ? "border-yellow-400/50 shadow-yellow-500/20" : "border-white/20 hover:shadow-yellow-500/20"}`} onClick={() => setSelectedStatus(selectedStatus === "pending" ? "" : "pending")}>
+				<p className="text-sm text-white/70">Pending Review</p>
+				<p className="text-4xl font-bold text-yellow-400 mt-2 drop-shadow-lg">
+					{statusCounts.pending}
+				</p>
+			</div>
+			<div className={`bg-white/10 backdrop-blur-md border rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer ${selectedStatus === "approved" ? "border-green-400/50 shadow-green-500/20" : "border-white/20 hover:shadow-green-500/20"}`} onClick={() => setSelectedStatus(selectedStatus === "approved" ? "" : "approved")}>
+				<p className="text-sm text-white/70">Approved</p>
+				<p className="text-4xl font-bold text-green-400 mt-2 drop-shadow-lg">
+					{statusCounts.approved}
+				</p>
+			</div>
+			<div className={`bg-white/10 backdrop-blur-md border rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer ${selectedStatus === "rejected" ? "border-red-400/50 shadow-red-500/20" : "border-white/20 hover:shadow-red-500/20"}`} onClick={() => setSelectedStatus(selectedStatus === "rejected" ? "" : "rejected")}>
+				<p className="text-sm text-white/70">Rejected</p>
+				<p className="text-4xl font-bold text-red-400 mt-2 drop-shadow-lg">
+					{statusCounts.rejected}
+				</p>
+			</div>
+		</div>			<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+					<input
+						value={searchQuery}
+						onChange={(event) => setSearchQuery(event.target.value)}
+						placeholder="Search teams or members..."
+						className="px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white rounded-xl border border-white/20 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 placeholder:text-white/50 transition-all text-sm"
+					/>
+					<select
+						value={selectedSegment}
+						onChange={(e) => setSelectedSegment(e.target.value)}
+						className="px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white rounded-xl border border-white/20 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all text-sm appearance-none cursor-pointer [&>option]:bg-neutral-900 [&>option]:text-white"
+					>
+						<option value="">All Segments</option>
+						{uniqueSegments.map((segment) => (
+							<option key={segment} value={segment}>
+								{segment}
+							</option>
+						))}
+					</select>
+					<select
+						value={selectedYear}
+						onChange={(e) => setSelectedYear(e.target.value)}
+						className="px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white rounded-xl border border-white/20 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all text-sm appearance-none cursor-pointer [&>option]:bg-neutral-900 [&>option]:text-white"
+					>
+						<option value="">All Years</option>
+						{uniqueYears.map((year) => (
+							<option key={year} value={year}>
+								{year}
+							</option>
+						))}
+					</select>
+					<select
+						value={selectedDepartment}
+						onChange={(e) => setSelectedDepartment(e.target.value)}
+						className="px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white rounded-xl border border-white/20 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all text-sm appearance-none cursor-pointer [&>option]:bg-neutral-900 [&>option]:text-white"
+					>
+						<option value="">All Departments</option>
+						{uniqueDepartments.map((dept) => (
+							<option key={dept} value={dept}>
+								{dept}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="flex flex-wrap gap-3">
 					<button
 						onClick={fetchTeams}
 						className="px-4 py-2.5 rounded-xl bg-cyan-500/20 backdrop-blur-sm text-white border border-cyan-400/50 text-sm hover:bg-cyan-500 hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
@@ -469,6 +555,20 @@ export function CollegeStudentsManager() {
 					>
 						{isExporting ? "Exporting..." : "Download Excel"}
 					</button>
+					{(selectedSegment || selectedYear || selectedDepartment || searchQuery || selectedStatus) && (
+						<button
+							onClick={() => {
+								setSearchQuery("");
+								setSelectedSegment("");
+								setSelectedYear("");
+								setSelectedDepartment("");
+								setSelectedStatus("");
+							}}
+							className="px-4 py-2.5 rounded-xl bg-red-500/20 backdrop-blur-sm text-white border border-red-400/50 text-sm hover:bg-red-500 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/50 transition-all duration-300"
+						>
+							Clear Filters
+						</button>
+					)}
 				</div>
 			</div>
 
@@ -486,7 +586,7 @@ export function CollegeStudentsManager() {
 							className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden hover:border-cyan-400/50 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col"
 						>
 							{/* Card Header */}
-							<div className="p-5 border-b border-white/10 bg-gradient-to-br from-white/5 to-white/10">
+							<div className="p-5 border-b border-white/10 bg-linear-to-br from-white/5 to-white/10">
 								<div className="flex items-start justify-between gap-3 mb-3">
 									<h3 className="text-white font-semibold text-lg leading-tight flex-1">
 										{team.teamName}
