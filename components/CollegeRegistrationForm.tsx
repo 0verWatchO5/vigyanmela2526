@@ -520,7 +520,7 @@ export default function CollegeRegistrationForm() {
 					baseMessage += ". (Sign in again to share on LinkedIn.)";
 				} else {
 					try {
-						const hashtags = ["VigyanMela", "Innovation", "Science", ...segments]
+						const hashtags = ["Vigyanmela", "Vigyanmela4.0", "Vigyanmela25", "VigyanmelaChetnaCollage","Bandra", "ChetanaCollage", ...segments]
 							.map((s) => `#${String(s).replace(/[^A-Za-z0-9]/g, "")}`)
 							.filter(Boolean)
 							.join(" ");
@@ -591,7 +591,7 @@ export default function CollegeRegistrationForm() {
 
 		setShareLoading(true);
 		try {
-			const hashtags = ["VigyanMela", "Innovation", "Science", ...existingData.segments]
+			const hashtags = ["Vigyanmela", "Vigyanmela4.0", "Vigyanmela25", "VigyanmelaChetnaCollage","Bandra", "ChetanaCollage", ...existingData.segments]
 				.map((s) => `#${String(s).replace(/[^A-Za-z0-9]/g, "")}`)
 				.filter(Boolean)
 				.join(" ");
