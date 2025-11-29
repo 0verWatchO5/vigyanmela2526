@@ -83,15 +83,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Also check in User collection to prevent duplicates
+    // Also check in User collection to prevent duplicates *from other users*
+    // If the current request is from an authenticated LinkedIn user, allow
+    // the visitor registration when the existing User record matches the
+    // signed-in user's email (so users can create a Visitor ticket with
+    // their LinkedIn email). Only block when the existing User belongs to
+    // a different person.
     const existingUser = await User.findOne({ $or: [{ email }, { contact }] });
     if (existingUser) {
-      if (existingUser.email === email) {
+      const isSameSignedInUser = isLinkedInAuth && session?.user?.email && existingUser.email === session.user.email;
+      if (existingUser.email === email && !isSameSignedInUser) {
         return NextResponse.json(
           { error: "A user with this email already exists" },
           { status: 409 }
         );
-      } else if (existingUser.contact === contact) {
+      }
+
+      // For contact numbers, allow when the existing user belongs to the
+      // same signed-in LinkedIn user; otherwise block duplicates.
+      if (existingUser.contact === contact && !isSameSignedInUser) {
         return NextResponse.json(
           { error: "A user with this contact number already exists" },
           { status: 409 }
